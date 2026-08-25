@@ -267,6 +267,211 @@
         let selectedFlowerType = 'tulip';
         const gestureHeartColor = new THREE.Color(0xFF69B4);
 
+        // Smooth held-hands evidence across frames because MediaPipe can move
+        // or briefly lose landmarks when two hands overlap.
+        let heldHandsConfidence = 0;
+        let heldHandsCandidateFrames = 0;
+        let lastRawHoldingConfidence = 0;
+        let lastTwoHandsSeenAt = -Infinity;
+        let heartGestureLostFrames = 0;
+        let twoHandHeartStartedAt = null;
+        const HOLDING_TRIGGER_SCORE = 0.62;
+        const HOLDING_VISIBLE_SCORE = 0.42;
+        const TWO_HAND_TRACK_GRACE_MS = 300;
+        const HEART_GESTURE_RELEASE_FRAMES = 5;
+        const TWO_HAND_HEART_HOLD_MS = 1000;
+
+        function clamp(value, min = 0, max = 1) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function landmarkDistance(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+
+        function getHandBounds(landmarks) {
+            return landmarks.reduce((bounds, point) => ({
+                minX: Math.min(bounds.minX, point.x),
+                maxX: Math.max(bounds.maxX, point.x),
+                minY: Math.min(bounds.minY, point.y),
+                maxY: Math.max(bounds.maxY, point.y)
+            }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+        }
+
+        function getPalmMetrics(landmarks) {
+            const palmIndices = [5, 9, 13, 17];
+            const center = palmIndices.reduce((sum, index) => ({
+                x: sum.x + landmarks[index].x / palmIndices.length,
+                y: sum.y + landmarks[index].y / palmIndices.length
+            }), { x: 0, y: 0 });
+            const palmWidth = landmarkDistance(landmarks[5], landmarks[17]);
+            const palmLength = landmarkDistance(landmarks[0], landmarks[9]);
+
+            return {
+                center,
+                // The lower bound keeps the ratios usable when a hand is far
+                // from the camera and its landmarks occupy very few pixels.
+                scale: Math.max((palmWidth + palmLength) / 2, 0.035)
+            };
+        }
+
+        function getHandsHoldingConfidence(firstHand, secondHand) {
+            const firstPalm = getPalmMetrics(firstHand);
+            const secondPalm = getPalmMetrics(secondHand);
+            const averageScale = (firstPalm.scale + secondPalm.scale) / 2;
+            const palmDistanceRatio = landmarkDistance(firstPalm.center, secondPalm.center) / averageScale;
+            const palmProximityScore = clamp((2.5 - palmDistanceRatio) / 1.45);
+
+            const contactLandmarks = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+            const contactThreshold = averageScale * 0.52;
+            let closestContactDistance = Infinity;
+            let firstHandContacts = 0;
+            let secondHandContacts = 0;
+
+            contactLandmarks.forEach(firstIndex => {
+                let nearestDistance = Infinity;
+                contactLandmarks.forEach(secondIndex => {
+                    nearestDistance = Math.min(
+                        nearestDistance,
+                        landmarkDistance(firstHand[firstIndex], secondHand[secondIndex])
+                    );
+                });
+                closestContactDistance = Math.min(closestContactDistance, nearestDistance);
+                if (nearestDistance < contactThreshold) firstHandContacts++;
+            });
+
+            contactLandmarks.forEach(secondIndex => {
+                let nearestDistance = Infinity;
+                contactLandmarks.forEach(firstIndex => {
+                    nearestDistance = Math.min(
+                        nearestDistance,
+                        landmarkDistance(secondHand[secondIndex], firstHand[firstIndex])
+                    );
+                });
+                if (nearestDistance < contactThreshold) secondHandContacts++;
+            });
+
+            const closestContactRatio = closestContactDistance / averageScale;
+            const directContactScore = clamp((0.7 - closestContactRatio) / 0.55);
+            const contactCoverageScore = clamp(Math.min(firstHandContacts, secondHandContacts) / 5);
+
+            const firstBounds = getHandBounds(firstHand);
+            const secondBounds = getHandBounds(secondHand);
+            const horizontalGap = Math.max(
+                0,
+                Math.max(firstBounds.minX, secondBounds.minX) - Math.min(firstBounds.maxX, secondBounds.maxX)
+            );
+            const verticalGap = Math.max(
+                0,
+                Math.max(firstBounds.minY, secondBounds.minY) - Math.min(firstBounds.maxY, secondBounds.maxY)
+            );
+            const boundsGapRatio = Math.hypot(horizontalGap, verticalGap) / averageScale;
+            const boundsProximityScore = clamp(1 - boundsGapRatio / 0.65);
+
+            // Similar hand sizes are more likely to be at the same depth and
+            // physically touching. Keep this as a soft penalty so perspective
+            // does not prevent a real clasp from being recognized.
+            const sizeSimilarity = Math.min(firstPalm.scale, secondPalm.scale)
+                / Math.max(firstPalm.scale, secondPalm.scale);
+            const sizeReliability = 0.75 + 0.25 * clamp((sizeSimilarity - 0.35) / 0.45);
+
+            const confidence = (
+                palmProximityScore * 0.48
+                + directContactScore * 0.25
+                + contactCoverageScore * 0.17
+                + boundsProximityScore * 0.10
+            ) * sizeReliability;
+
+            return clamp(confidence);
+        }
+
+        function areHandsHolding(firstHand, secondHand) {
+            return getHandsHoldingConfidence(firstHand, secondHand) >= HOLDING_TRIGGER_SCORE;
+        }
+
+        function areHandsMakingHeart(firstHand, secondHand) {
+            const firstPalm = getPalmMetrics(firstHand);
+            const secondPalm = getPalmMetrics(secondHand);
+            const averageScale = (firstPalm.scale + secondPalm.scale) / 2;
+            const fingertipThreshold = averageScale * 0.7;
+
+            const indexTipsMeet = landmarkDistance(firstHand[8], secondHand[8]) < fingertipThreshold;
+            const thumbTipsMeet = landmarkDistance(firstHand[4], secondHand[4]) < fingertipThreshold;
+
+            return indexTipsMeet && thumbTipsMeet;
+        }
+
+        function updateHeartGesture(allHands, now = performance.now()) {
+            const hasTwoHands = allHands.length === 2;
+            const handsMakeHeart = hasTwoHands && areHandsMakingHeart(allHands[0], allHands[1]);
+            let rawHoldingConfidence = 0;
+
+            if (hasTwoHands) {
+                rawHoldingConfidence = getHandsHoldingConfidence(allHands[0], allHands[1]);
+                if (rawHoldingConfidence >= HOLDING_TRIGGER_SCORE) {
+                    lastRawHoldingConfidence = rawHoldingConfidence;
+                    lastTwoHandsSeenAt = now;
+                } else if (rawHoldingConfidence < HOLDING_VISIBLE_SCORE) {
+                    // A clearly separated pair invalidates old contact evidence;
+                    // middling scores are treated as ordinary landmark jitter.
+                    lastRawHoldingConfidence = 0;
+                    lastTwoHandsSeenAt = -Infinity;
+                }
+            } else if (
+                allHands.length === 1
+                && lastRawHoldingConfidence >= HOLDING_TRIGGER_SCORE
+                && now - lastTwoHandsSeenAt <= TWO_HAND_TRACK_GRACE_MS
+            ) {
+                // A clasp often hides one hand for a few frames. Retain most
+                // of the last strong score instead of instantly losing it.
+                rawHoldingConfidence = lastRawHoldingConfidence * 0.9;
+            }
+
+            const confidenceBlend = rawHoldingConfidence > heldHandsConfidence ? 0.42 : 0.18;
+            heldHandsConfidence += (rawHoldingConfidence - heldHandsConfidence) * confidenceBlend;
+
+            if (rawHoldingConfidence >= HOLDING_TRIGGER_SCORE) {
+                heldHandsCandidateFrames = Math.min(heldHandsCandidateFrames + 1, 10);
+            } else if (rawHoldingConfidence >= HOLDING_VISIBLE_SCORE) {
+                heldHandsCandidateFrames = Math.max(heldHandsCandidateFrames - 0.5, 0);
+            } else {
+                heldHandsCandidateFrames = Math.max(heldHandsCandidateFrames - 1, 0);
+            }
+
+            const heldHandsConfirmed = heldHandsConfidence >= HOLDING_TRIGGER_SCORE
+                && heldHandsCandidateFrames >= 3;
+            const handsLookHeld = rawHoldingConfidence >= HOLDING_VISIBLE_SCORE
+                || heldHandsConfidence >= HOLDING_VISIBLE_SCORE;
+
+            if (handsMakeHeart) {
+                if (twoHandHeartStartedAt === null) twoHandHeartStartedAt = now;
+            } else {
+                twoHandHeartStartedAt = null;
+            }
+
+            const twoHandHeartConfirmed = twoHandHeartStartedAt !== null
+                && now - twoHandHeartStartedAt >= TWO_HAND_HEART_HOLD_MS;
+            const aLoveGestureIsVisible = handsLookHeld || handsMakeHeart;
+
+            if (heldHandsConfirmed || twoHandHeartConfirmed) {
+                isHeartGestureActive = true;
+                heartGestureLostFrames = 0;
+            } else if (isHeartGestureActive) {
+                if (aLoveGestureIsVisible) {
+                    heartGestureLostFrames = 0;
+                } else {
+                    heartGestureLostFrames++;
+                }
+
+                if (heartGestureLostFrames >= HEART_GESTURE_RELEASE_FRAMES) {
+                    isHeartGestureActive = false;
+                    heartGestureLostFrames = 0;
+                }
+            }
+
+            return isHeartGestureActive;
+        }
+
         //K941997
         let worldRotation = 0; // <--- THÊM DÒNG NÀY (biến lưu góc quay hiện tại)
 
@@ -893,7 +1098,12 @@
             // -----------------------
 
             const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-            hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.45,
+                minTrackingConfidence: 0.4
+            });
 
             hands.onResults(results => {
                 //ctx.clearRect(0,0,100,75); ctx.drawImage(results.image, 0, 0, 100, 75);
@@ -902,18 +1112,11 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
-                isHeartGestureActive = false;
-
                 // --- Hand Logic  ---
-                if (results.multiHandLandmarks.length === 2) {
-                    const h1 = results.multiHandLandmarks[0]; const h2 = results.multiHandLandmarks[1];
-                    const distIndex = Math.hypot(h1[8].x - h2[8].x, h1[8].y - h2[8].y);
-                    const distThumb = Math.hypot(h1[4].x - h2[4].x, h1[4].y - h2[4].y);
-                    if (distIndex < 0.15 && distThumb < 0.15) {
-                        state = 'HEART';
-                        isHeartGestureActive = true;
-                        return;
-                    }
+                // Held hands, or a two-hand heart held for one second -> show the heart.
+                if (updateHeartGesture(results.multiHandLandmarks)) {
+                    state = 'HEART';
+                    return;
                 }
 
                 if (results.multiHandLandmarks.length > 0) {
