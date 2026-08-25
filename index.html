@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Tặng Duyên</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
@@ -209,6 +214,87 @@
             --orb-delay: -2s;
         }
 
+        #secret-reveal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0;
+            background:
+                radial-gradient(circle at 50% 50%, transparent 0 19%, rgba(7, 0, 8, 0.32) 48%, rgba(0, 0, 0, 0.9) 100%);
+            transition: opacity 500ms ease;
+        }
+
+        #secret-reveal-overlay::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(72vw, 560px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.18);
+            background: radial-gradient(circle, rgba(255, 232, 242, 0.9), rgba(255, 75, 145, 0.42) 22%, transparent 68%);
+        }
+
+        body.secret-reveal-active #camera-preview.is-active,
+        body.secret-reveal-active #ui-layer,
+        body.secret-reveal-active #dedication {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        body.secret-reveal-active #camera-preview.is-active {
+            filter: blur(5px);
+        }
+
+        body.secret-reveal-gather #romantic-background {
+            filter: brightness(0.28) saturate(0.72);
+            transform: scale(1.025);
+        }
+
+        body.secret-reveal-gather #secret-reveal-overlay {
+            opacity: 1;
+        }
+
+        body.secret-reveal-bloom #romantic-background {
+            filter: brightness(0.62) saturate(1.12);
+            transform: scale(1.012);
+        }
+
+        body.secret-reveal-bloom #secret-reveal-overlay {
+            opacity: 0.34;
+        }
+
+        body.secret-reveal-bloom #secret-reveal-overlay::before {
+            animation: secret-heart-flash 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        body.secret-reveal-message #romantic-background {
+            filter: brightness(0.82) saturate(1.08);
+        }
+
+        body.secret-reveal-message #secret-reveal-overlay {
+            opacity: 0;
+        }
+
+        @keyframes secret-heart-flash {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.18);
+            }
+
+            32% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.55);
+            }
+        }
+
         .romantic-orb:nth-child(2) {
             --orb-size: 54px;
             --orb-left: 20%;
@@ -323,21 +409,14 @@
 
         .dedication-title {
             margin: 0;
-            color: transparent;
-            background: linear-gradient(110deg, #fff8ec 5%, #ffd6e7 30%, #ff72ae 55%, #ffd56b 78%, #fff8ec 100%);
-            background-size: 220% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+            color: #fff8ec;
+            font-family: 'Cormorant Garamond', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
             font-size: clamp(42px, 5.2vw, 78px);
-            font-weight: 500;
+            font-weight: 600;
             font-style: italic;
             line-height: 1.05;
             letter-spacing: 0.055em;
             filter: drop-shadow(0 0 8px rgba(255, 105, 180, 0.72)) drop-shadow(0 0 24px rgba(211, 47, 47, 0.38));
-            animation:
-                opening-title 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 6.8s both,
-                dedication-shimmer 5s ease-in-out 7.9s infinite;
         }
 
         .dedication-subtitle {
@@ -349,7 +428,48 @@
             line-height: 1.45;
             letter-spacing: 0.045em;
             text-shadow: 0 0 12px rgba(255, 105, 180, 0.5);
-            animation: opening-message 1.1s ease 7.75s both;
+        }
+
+        .dedication-word {
+            display: inline-flex;
+            align-items: baseline;
+            justify-content: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+        }
+
+        .dedication-space {
+            display: inline-block;
+            width: 0.3em;
+        }
+
+        .dedication-letter {
+            display: inline-block;
+            flex: 0 0 auto;
+            opacity: 0;
+            transform-origin: 50% 85%;
+            will-change: opacity, transform, filter;
+            animation: dedication-letter-reveal var(--letter-duration) cubic-bezier(0.16, 1, 0.3, 1) var(--letter-delay) both;
+        }
+
+        .dedication-title .dedication-letter {
+            --letter-duration: 760ms;
+            color: transparent;
+            background: linear-gradient(110deg, #fff8ec 5%, #ffd6e7 38%, #ff72ae 68%, #ffd56b 100%);
+            background-size: 220% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            transform: translate3d(0, 0.7em, 0) scale(0.72) rotate(5deg);
+            filter: blur(7px) brightness(1.7);
+            animation:
+                dedication-letter-reveal var(--letter-duration) cubic-bezier(0.16, 1, 0.3, 1) var(--letter-delay) both,
+                dedication-shimmer 5s ease-in-out 8.3s infinite;
+        }
+
+        .dedication-subtitle .dedication-letter {
+            --letter-duration: 560ms;
+            transform: translate3d(0, 0.55em, 0) scale(0.88);
+            filter: blur(4px);
         }
 
         .dedication-ornament {
@@ -361,7 +481,7 @@
             margin: 16px auto 0;
             color: #ff8dbd;
             filter: drop-shadow(0 0 7px rgba(255, 105, 180, 0.8));
-            animation: opening-message 900ms ease 8.45s both;
+            animation: opening-message 900ms ease 9.35s both;
         }
 
         .dedication-ornament::before,
@@ -400,15 +520,20 @@
             }
         }
 
-        @keyframes opening-title {
-            from {
+        @keyframes dedication-letter-reveal {
+            0% {
                 opacity: 0;
-                transform: translateY(18px) scale(0.96);
             }
 
-            to {
+            58% {
                 opacity: 1;
-                transform: translateY(0) scale(1);
+                filter: blur(0) brightness(1.35);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1) rotate(0);
+                filter: blur(0) brightness(1);
             }
         }
 
@@ -462,7 +587,7 @@
             visibility: hidden;
             opacity: 0;
             transform: translateY(14px);
-            animation: opening-controls 900ms ease 9.15s forwards;
+            animation: opening-controls 900ms ease 9.85s forwards;
         }
 
         @keyframes opening-controls {
@@ -644,7 +769,7 @@
 
         #camera-preview.is-active {
             visibility: visible;
-            opacity: 0.72;
+            opacity: 0.9;
         }
 
         /* Vandiep */
@@ -774,6 +899,8 @@
             .dedication-ornament,
             #ui-layer,
             #opening-curtain,
+            #secret-reveal-overlay,
+            #secret-reveal-overlay::before,
             #romantic-background::before,
             #romantic-background::after,
             .romantic-orb {
@@ -791,6 +918,13 @@
             .dedication-ornament {
                 opacity: 1;
                 transform: none;
+            }
+
+            .dedication-letter {
+                opacity: 1;
+                transform: none;
+                filter: none;
+                will-change: auto;
             }
 
             #petal-layer {
@@ -815,11 +949,12 @@
     </div>
 
     <div id="petal-layer" aria-hidden="true"></div>
+    <div id="secret-reveal-overlay" aria-hidden="true"></div>
     <div id="error-log"></div>
 
     <div id="dedication" aria-label="Tặng Duyên. Một món quà nhỏ dành riêng cho em…">
-        <h1 class="dedication-title">Tặng Duyên</h1>
-        <p class="dedication-subtitle">Một món quà nhỏ dành riêng cho em…</p>
+        <h1 class="dedication-title" aria-hidden="true">Tặng Duyên</h1>
+        <p class="dedication-subtitle" aria-hidden="true">Một món quà nhỏ dành riêng cho em…</p>
         <div class="dedication-ornament" aria-hidden="true">
             <span class="dedication-heart">♥</span>
         </div>
@@ -927,8 +1062,12 @@
             && Math.min(window.screen.width, window.screen.height) <= 600;
         const PERFORMANCE = {
             pixelRatioCap: MOBILE_PERFORMANCE_MODE ? 1.5 : 2,
-            cameraWidth: MOBILE_PERFORMANCE_MODE ? 480 : 640,
-            cameraHeight: MOBILE_PERFORMANCE_MODE ? 360 : 480,
+            captureWidth: MOBILE_PERFORMANCE_MODE ? 960 : 640,
+            captureHeight: MOBILE_PERFORMANCE_MODE ? 720 : 480,
+            previewWidth: 640,
+            previewHeight: 480,
+            analysisWidth: MOBILE_PERFORMANCE_MODE ? 480 : 640,
+            analysisHeight: MOBILE_PERFORMANCE_MODE ? 360 : 480,
             handInferenceIntervalMs: MOBILE_PERFORMANCE_MODE ? 50 : 0
         };
         const CONFIG = {
@@ -954,6 +1093,15 @@
         let selectedIndex = 0;
         let handX = 0.5;
         let isHeartGestureActive = false;
+        let secretRevealArmed = true;
+        let secretRevealActive = false;
+        let secretRevealStartedAt = -Infinity;
+        let secretRevealStage = 'idle';
+        let secretAudioContext = null;
+        const SECRET_REVEAL_GATHER_MS = 850;
+        const SECRET_REVEAL_MESSAGE_MS = 1450;
+        const SECRET_REVEAL_MUSIC_RETURN_MS = 3200;
+        const SECRET_REVEAL_DURATION_MS = 6200;
         const flowerEmojis = {
             tulip: '🌷', rose: '🌹', peony: '🌸', carnation: '🌺',
             daisy: '🌼', lavender: '🪻', sunflower: '🌻'
@@ -987,6 +1135,46 @@
 
         function clamp(value, min = 0, max = 1) {
             return Math.min(max, Math.max(min, value));
+        }
+
+        function prepareDedicationLetters() {
+            [
+                { selector: '.dedication-title', startMs: 6750, stepMs: 92 },
+                { selector: '.dedication-subtitle', startMs: 8100, stepMs: 28 }
+            ].forEach(({ selector, startMs, stepMs }) => {
+                const element = document.querySelector(selector);
+                if (!element || element.dataset.lettersReady === 'true') return;
+
+                const words = element.textContent.trim().split(/\s+/);
+                let letterIndex = 0;
+                element.textContent = '';
+                element.dataset.lettersReady = 'true';
+
+                words.forEach((word, wordIndex) => {
+                    const wordElement = document.createElement('span');
+                    wordElement.className = 'dedication-word';
+
+                    Array.from(word).forEach(character => {
+                        const letter = document.createElement('span');
+                        letter.className = 'dedication-letter';
+                        letter.textContent = character;
+                        letter.style.setProperty(
+                            '--letter-delay',
+                            `${startMs + letterIndex * stepMs}ms`
+                        );
+                        wordElement.appendChild(letter);
+                        letterIndex++;
+                    });
+
+                    element.appendChild(wordElement);
+                    if (wordIndex < words.length - 1) {
+                        const space = document.createElement('span');
+                        space.className = 'dedication-space';
+                        space.setAttribute('aria-hidden', 'true');
+                        element.appendChild(space);
+                    }
+                });
+            });
         }
 
         function prefersReducedMotion() {
@@ -1395,6 +1583,116 @@
             return isPointingGestureActive;
         }
 
+        function prepareSecretAudio() {
+            if (!secretAudioContext) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                secretAudioContext = new AudioContextClass();
+            }
+            if (secretAudioContext.state === 'suspended') {
+                secretAudioContext.resume().catch(() => {});
+            }
+        }
+
+        function playSecretHeartbeat() {
+            if (!secretAudioContext) return;
+
+            const schedulePulses = () => {
+                const pulseStart = secretAudioContext.currentTime + 0.46;
+                [
+                    { offset: 0, strength: 0.18 },
+                    { offset: 0.24, strength: 0.13 }
+                ].forEach(({ offset, strength }) => {
+                    const start = pulseStart + offset;
+                    const oscillator = secretAudioContext.createOscillator();
+                    const gain = secretAudioContext.createGain();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(68, start);
+                    oscillator.frequency.exponentialRampToValueAtTime(42, start + 0.19);
+                    gain.gain.setValueAtTime(0.0001, start);
+                    gain.gain.exponentialRampToValueAtTime(strength, start + 0.025);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
+                    oscillator.connect(gain);
+                    gain.connect(secretAudioContext.destination);
+                    oscillator.start(start);
+                    oscillator.stop(start + 0.24);
+                });
+            };
+
+            if (secretAudioContext.state === 'suspended') {
+                secretAudioContext.resume().then(schedulePulses).catch(() => {});
+            } else {
+                schedulePulses();
+            }
+        }
+
+        function setSecretRevealStage(stage) {
+            if (secretRevealStage === stage) return;
+            secretRevealStage = stage;
+            document.body.classList.remove(
+                'secret-reveal-gather',
+                'secret-reveal-bloom',
+                'secret-reveal-message'
+            );
+            if (stage !== 'idle' && stage !== 'complete') {
+                document.body.classList.add(`secret-reveal-${stage}`);
+            }
+        }
+
+        function startSecretReveal(now = performance.now()) {
+            if (secretRevealActive || !secretRevealArmed) return;
+            secretRevealArmed = false;
+            secretRevealActive = true;
+            secretRevealStartedAt = now;
+            state = 'SECRET_GATHER';
+            document.body.classList.add('secret-reveal-active');
+            setSecretRevealStage('gather');
+            if (loveMesh) {
+                loveMesh.visible = false;
+                loveMesh.material.opacity = 0;
+            }
+            playSecretHeartbeat();
+        }
+
+        function updateSecretReveal(now) {
+            if (!secretRevealActive) return;
+            const elapsed = now - secretRevealStartedAt;
+
+            if (elapsed < SECRET_REVEAL_GATHER_MS) {
+                state = 'SECRET_GATHER';
+                setSecretRevealStage('gather');
+            } else {
+                state = 'HEART';
+                setSecretRevealStage(elapsed < SECRET_REVEAL_MESSAGE_MS ? 'bloom' : 'message');
+            }
+
+            if (elapsed < SECRET_REVEAL_GATHER_MS) {
+                bgMusic.volume = 1 - 0.68 * clamp(elapsed / 420);
+            } else if (elapsed < SECRET_REVEAL_MUSIC_RETURN_MS) {
+                const musicReturnProgress = clamp(
+                    (elapsed - SECRET_REVEAL_MESSAGE_MS)
+                    / (SECRET_REVEAL_MUSIC_RETURN_MS - SECRET_REVEAL_MESSAGE_MS)
+                );
+                bgMusic.volume = 0.32 + musicReturnProgress * 0.68;
+            } else {
+                bgMusic.volume = 1;
+            }
+
+            if (elapsed >= SECRET_REVEAL_DURATION_MS) {
+                secretRevealActive = false;
+                document.body.classList.remove('secret-reveal-active');
+                setSecretRevealStage('complete');
+                bgMusic.volume = 1;
+            }
+        }
+
+        function getSecretRevealMessageProgress() {
+            if (!secretRevealActive) return 1;
+            return clamp(
+                (performance.now() - secretRevealStartedAt - SECRET_REVEAL_MESSAGE_MS) / 720
+            );
+        }
+
         //K941997
         let worldRotation = 0; // <--- THÊM DÒNG NÀY (biến lưu góc quay hiện tại)
 
@@ -1688,6 +1986,7 @@
             const pExplodeTargets = [];
             const pTreeTargets = [];
             const pHeartTargets = [];
+            const pSecretGatherTargets = [];
             const flowerTargets = {};
             const flowerColors = {};
             flowerTypes.forEach(flowerType => {
@@ -1733,6 +2032,15 @@
                 const scaleH = 2.2;
                 pHeartTargets.push(hx * scaleH, hy * scaleH + 5, hz);
 
+                // A tight glowing seed used by the one-shot secret reveal.
+                const gatherAngle = Math.random() * Math.PI * 2;
+                const gatherRadius = Math.pow(Math.random(), 1.8) * 2.4;
+                pSecretGatherTargets.push(
+                    Math.cos(gatherAngle) * gatherRadius,
+                    Math.sin(gatherAngle) * gatherRadius,
+                    (Math.random() - 0.5) * 1.8
+                );
+
                 // --- SELECTABLE FLOWERS ---
                 flowerTypes.forEach(flowerType => {
                     const point = createFlowerPoint(flowerType);
@@ -1772,7 +2080,10 @@
             });
 
             geo.userData = {
-                tree: pTreeTargets, explode: pExplodeTargets, heart: pHeartTargets,
+                tree: pTreeTargets,
+                explode: pExplodeTargets,
+                heart: pHeartTargets,
+                secretGather: pSecretGatherTargets,
                 ...flowerGeometryData,
                 phases: phases, baseColor: baseColor, baseSize: size
             };
@@ -1878,9 +2189,15 @@
 
             const targetKey = (targetState === 'PHOTO')
                 ? 'explode'
-                : (targetState === 'FLOWER' ? selectedFlowerType : targetState.toLowerCase());
+                : (targetState === 'SECRET_GATHER')
+                    ? 'secretGather'
+                    : (targetState === 'FLOWER' ? selectedFlowerType : targetState.toLowerCase());
             const targets = group.geometry.userData[targetKey];
-            const targetTexture = (targetState === 'FLOWER' || targetState === 'HEART') ? textures.neutral : textures[type];
+            const targetTexture = (
+                targetState === 'FLOWER'
+                || targetState === 'HEART'
+                || targetState === 'SECRET_GATHER'
+            ) ? textures.neutral : textures[type];
             if (group.material.map !== targetTexture) {
                 group.material.map = targetTexture;
                 group.material.needsUpdate = true;
@@ -1911,7 +2228,22 @@
             const visualChanged = group.userData.lastVisualKey !== visualKey;
             group.userData.lastVisualKey = visualKey;
 
-            if (targetState === 'FLOWER') {
+            if (targetState === 'SECRET_GATHER') {
+                group.scale.set(1, 1, 1);
+                group.rotation.y += 0.008;
+
+                if (visualChanged) {
+                    for (let i = 0; i < count; i++) {
+                        sizes[i] = baseSize * 0.72;
+                        colors[i * 3] = gestureHeartColor.r;
+                        colors[i * 3 + 1] = 0.72 + gestureHeartColor.g * 0.28;
+                        colors[i * 3 + 2] = gestureHeartColor.b;
+                    }
+                    group.geometry.attributes.color.needsUpdate = true;
+                    group.geometry.attributes.size.needsUpdate = true;
+                }
+
+            } else if (targetState === 'FLOWER') {
                 group.scale.set(1, 1, 1);
                 group.rotation.y += 0.002;
                 const flowerColors = group.geometry.userData[`${selectedFlowerType}Colors`];
@@ -1991,6 +2323,7 @@
             const time = Date.now() * 0.001;
             const speed = 0.08;
 
+            updateSecretReveal(animationNow);
             updatePetalStateEffects(animationNow);
 
             // --- ĐOẠN SỬA ĐỔI: Logic lướt ảnh liên tục ---
@@ -2018,7 +2351,11 @@
                 }
             });
 
-            if (state === 'FLOWER') {
+            if (state === 'SECRET_GATHER') {
+                titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
+                photoMeshes.forEach(m => { m.scale.set(0, 0, 0); m.visible = false; });
+
+            } else if (state === 'FLOWER') {
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
                 photoMeshes.forEach(m => { m.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1); m.visible = false; });
 
@@ -2030,10 +2367,17 @@
                 photoMeshes.forEach(m => { m.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1); m.visible = false; });
 
             } else if (state === 'HEART') {
-                titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = isHeartGestureActive;
+                const messageProgress = secretRevealActive ? getSecretRevealMessageProgress() : 1;
+                const easedMessageProgress = 1 - Math.pow(1 - messageProgress, 3);
+                const shouldShowMessage = secretRevealActive
+                    ? messageProgress > 0
+                    : isHeartGestureActive;
+                titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = shouldShowMessage;
                 photoMeshes.forEach(m => { m.visible = false; });
-                const s = 1 + Math.abs(Math.sin(time * 3)) * 0.1;
-                loveMesh.scale.set(s, s, 1);
+                loveMesh.material.opacity = easedMessageProgress;
+                const heartbeatScale = 1 + Math.abs(Math.sin(time * 3)) * 0.1;
+                const messageScale = (0.72 + easedMessageProgress * 0.28) * heartbeatScale;
+                loveMesh.scale.set(messageScale, messageScale, 1);
 
             } else if (state === 'EXPLODE') {
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
@@ -2085,11 +2429,46 @@
             renderer.render(scene, camera);
         }
 
+        function drawCameraFrameCover(context, source, targetWidth, targetHeight) {
+            const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
+            const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+            if (!sourceWidth || !sourceHeight) return;
+
+            const sourceRatio = sourceWidth / sourceHeight;
+            const targetRatio = targetWidth / targetHeight;
+            let sourceX = 0;
+            let sourceY = 0;
+            let cropWidth = sourceWidth;
+            let cropHeight = sourceHeight;
+
+            if (sourceRatio > targetRatio) {
+                cropWidth = sourceHeight * targetRatio;
+                sourceX = (sourceWidth - cropWidth) / 2;
+            } else if (sourceRatio < targetRatio) {
+                cropHeight = sourceWidth / targetRatio;
+                sourceY = (sourceHeight - cropHeight) / 2;
+            }
+
+            context.clearRect(0, 0, targetWidth, targetHeight);
+            context.drawImage(
+                source,
+                sourceX,
+                sourceY,
+                cropWidth,
+                cropHeight,
+                0,
+                0,
+                targetWidth,
+                targetHeight
+            );
+        }
+
         function startSystem() {
             document.body.classList.add('system-started');
             document.getElementById('btnStart').style.display = 'none';
             createPetalBurst(window.innerWidth <= 600 ? 20 : 28, 0.5, 0.56);
             lastPetalBurstAt = performance.now();
+            prepareSecretAudio();
             bgMusic.play().catch(e => console.log(e));
             init3D();
 
@@ -2098,10 +2477,15 @@
             const ctx = canvas.getContext('2d');
             canvas.classList.add('is-active');
 
-            // Keep the same 4:3 preview while reducing the number of pixels
-            // MediaPipe must process on phones.
-            canvas.width = PERFORMANCE.cameraWidth;
-            canvas.height = PERFORMANCE.cameraHeight;
+            canvas.width = PERFORMANCE.previewWidth;
+            canvas.height = PERFORMANCE.previewHeight;
+
+            // The visible preview stays sharp while MediaPipe receives a
+            // separate, smaller 4:3 frame for better mobile performance.
+            const analysisCanvas = document.createElement('canvas');
+            analysisCanvas.width = PERFORMANCE.analysisWidth;
+            analysisCanvas.height = PERFORMANCE.analysisHeight;
+            const analysisContext = analysisCanvas.getContext('2d');
 
             const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
             hands.setOptions({
@@ -2112,12 +2496,6 @@
             });
 
             hands.onResults(results => {
-                //ctx.clearRect(0,0,100,75); ctx.drawImage(results.image, 0, 0, 100, 75);
-                //K941997
-                // Xóa toàn bộ canvas và vẽ ảnh tràn khung
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
                 // --- Hand Logic  ---
                 const allHands = results.multiHandLandmarks || [];
                 const gestureTime = performance.now();
@@ -2126,6 +2504,13 @@
                 // bí mật chỉ dùng đúng hai bàn tay và phải giữ đủ một giây.
                 const heartGestureActive = updateHeartGesture(allHands, gestureTime);
                 const pointingGestureActive = updatePointingGesture(allHands, gestureTime);
+                if (!secretRevealActive && !heartGestureActive) {
+                    secretRevealArmed = true;
+                }
+                if (heartGestureActive && secretRevealArmed) {
+                    startSecretReveal(gestureTime);
+                }
+                if (secretRevealActive) return;
                 if (heartGestureActive) {
                     state = 'HEART';
                     return;
@@ -2164,6 +2549,7 @@
             let handsInferenceInFlight = false;
             const cameraUtils = new Camera(video, {
                 onFrame: async () => {
+                    drawCameraFrameCover(ctx, video, canvas.width, canvas.height);
                     const now = performance.now();
                     if (
                         handsInferenceInFlight
@@ -2173,13 +2559,19 @@
                     lastHandsInferenceAt = now;
                     handsInferenceInFlight = true;
                     try {
-                        await hands.send({ image: video });
+                        drawCameraFrameCover(
+                            analysisContext,
+                            video,
+                            analysisCanvas.width,
+                            analysisCanvas.height
+                        );
+                        await hands.send({ image: analysisCanvas });
                     } finally {
                         handsInferenceInFlight = false;
                     }
                 },
-                width: PERFORMANCE.cameraWidth,
-                height: PERFORMANCE.cameraHeight
+                width: PERFORMANCE.captureWidth,
+                height: PERFORMANCE.captureHeight
             });
             cameraUtils.start();
         }
@@ -2189,6 +2581,7 @@
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', scheduleSceneResize);
         }
+        prepareDedicationLetters();
         createAmbientPetals();
     </script>
 </body>
