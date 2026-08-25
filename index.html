@@ -698,6 +698,16 @@
                 box-sizing: border-box;
                 margin-bottom: 12px;
                 padding: 7px 10px 7px 14px;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+            }
+
+            #romantic-background::after {
+                filter: blur(14px);
+            }
+
+            .romantic-orb:nth-child(n + 4) {
+                display: none;
             }
 
             #flowerSelect {
@@ -913,10 +923,18 @@
         // ==========================================
         // 2. SYSTEM CONFIG Vandiep
         // ==========================================
+        const MOBILE_PERFORMANCE_MODE = window.matchMedia('(pointer: coarse)').matches
+            && Math.min(window.screen.width, window.screen.height) <= 600;
+        const PERFORMANCE = {
+            pixelRatioCap: MOBILE_PERFORMANCE_MODE ? 1.5 : 2,
+            cameraWidth: MOBILE_PERFORMANCE_MODE ? 480 : 640,
+            cameraHeight: MOBILE_PERFORMANCE_MODE ? 360 : 480,
+            handInferenceIntervalMs: MOBILE_PERFORMANCE_MODE ? 50 : 0
+        };
         const CONFIG = {
-            goldCount: 2000,
-            redCount: 300,
-            giftCount: 150,
+            goldCount: MOBILE_PERFORMANCE_MODE ? 1350 : 2000,
+            redCount: MOBILE_PERFORMANCE_MODE ? 180 : 300,
+            giftCount: MOBILE_PERFORMANCE_MODE ? 90 : 150,
             explodeRadius: 65,
             photoOrbitRadius: 45,
             treeHeight: 70,
@@ -1630,7 +1648,7 @@
             }
 
             camera.updateProjectionMatrix();
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, PERFORMANCE.pixelRatioCap));
             renderer.setSize(width, height, false);
         }
 
@@ -1647,7 +1665,11 @@
 
             camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+            renderer = new THREE.WebGLRenderer({
+                antialias: !MOBILE_PERFORMANCE_MODE,
+                alpha: true,
+                powerPreference: 'high-performance'
+            });
             renderer.setClearColor(0x000000, 0);
             container.appendChild(renderer.domElement);
             updateSceneViewport();
@@ -1864,28 +1886,46 @@
                 group.material.needsUpdate = true;
             }
 
-            // 1. Vandiep
-            for (let i = 0; i < positions.length; i++) {
-                positions[i] += (targets[i] - positions[i]) * speed;
+            const targetChanged = group.userData.lastTargetKey !== targetKey;
+            if (targetChanged) {
+                group.userData.lastTargetKey = targetKey;
+                group.userData.positionsSettled = false;
             }
-            group.geometry.attributes.position.needsUpdate = true;
+
+            // Stop uploading an unchanged position buffer after a transition
+            // has settled. This removes a continuous GPU upload on mobile.
+            if (!group.userData.positionsSettled) {
+                let largestRemainingDistance = 0;
+                for (let i = 0; i < positions.length; i++) {
+                    const remainingDistance = targets[i] - positions[i];
+                    positions[i] += remainingDistance * speed;
+                    largestRemainingDistance = Math.max(largestRemainingDistance, Math.abs(remainingDistance));
+                }
+                group.geometry.attributes.position.needsUpdate = true;
+                if (largestRemainingDistance < 0.002) group.userData.positionsSettled = true;
+            }
 
             // 2. COLOR & SIZE Vandiep
             const count = positions.length / 3;
+            const visualKey = `${targetState}:${selectedFlowerType}:${isHeartGestureActive}`;
+            const visualChanged = group.userData.lastVisualKey !== visualKey;
+            group.userData.lastVisualKey = visualKey;
 
             if (targetState === 'FLOWER') {
                 group.scale.set(1, 1, 1);
                 group.rotation.y += 0.002;
                 const flowerColors = group.geometry.userData[`${selectedFlowerType}Colors`];
 
-                for (let i = 0; i < count; i++) {
-                    sizes[i] = baseSize;
-                    colors[i * 3] = flowerColors[i * 3];
-                    colors[i * 3 + 1] = flowerColors[i * 3 + 1];
-                    colors[i * 3 + 2] = flowerColors[i * 3 + 2];
+                if (visualChanged) {
+                    for (let i = 0; i < count; i++) {
+                        sizes[i] = baseSize;
+                        colors[i * 3] = flowerColors[i * 3];
+                        colors[i * 3 + 1] = flowerColors[i * 3 + 1];
+                        colors[i * 3 + 2] = flowerColors[i * 3 + 2];
+                    }
+                    group.geometry.attributes.color.needsUpdate = true;
+                    group.geometry.attributes.size.needsUpdate = true;
                 }
-                group.geometry.attributes.color.needsUpdate = true;
-                group.geometry.attributes.size.needsUpdate = true;
 
             } else if (targetState === 'TREE') {
                 group.rotation.y += 0.003;
@@ -1914,13 +1954,15 @@
 
                 // Vandiep
                 const heartColor = isHeartGestureActive ? gestureHeartColor : baseColor;
-                for (let i = 0; i < count; i++) {
-                    colors[i * 3] = heartColor.r; colors[i * 3 + 1] = heartColor.g; colors[i * 3 + 2] = heartColor.b;
-                    if (i % 3 === 0) sizes[i] = baseSize;
-                    else sizes[i] = 0;
+                if (visualChanged) {
+                    for (let i = 0; i < count; i++) {
+                        colors[i * 3] = heartColor.r; colors[i * 3 + 1] = heartColor.g; colors[i * 3 + 2] = heartColor.b;
+                        if (i % 3 === 0) sizes[i] = baseSize;
+                        else sizes[i] = 0;
+                    }
+                    group.geometry.attributes.color.needsUpdate = true;
+                    group.geometry.attributes.size.needsUpdate = true;
                 }
-                group.geometry.attributes.color.needsUpdate = true;
-                group.geometry.attributes.size.needsUpdate = true;
 
             } else {
                 // EXPLODE
@@ -2056,11 +2098,10 @@
             const ctx = canvas.getContext('2d');
             canvas.classList.add('is-active');
 
-            // K941997 --- THÊM 2 DÒNG NÀY ---
-            // Đặt độ phân giải nội tại cho canvas (nên là tỉ lệ 4:3 cho đẹp)
-            canvas.width = 640;
-            canvas.height = 480;
-            // -----------------------
+            // Keep the same 4:3 preview while reducing the number of pixels
+            // MediaPipe must process on phones.
+            canvas.width = PERFORMANCE.cameraWidth;
+            canvas.height = PERFORMANCE.cameraHeight;
 
             const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
             hands.setOptions({
@@ -2119,8 +2160,26 @@
                 }
             });
 
+            let lastHandsInferenceAt = -Infinity;
+            let handsInferenceInFlight = false;
             const cameraUtils = new Camera(video, {
-                onFrame: async () => { await hands.send({ image: video }); }, width: 640, height: 480
+                onFrame: async () => {
+                    const now = performance.now();
+                    if (
+                        handsInferenceInFlight
+                        || now - lastHandsInferenceAt < PERFORMANCE.handInferenceIntervalMs
+                    ) return;
+
+                    lastHandsInferenceAt = now;
+                    handsInferenceInFlight = true;
+                    try {
+                        await hands.send({ image: video });
+                    } finally {
+                        handsInferenceInFlight = false;
+                    }
+                },
+                width: PERFORMANCE.cameraWidth,
+                height: PERFORMANCE.cameraHeight
             });
             cameraUtils.start();
         }
