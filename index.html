@@ -1061,6 +1061,7 @@
         const MOBILE_PERFORMANCE_MODE = window.matchMedia('(pointer: coarse)').matches
             && Math.min(window.screen.width, window.screen.height) <= 600;
         const PERFORMANCE = {
+            showCameraPreview: false,
             pixelRatioCap: MOBILE_PERFORMANCE_MODE ? 1.5 : 2,
             captureWidth: MOBILE_PERFORMANCE_MODE ? 960 : 640,
             captureHeight: MOBILE_PERFORMANCE_MODE ? 720 : 480,
@@ -2475,7 +2476,7 @@
             const video = document.getElementsByClassName('input_video')[0];
             const canvas = document.getElementById('camera-preview');
             const ctx = canvas.getContext('2d');
-            canvas.classList.add('is-active');
+            if (PERFORMANCE.showCameraPreview) canvas.classList.add('is-active');
 
             canvas.width = PERFORMANCE.previewWidth;
             canvas.height = PERFORMANCE.previewHeight;
@@ -2549,7 +2550,9 @@
             let handsInferenceInFlight = false;
             const cameraUtils = new Camera(video, {
                 onFrame: async () => {
-                    drawCameraFrameCover(ctx, video, canvas.width, canvas.height);
+                    if (PERFORMANCE.showCameraPreview) {
+                        drawCameraFrameCover(ctx, video, canvas.width, canvas.height);
+                    }
                     const now = performance.now();
                     if (
                         handsInferenceInFlight
