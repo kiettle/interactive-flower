@@ -1016,11 +1016,20 @@
                 0 0 0 5px rgba(196, 47, 101, 0.08),
                 0 0 26px rgba(217, 51, 105, 0.28),
                 inset 0 1px rgba(255, 255, 255, 0.32);
+            opacity: 0;
             animation: love-answer-pulse 1.85s ease-in-out infinite;
             font: italic 700 20px/1 'Cormorant Garamond', Georgia, serif;
             letter-spacing: 0.035em;
             text-shadow: 0 1px 5px rgba(74, 0, 28, 0.44);
-            transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+            transition:
+                opacity 720ms ease 2.2s,
+                transform 180ms ease,
+                filter 180ms ease,
+                box-shadow 180ms ease;
+        }
+
+        body.love-letter-open #love-letter-close {
+            opacity: 1;
         }
 
         #love-letter-close::before {
@@ -1125,9 +1134,9 @@
             }
         }
 
-        /* The final scene only begins after Duyên accepts. It deliberately
-           stays lighter than the letter overlay so the ten real 3D flowers
-           remain visible behind the typography. */
+        /* The garden journey and the post-answer finale share this light
+           overlay so the ten real 3D flowers remain visible throughout the
+           story without a hard scene cut. */
         #acceptance-finale {
             position: fixed;
             inset: 0;
@@ -1142,9 +1151,20 @@
             transition: opacity 900ms ease 620ms, visibility 900ms 620ms;
         }
 
-        body.acceptance-active #acceptance-finale {
+        body.acceptance-active #acceptance-finale,
+        body.proposal-journey-active #acceptance-finale {
             opacity: 1;
             visibility: visible;
+        }
+
+        body.proposal-letter-open #acceptance-finale {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 760ms ease, visibility 760ms;
+        }
+
+        body.proposal-letter-open #love-letter-overlay {
+            z-index: 150;
         }
 
         body.acceptance-active #love-letter-overlay {
@@ -1158,7 +1178,8 @@
             animation: love-letter-depart 1.12s cubic-bezier(0.55, 0, 0.65, 1) both;
         }
 
-        body.acceptance-active #petal-layer {
+        body.acceptance-active #petal-layer,
+        body.proposal-journey-active #petal-layer {
             z-index: 143;
         }
 
@@ -1166,7 +1187,12 @@
         body.acceptance-active #dedication,
         body.acceptance-active #garden-message,
         body.acceptance-active #garden-butterfly,
-        body.acceptance-active #gesture-feedback {
+        body.acceptance-active #gesture-feedback,
+        body.proposal-journey-active #ui-layer,
+        body.proposal-journey-active #dedication,
+        body.proposal-journey-active #garden-message,
+        body.proposal-journey-active #garden-butterfly,
+        body.proposal-journey-active #gesture-feedback {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
@@ -1202,7 +1228,8 @@
             transform: translateX(-50%) scale(0.7);
         }
 
-        body.acceptance-active .acceptance-aura {
+        body.acceptance-active .acceptance-aura,
+        body.proposal-journey-active .acceptance-aura {
             animation: acceptance-aura-bloom 2.4s ease 760ms forwards,
                 acceptance-aura-breathe 3.6s ease-in-out 3.2s infinite alternate;
         }
@@ -1263,6 +1290,112 @@
             text-shadow:
                 0 2px 18px rgba(0, 0, 0, 0.96),
                 0 0 24px rgba(var(--theme-primary), 0.58);
+        }
+
+        body.proposal-journey-active:not(.acceptance-active) .acceptance-copy {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #proposal-garden-intro,
+        #proposal-transition-message {
+            position: absolute;
+            left: 50%;
+            z-index: 15;
+            width: min(680px, calc(100vw - 40px));
+            box-sizing: border-box;
+            color: #fff9f6;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            text-align: center;
+            text-shadow:
+                0 4px 20px rgba(0, 0, 0, 1),
+                0 0 32px rgba(var(--theme-primary), 0.72);
+            transform: translate(-50%, 18px) scale(0.96);
+        }
+
+        #proposal-garden-intro {
+            top: 42%;
+            padding: clamp(22px, 5vw, 38px) clamp(18px, 6vw, 46px);
+            border: 1px solid rgba(var(--theme-stars), 0.22);
+            border-radius: clamp(24px, 6vw, 38px);
+            background:
+                radial-gradient(circle at 50% 16%, rgba(var(--theme-primary), 0.22), transparent 56%),
+                linear-gradient(150deg, rgba(9, 1, 7, 0.78), rgba(2, 0, 3, 0.58));
+            box-shadow:
+                0 22px 70px rgba(0, 0, 0, 0.72),
+                0 0 38px rgba(var(--theme-tertiary), 0.24),
+                inset 0 1px rgba(255, 255, 255, 0.09);
+        }
+
+        #proposal-garden-intro p,
+        #proposal-transition-message p {
+            margin: 0;
+            font: italic 600 clamp(27px, 6.6vw, 46px) / 1.16 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.018em;
+        }
+
+        #proposal-garden-intro span,
+        #proposal-transition-message span {
+            display: block;
+            margin-top: 14px;
+            color: rgba(255, 246, 241, 0.8);
+            font: italic 600 clamp(17px, 4.1vw, 23px) / 1.25 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.025em;
+        }
+
+        body.proposal-journey-active:not(.acceptance-exploration-active):not(.proposal-garden-complete) #proposal-garden-intro {
+            visibility: visible;
+            animation: proposal-story-arrive 1.15s cubic-bezier(0.16, 1, 0.3, 1) 720ms forwards;
+        }
+
+        body.acceptance-exploration-active #proposal-garden-intro {
+            opacity: 0;
+            visibility: hidden;
+            transform: translate(-50%, -14px) scale(0.96);
+            transition: opacity 850ms ease, visibility 850ms, transform 850ms ease;
+        }
+
+        #proposal-transition-message {
+            top: 39%;
+            padding: 20px;
+        }
+
+        #proposal-transition-message p,
+        #proposal-transition-message span {
+            opacity: 0;
+            filter: blur(7px);
+            transform: translateY(14px);
+        }
+
+        body.proposal-garden-complete #proposal-transition-message {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0) scale(1);
+        }
+
+        body.proposal-garden-complete #proposal-transition-message p {
+            animation: acceptance-copy-arrive 1.1s ease 1.25s forwards;
+        }
+
+        body.proposal-garden-complete #proposal-transition-message span {
+            animation: acceptance-copy-arrive 1.1s ease 2.7s forwards;
+        }
+
+        @keyframes proposal-story-arrive {
+            from {
+                opacity: 0;
+                filter: blur(8px);
+                transform: translate(-50%, 18px) scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                filter: blur(0);
+                transform: translate(-50%, 0) scale(1);
+            }
         }
 
         .acceptance-line,
@@ -1777,7 +1910,7 @@
             transition: opacity 1s ease, visibility 1s;
         }
 
-        body.acceptance-exploration-active #birthday-constellation {
+        body.proposal-garden-complete #birthday-constellation {
             opacity: 0.86;
             visibility: visible;
             pointer-events: auto;
@@ -1957,6 +2090,412 @@
             text-transform: uppercase;
         }
 
+        #keepsake-stage {
+            position: absolute;
+            inset: 0;
+            z-index: 22;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            padding:
+                max(22px, calc(env(safe-area-inset-top) + 12px))
+                max(16px, env(safe-area-inset-right))
+                max(22px, calc(env(safe-area-inset-bottom) + 12px))
+                max(16px, env(safe-area-inset-left));
+            overflow-x: hidden;
+            overflow-y: auto;
+            color: #fff8f5;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            text-align: center;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body.keepsake-ready {
+            touch-action: pan-y;
+        }
+
+        body.keepsake-ready #keepsake-stage {
+            visibility: visible;
+            pointer-events: auto;
+            animation: keepsake-stage-arrive 1.05s cubic-bezier(0.16, 1, 0.3, 1) 420ms both;
+        }
+
+        body.keepsake-ready #acceptance-final-message {
+            animation: final-message-to-keepsake 900ms ease forwards;
+            pointer-events: none;
+        }
+
+        body.keepsake-ready #birthday-constellation,
+        body.keepsake-ready .acceptance-butterfly,
+        body.keepsake-ready #acceptance-petal-heart {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 700ms ease, visibility 700ms;
+        }
+
+        .keepsake-heading {
+            flex: 0 0 auto;
+            width: min(520px, calc(100vw - 34px));
+            margin-bottom: clamp(12px, 2.2vh, 20px);
+            text-shadow:
+                0 3px 16px rgba(0, 0, 0, 0.96),
+                0 0 21px rgba(var(--theme-primary), 0.42);
+        }
+
+        .keepsake-heading > span {
+            display: block;
+            margin-bottom: 6px;
+            color: rgba(var(--theme-stars), 0.7);
+            font: 700 10px/1 'Segoe UI', sans-serif;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .keepsake-heading h2 {
+            margin: 0;
+            font: italic 600 clamp(26px, 6.5vw, 42px) / 1.08 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.018em;
+        }
+
+        .keepsake-heading p {
+            margin: 7px 0 0;
+            color: rgba(255, 245, 241, 0.76);
+            font: italic 600 clamp(16px, 4vw, 21px) / 1.2 'Cormorant Garamond', Georgia, serif;
+        }
+
+        #keepsake-polaroid {
+            position: relative;
+            flex: 0 0 auto;
+            width: min(356px, 87vw);
+            box-sizing: border-box;
+            margin: 0;
+            padding: 11px 11px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.94);
+            border-radius: 6px 17px 8px 15px;
+            color: #68263f;
+            background:
+                linear-gradient(125deg, rgba(255, 255, 255, 0.58), transparent 24%),
+                linear-gradient(155deg, #fffdf7, #fdebed 72%, #f7dce4);
+            box-shadow:
+                0 26px 80px rgba(0, 0, 0, 0.62),
+                0 0 42px rgba(var(--theme-tertiary), 0.24),
+                0 0 0 6px rgba(2, 0, 2, 0.12);
+            transform: rotate(-0.7deg);
+            transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 700ms ease;
+        }
+
+        #keepsake-polaroid::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: -10px;
+            z-index: 4;
+            width: 74px;
+            height: 22px;
+            background: rgba(255, 230, 196, 0.72);
+            box-shadow: 0 2px 7px rgba(0, 0, 0, 0.12);
+            transform: translateX(-50%) rotate(1.8deg);
+        }
+
+        body.keepsake-photo-captured #keepsake-polaroid {
+            box-shadow:
+                0 28px 84px rgba(0, 0, 0, 0.64),
+                0 0 52px rgba(var(--theme-tertiary), 0.4),
+                0 0 0 6px rgba(2, 0, 2, 0.12);
+            transform: rotate(0.5deg) scale(1.012);
+        }
+
+        #keepsake-photo-slot {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            border-radius: 3px 10px 3px 8px;
+            background:
+                radial-gradient(circle at 50% 40%, rgba(var(--theme-primary), 0.2), transparent 42%),
+                linear-gradient(145deg, #1a0712, #040103);
+            box-shadow:
+                inset 0 0 0 1px rgba(91, 32, 59, 0.12),
+                inset 0 -20px 36px rgba(0, 0, 0, 0.24);
+        }
+
+        #keepsake-camera-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            object-fit: cover;
+            transition: opacity 500ms ease, filter 420ms ease;
+        }
+
+        body.keepsake-camera-active #keepsake-camera-canvas,
+        body.keepsake-photo-captured #keepsake-camera-canvas {
+            opacity: 1;
+        }
+
+        body.keepsake-counting #keepsake-camera-canvas {
+            filter: brightness(0.74) saturate(0.9);
+        }
+
+        #keepsake-placeholder {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-content: center;
+            color: rgba(255, 245, 243, 0.72);
+            text-shadow: 0 2px 11px rgba(0, 0, 0, 0.94);
+            transition: opacity 450ms ease, visibility 450ms;
+        }
+
+        #keepsake-placeholder span {
+            font-size: 49px;
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(var(--theme-tertiary), 0.68);
+            animation: love-answer-heartbeat 1.8s ease-in-out infinite;
+        }
+
+        #keepsake-placeholder p {
+            margin: 8px 0 0;
+            font: italic 600 17px/1.25 'Cormorant Garamond', Georgia, serif;
+        }
+
+        body.keepsake-camera-active #keepsake-placeholder,
+        body.keepsake-photo-captured #keepsake-placeholder {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        #keepsake-countdown {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 5;
+            color: #fff;
+            opacity: 0;
+            font: italic 600 clamp(66px, 20vw, 98px) / 1 'Cormorant Garamond', Georgia, serif;
+            text-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.94),
+                0 0 26px rgba(var(--theme-tertiary), 0.88);
+            transform: translate(-50%, -50%) scale(0.6);
+        }
+
+        #keepsake-countdown.is-visible {
+            animation: keepsake-countdown-pop 820ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        #keepsake-camera-status {
+            position: absolute;
+            left: 50%;
+            bottom: 9px;
+            z-index: 4;
+            width: max-content;
+            max-width: calc(100% - 20px);
+            padding: 6px 10px;
+            border-radius: 999px;
+            color: rgba(255, 252, 249, 0.9);
+            background: rgba(2, 0, 2, 0.56);
+            opacity: 0;
+            font: italic 600 12px/1.15 'Cormorant Garamond', Georgia, serif;
+            text-shadow: 0 2px 6px #000;
+            transform: translateX(-50%);
+            transition: opacity 400ms ease;
+        }
+
+        body.keepsake-camera-active:not(.keepsake-photo-captured) #keepsake-camera-status {
+            opacity: 1;
+        }
+
+        #keepsake-camera-flash {
+            position: absolute;
+            inset: 0;
+            z-index: 7;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #keepsake-camera-flash.is-flashing {
+            animation: keepsake-camera-flash 520ms ease-out both;
+        }
+
+        .keepsake-polaroid-copy {
+            padding: 13px 7px 0;
+            text-align: center;
+        }
+
+        .keepsake-polaroid-copy > strong {
+            display: block;
+            font: italic 700 clamp(19px, 5vw, 25px) / 1.05 'Cormorant Garamond', Georgia, serif;
+        }
+
+        .keepsake-birthdays,
+        #keepsake-date {
+            display: block;
+            margin-top: 7px;
+            color: rgba(104, 38, 63, 0.72);
+            font: 700 9px/1.2 'Segoe UI', sans-serif;
+            letter-spacing: 0.085em;
+            text-transform: uppercase;
+        }
+
+        .keepsake-birthdays b {
+            margin: 0 5px;
+            color: rgb(var(--theme-primary));
+            font-size: 11px;
+        }
+
+        #keepsake-date {
+            margin-top: 4px;
+            font-weight: 600;
+            opacity: 0.72;
+        }
+
+        #keepsake-primary-actions,
+        #keepsake-captured-actions {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 9px;
+            width: min(430px, calc(100vw - 32px));
+            margin-top: 17px;
+        }
+
+        #keepsake-camera-button,
+        #keepsake-save-button,
+        #keepsake-captured-actions button,
+        #keepsake-upload-button {
+            box-sizing: border-box;
+            width: auto;
+            min-height: 44px;
+            margin: 0;
+            padding: 11px 16px;
+            border: 1px solid rgba(var(--theme-stars), 0.46);
+            border-radius: 999px;
+            color: #fff9f6;
+            background: rgba(7, 1, 6, 0.72);
+            box-shadow:
+                0 10px 27px rgba(0, 0, 0, 0.42),
+                0 0 18px rgba(var(--theme-primary), 0.13),
+                inset 0 1px rgba(255, 255, 255, 0.1);
+            animation: none;
+            font: italic 700 clamp(14px, 3.5vw, 17px) / 1 'Cormorant Garamond', Georgia, serif;
+            text-decoration: none;
+        }
+
+        #keepsake-camera-button,
+        #keepsake-save-button {
+            background: linear-gradient(135deg,
+                    rgba(var(--theme-primary), 0.96),
+                    rgba(var(--theme-secondary), 0.98));
+            box-shadow:
+                0 11px 29px rgba(0, 0, 0, 0.46),
+                0 0 23px rgba(var(--theme-tertiary), 0.28),
+                inset 0 1px rgba(255, 255, 255, 0.22);
+        }
+
+        #keepsake-upload-button {
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+
+        #keepsake-file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #keepsake-captured-actions {
+            display: none;
+        }
+
+        body.keepsake-photo-captured #keepsake-primary-actions {
+            display: none;
+        }
+
+        body.keepsake-photo-captured #keepsake-captured-actions {
+            display: flex;
+            animation: acceptance-copy-arrive 700ms ease both;
+        }
+
+        #keepsake-privacy {
+            flex: 0 0 auto;
+            max-width: min(390px, calc(100vw - 38px));
+            margin: 12px 0 0;
+            color: rgba(255, 244, 239, 0.48);
+            font: 500 10px/1.35 'Segoe UI', sans-serif;
+            letter-spacing: 0.025em;
+            text-shadow: 0 2px 7px rgba(0, 0, 0, 0.9);
+        }
+
+        @keyframes final-message-to-keepsake {
+            from {
+                opacity: 1;
+                visibility: visible;
+                transform: translate(-50%, 0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                visibility: hidden;
+                transform: translate(-50%, -15px) scale(0.96);
+            }
+        }
+
+        @keyframes keepsake-stage-arrive {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes keepsake-countdown-pop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.58);
+            }
+
+            30%,
+            72% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.22);
+            }
+        }
+
+        @keyframes keepsake-camera-flash {
+            0% {
+                opacity: 0;
+            }
+
+            18% {
+                opacity: 0.96;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
         #acceptance-finale::after {
             content: '';
             position: absolute;
@@ -1983,15 +2522,30 @@
         }
 
         body.acceptance-complete #flower-memory-prompt,
-        body.acceptance-complete #flower-memory-card {
+        body.acceptance-complete #flower-memory-card,
+        body.acceptance-complete .acceptance-copy {
             opacity: 0;
             visibility: hidden;
             transition: opacity 500ms ease, visibility 500ms;
         }
 
+        body.proposal-garden-complete #flower-memory-prompt,
+        body.proposal-garden-complete #flower-memory-card,
+        body.proposal-garden-complete .acceptance-flower-hit {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 650ms ease, visibility 650ms;
+        }
+
         body.acceptance-complete #acceptance-final-message {
             visibility: visible;
             animation: acceptance-final-message-arrive 1.4s cubic-bezier(0.16, 1, 0.3, 1) 900ms forwards;
+        }
+
+        body.acceptance-complete.keepsake-ready #acceptance-final-message {
+            animation: final-message-to-keepsake 900ms ease forwards;
+            pointer-events: none;
         }
 
         @keyframes flower-memory-hint {
@@ -2745,7 +3299,7 @@
             font-size: 15px;
             font-weight: 750;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: normal;
         }
 
         .flower-dock-chevron {
@@ -3543,6 +4097,32 @@
             #acceptance-final-message {
                 top: 39%;
             }
+
+            #keepsake-stage {
+                padding-top: max(18px, calc(env(safe-area-inset-top) + 8px));
+            }
+
+            .keepsake-heading {
+                margin-bottom: 12px;
+            }
+
+            #keepsake-polaroid {
+                width: min(350px, 88vw);
+            }
+
+            #keepsake-primary-actions,
+            #keepsake-captured-actions {
+                gap: 7px;
+                margin-top: 14px;
+            }
+
+            #keepsake-camera-button,
+            #keepsake-save-button,
+            #keepsake-captured-actions button,
+            #keepsake-upload-button {
+                min-height: 42px;
+                padding: 10px 14px;
+            }
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -3656,6 +4236,46 @@
             #acceptance-final-message {
                 top: 28%;
             }
+
+            #keepsake-stage {
+                display: grid;
+                grid-template-columns: minmax(210px, 34vw) minmax(300px, 48vw);
+                grid-template-areas:
+                    'photo heading'
+                    'photo actions'
+                    'photo privacy';
+                align-content: center;
+                justify-content: center;
+                column-gap: 22px;
+                padding-top: max(9px, env(safe-area-inset-top));
+                padding-bottom: max(9px, env(safe-area-inset-bottom));
+            }
+
+            .keepsake-heading {
+                grid-area: heading;
+                align-self: end;
+                margin: 0 0 9px;
+            }
+
+            #keepsake-polaroid {
+                grid-area: photo;
+                align-self: center;
+                width: min(265px, 34vw);
+            }
+
+            #keepsake-primary-actions,
+            #keepsake-captured-actions {
+                grid-area: actions;
+                align-self: start;
+                width: min(500px, 48vw);
+                margin-top: 5px;
+            }
+
+            #keepsake-privacy {
+                grid-area: privacy;
+                align-self: start;
+                margin-top: 7px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -3701,6 +4321,14 @@
             .birthday-star-connection span,
             #acceptance-finale::after,
             #acceptance-final-message,
+            #proposal-garden-intro,
+            #proposal-transition-message,
+            #proposal-transition-message p,
+            #proposal-transition-message span,
+            #keepsake-stage,
+            #keepsake-placeholder span,
+            #keepsake-countdown,
+            #keepsake-camera-flash,
             #romantic-background::before,
             #romantic-background::after,
             .romantic-orb {
@@ -3746,11 +4374,35 @@
                 transition: none;
             }
 
+            #love-letter-close {
+                transition: none;
+            }
+
             body.acceptance-active .acceptance-line,
             body.acceptance-active #acceptance-date {
                 opacity: 1;
                 filter: none;
                 transform: none;
+            }
+
+            body.proposal-journey-active:not(.acceptance-exploration-active):not(.proposal-garden-complete) #proposal-garden-intro {
+                opacity: 1;
+                visibility: visible;
+                filter: none;
+                transform: translate(-50%, 0) scale(1);
+            }
+
+            body.proposal-garden-complete #proposal-transition-message,
+            body.proposal-garden-complete #proposal-transition-message p,
+            body.proposal-garden-complete #proposal-transition-message span {
+                opacity: 1;
+                visibility: visible;
+                filter: none;
+                transform: none;
+            }
+
+            body.proposal-garden-complete #proposal-transition-message {
+                transform: translate(-50%, 0) scale(1);
             }
 
             body.acceptance-active .acceptance-heart-petal {
@@ -3773,6 +4425,22 @@
                 visibility: visible;
                 filter: none;
                 transform: translate(-50%, 0) scale(1);
+            }
+
+            body.keepsake-ready #acceptance-final-message {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            body.keepsake-ready #keepsake-stage {
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+            }
+
+            #keepsake-countdown.is-visible {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
             }
 
             #petal-layer {
@@ -3833,18 +4501,17 @@
     </div>
     <div id="garden-hold-indicator" data-label="Giữ để gieo vườn hoa" aria-hidden="true"></div>
     <div id="gesture-feedback" aria-hidden="true"></div>
-    <button id="love-letter-trigger" type="button" aria-hidden="true" tabindex="-1" onclick="openLoveLetter()">Chạm vào
-        đây…</button>
+    <button id="love-letter-trigger" type="button" aria-hidden="true" tabindex="-1"
+        onclick="startProposalGardenJourney()">Đi cùng anh một chút nhé…</button>
     <section id="love-letter-overlay" role="dialog" aria-modal="true" aria-hidden="true"
         aria-labelledby="love-letter-title">
         <article class="love-letter-card">
             <h2 id="love-letter-title">Gửi Duyên,</h2>
             <p>
-                Anh đã đặt rất nhiều yêu thương vào món quà nhỏ này. Cảm ơn em vì đã xuất hiện và khiến
-                những ngày bình thường trở nên đặc biệt hơn. <br />
+                Em vừa đi qua mười bông hoa, nhưng thật ra đó là mười điều anh đã muốn nói với em.
+                Cảm ơn em vì đã xuất hiện và khiến những ngày bình thường trở nên đặc biệt hơn. <br />
                 <span class="love-confession-highlight">Anh thích em.</span> Anh mong từ hôm nay mình có thể cùng nhau
-                tạo nên thật nhiều kỷ niệm dịu dàng,
-                không chỉ trong món quà này, mà cả những ngày sau nữa.
+                tạo nên thật nhiều kỷ niệm dịu dàng, không chỉ trong món quà này, mà cả những ngày sau nữa.
                 <span class="love-letter-signature">Làm người yêu anh nhé ❤️</span>
             </p>
             <button id="love-letter-close" type="button" onclick="acceptLove()">
@@ -3855,6 +4522,14 @@
     <section id="acceptance-finale" aria-hidden="true" aria-live="polite">
         <div class="acceptance-aura" aria-hidden="true"></div>
         <div id="acceptance-petal-heart" aria-hidden="true"></div>
+        <div id="proposal-garden-intro" role="status">
+            <p>Có những điều anh đã muốn nói với em từ lâu…</p>
+            <span>Chạm vào từng bông hoa nhé.</span>
+        </div>
+        <div id="proposal-transition-message" role="status">
+            <p>Mười bông hoa là mười điều anh muốn giữ lại…</p>
+            <span>Nhưng vẫn còn một điều quan trọng nhất.</span>
+        </div>
         <div class="acceptance-butterfly acceptance-butterfly--one" aria-hidden="true">
             <span class="butterfly-wing butterfly-wing--left"></span>
             <span class="butterfly-wing butterfly-wing--right"></span>
@@ -3888,7 +4563,7 @@
             <time id="acceptance-date"></time>
         </div>
         <div id="flower-memory-prompt" role="status">
-            <span>Em thử chạm vào từng bông hoa nhé…</span>
+            <span>Mỗi bông hoa là một điều anh muốn nói…</span>
             <strong id="flower-memory-counter">0 / 10</strong>
         </div>
         <div id="acceptance-flower-buttons" aria-label="Mười bông hoa dành cho Duyên"></div>
@@ -3903,6 +4578,49 @@
             <p>Cảm ơn em vì đã <br />trở thành điều đẹp nhất <br /> trong món quà này.</p>
             <time id="acceptance-final-date"></time>
         </div>
+        <section id="keepsake-stage" aria-labelledby="keepsake-title" aria-hidden="true">
+            <div class="keepsake-heading">
+                <span>Mảnh ghép cuối cùng</span>
+                <h2 id="keepsake-title">Món quà này vẫn còn thiếu một điều…</h2>
+                <p>Một bức ảnh có cả hai chúng mình.</p>
+            </div>
+            <article id="keepsake-polaroid">
+                <div id="keepsake-photo-slot">
+                    <canvas id="keepsake-camera-canvas" width="960" height="720"
+                        aria-label="Khung ảnh của hai chúng mình"></canvas>
+                    <div id="keepsake-placeholder">
+                        <span aria-hidden="true">♡</span>
+                        <p>Khoảnh khắc của<br />hai chúng mình</p>
+                    </div>
+                    <strong id="keepsake-countdown" aria-live="assertive"></strong>
+                    <span id="keepsake-camera-status">Đứng sát vào nhau một chút nhé…</span>
+                    <span id="keepsake-camera-flash" aria-hidden="true"></span>
+                </div>
+                <div class="keepsake-polaroid-copy">
+                    <strong>Chương đầu tiên của chúng mình</strong>
+                    <span class="keepsake-birthdays">13 · 11 · 2002 <b>♥</b> 15 · 11 · 2003</span>
+                    <time id="keepsake-date"></time>
+                </div>
+            </article>
+            <div id="keepsake-primary-actions">
+                <button id="keepsake-camera-button" type="button" onclick="handleKeepsakeCameraButton()">
+                    <span aria-hidden="true">📷</span>
+                    <span id="keepsake-camera-button-label">Mở camera trong khung</span>
+                </button>
+                <label id="keepsake-upload-button" for="keepsake-file-input">
+                    Chọn ảnh từ thư viện
+                </label>
+                <input id="keepsake-file-input" type="file" accept="image/*"
+                    onchange="handleKeepsakeFile(event)" />
+            </div>
+            <div id="keepsake-captured-actions">
+                <button type="button" onclick="retakeKeepsakePhoto()">Chụp lại</button>
+                <button id="keepsake-save-button" type="button" onclick="saveKeepsakePhoto()">
+                    Lưu khoảnh khắc này
+                </button>
+            </div>
+            <p id="keepsake-privacy">Ảnh chỉ được xử lý trên điện thoại này và không được tải đi đâu cả.</p>
+        </section>
     </section>
     <div id="error-log"></div>
 
@@ -3982,7 +4700,7 @@
     <div id="copyright">©</div>
 
     <div id="canvas-container"></div>
-    <video class="input_video" style="display:none"></video>
+    <video class="input_video" playsinline muted style="display:none"></video>
     <canvas id="camera-preview"></canvas>
 
     <script>
@@ -4157,6 +4875,8 @@
         };
         let finaleActive = false;
         let finaleStartedAt = -Infinity;
+        let proposalJourneyActive = false;
+        let loveAccepted = false;
         let acceptanceActive = false;
         let acceptanceStartedAt = -Infinity;
         let acceptanceExplorationActive = false;
@@ -4166,6 +4886,12 @@
         let acceptanceFlowerPulseStartedAt = -Infinity;
         let acceptanceCompletedAt = -Infinity;
         let acceptanceMemoryCardTimer = null;
+        let acceptanceDateText = '';
+        let keepsakeReady = false;
+        let keepsakeCameraActive = false;
+        let keepsakePhotoCaptured = false;
+        let keepsakePreviewFrame = null;
+        let keepsakeCountdownActive = false;
         let lastGestureFeedbackAt = -Infinity;
         let gestureFeedbackTimer = null;
         let singleHandFeedbackCandidate = '';
@@ -5169,6 +5895,65 @@
             trigger.tabIndex = visible ? 0 : -1;
         }
 
+        function startProposalGardenJourney() {
+            if (finaleActive || proposalJourneyActive || loveAccepted) return;
+
+            const now = performance.now();
+            finaleActive = true;
+            finaleStartedAt = now;
+            proposalJourneyActive = true;
+            acceptanceActive = true;
+            acceptanceStartedAt = now;
+            acceptanceExplorationActive = false;
+            acceptanceFlowerMask = 0;
+            acceptanceFlowersOpened = 0;
+            acceptanceFlowerPulseSlot = -1;
+            acceptanceFlowerPulseStartedAt = -Infinity;
+            acceptanceCompletedAt = -Infinity;
+            secretRevealActive = false;
+
+            setLoveLetterTriggerVisible(false);
+            document.body.classList.remove(
+                'secret-reveal-active',
+                'acceptance-exploration-active',
+                'proposal-garden-complete',
+                'acceptance-complete',
+                'keepsake-ready'
+            );
+            setSecretRevealStage('complete');
+
+            // The secret heart becomes the seed of the garden. Moving the
+            // particle target directly from HEART to GARDEN lets every point
+            // unfold into the ten real flowers instead of cutting scenes.
+            gardenModeActive = true;
+            gardenTransitionActive = false;
+            gardenRestingStartedAt = null;
+            state = 'GARDEN';
+            document.body.classList.add('garden-mode', 'proposal-journey-active');
+            document.body.classList.remove('garden-complete');
+
+            createAcceptanceFlowerButtons();
+            const counter = document.getElementById('flower-memory-counter');
+            if (counter) counter.textContent = `0 / ${gardenFlowerLayout.length}`;
+            const acceptance = document.getElementById('acceptance-finale');
+            if (acceptance) acceptance.setAttribute('aria-hidden', 'false');
+
+            prepareSecretAudio();
+            playSecretHeartbeat();
+            playFlowerBloomChime();
+            bgMusic.volume = Math.min(bgMusic.volume, 0.68);
+            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 30 : 46, 0.5, 0.5);
+            window.setTimeout(() => {
+                if (!proposalJourneyActive || loveAccepted) return;
+                playFinaleShimmer();
+                createPetalBurst(MOBILE_PERFORMANCE_MODE ? 18 : 28, 0.5, 0.62);
+            }, 1450);
+            window.setTimeout(
+                beginAcceptanceFlowerExploration,
+                prefersReducedMotion() ? 900 : 4300
+            );
+        }
+
         function getFinaleHeartScale(now = performance.now()) {
             if (!finaleActive) return 1;
             const progress = clamp((now - finaleStartedAt) / 1150);
@@ -5177,7 +5962,7 @@
         }
 
         function getAcceptanceGardenProgress(now = performance.now()) {
-            if (!acceptanceActive) return 0;
+            if (!loveAccepted) return 0;
             const progress = clamp((now - acceptanceStartedAt) / 1900);
             return 1 - Math.pow(1 - progress, 3);
         }
@@ -5276,15 +6061,16 @@
         }
 
         function beginAcceptanceFlowerExploration() {
-            if (!acceptanceActive || acceptanceExplorationActive) return;
+            if (!proposalJourneyActive || loveAccepted || acceptanceExplorationActive) return;
             acceptanceExplorationActive = true;
             document.body.classList.add('acceptance-exploration-active');
             projectAcceptanceFlowerButtons();
             updateAcceptanceButterflyPair();
+            bgMusic.volume = Math.max(bgMusic.volume, 0.88);
         }
 
         function revealBirthdayStar(owner = 'duyen') {
-            if (!acceptanceExplorationActive) return;
+            if (!proposalJourneyActive || !acceptanceExplorationActive) return;
             const constellation = document.getElementById('birthday-constellation');
             const star = document.getElementById(
                 owner === 'him' ? 'birthday-star-him' : 'birthday-star'
@@ -5364,6 +6150,30 @@
             }, 3050);
         }
 
+        function completeProposalGarden() {
+            if (
+                !proposalJourneyActive
+                || loveAccepted
+                || document.body.classList.contains('proposal-garden-complete')
+            ) return;
+
+            document.body.classList.add('proposal-garden-complete');
+            brightenAcceptanceFlower(-1, true);
+            updateAcceptanceButterflyPair();
+            playFinaleShimmer();
+            playFlowerBloomChime();
+            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 26 : 40, 0.5, 0.6);
+
+            // The two dates arrive only after the tenth memory, so the stars
+            // become a quiet bridge between the garden and the confession.
+            window.setTimeout(() => revealBirthdayStar('him'), 520);
+            window.setTimeout(() => revealBirthdayStar('duyen'), 1280);
+            window.setTimeout(
+                openLoveLetter,
+                prefersReducedMotion() ? 3100 : 6400
+            );
+        }
+
         function completeAcceptanceGarden() {
             if (!acceptanceActive || document.body.classList.contains('acceptance-complete')) return;
             acceptanceCompletedAt = performance.now();
@@ -5375,10 +6185,386 @@
             window.setTimeout(() => {
                 if (acceptanceActive) createFinalePetalCurtain();
             }, 650);
+            window.setTimeout(
+                showKeepsakeStage,
+                prefersReducedMotion() ? 1800 : 6200
+            );
+        }
+
+        function showKeepsakeStage() {
+            if (!acceptanceActive || keepsakeReady) return;
+            keepsakeReady = true;
+            document.body.classList.add('keepsake-ready');
+            const stage = document.getElementById('keepsake-stage');
+            const date = document.getElementById('keepsake-date');
+            if (stage) stage.setAttribute('aria-hidden', 'false');
+            if (date) date.textContent = `Ngày mình bắt đầu · ${acceptanceDateText}`;
+            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 14 : 22, 0.5, 0.58);
+        }
+
+        function drawKeepsakeSourceCover(context, source, targetWidth, targetHeight, mirror = false) {
+            const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
+            const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+            if (!sourceWidth || !sourceHeight) return false;
+
+            const sourceRatio = sourceWidth / sourceHeight;
+            const targetRatio = targetWidth / targetHeight;
+            let sourceX = 0;
+            let sourceY = 0;
+            let cropWidth = sourceWidth;
+            let cropHeight = sourceHeight;
+            if (sourceRatio > targetRatio) {
+                cropWidth = sourceHeight * targetRatio;
+                sourceX = (sourceWidth - cropWidth) / 2;
+            } else {
+                cropHeight = sourceWidth / targetRatio;
+                sourceY = (sourceHeight - cropHeight) / 2;
+            }
+
+            context.save();
+            context.clearRect(0, 0, targetWidth, targetHeight);
+            if (mirror) {
+                context.translate(targetWidth, 0);
+                context.scale(-1, 1);
+            }
+            context.drawImage(
+                source,
+                sourceX,
+                sourceY,
+                cropWidth,
+                cropHeight,
+                0,
+                0,
+                targetWidth,
+                targetHeight
+            );
+            context.restore();
+            return true;
+        }
+
+        function renderKeepsakeCameraPreview() {
+            if (!keepsakeCameraActive || keepsakePhotoCaptured) return;
+            const video = document.querySelector('.input_video');
+            const canvas = document.getElementById('keepsake-camera-canvas');
+            const context = canvas?.getContext('2d');
+            if (video && canvas && context && video.readyState >= 2) {
+                drawKeepsakeSourceCover(context, video, canvas.width, canvas.height, true);
+            }
+            keepsakePreviewFrame = requestAnimationFrame(renderKeepsakeCameraPreview);
+        }
+
+        function handleKeepsakeCameraButton() {
+            if (!keepsakeReady || keepsakeCountdownActive || keepsakePhotoCaptured) return;
+            const video = document.querySelector('.input_video');
+            const label = document.getElementById('keepsake-camera-button-label');
+            if (!video || video.readyState < 2 || !video.videoWidth) {
+                document.getElementById('keepsake-file-input')?.click();
+                return;
+            }
+
+            if (!keepsakeCameraActive) {
+                keepsakeCameraActive = true;
+                document.body.classList.add('keepsake-camera-active');
+                if (label) label.textContent = 'Chụp sau 3 giây';
+                bgMusic.volume = Math.min(bgMusic.volume, 0.72);
+                cancelAnimationFrame(keepsakePreviewFrame);
+                renderKeepsakeCameraPreview();
+                return;
+            }
+            beginKeepsakeCountdown();
+        }
+
+        function showKeepsakeCountdownNumber(value) {
+            const countdown = document.getElementById('keepsake-countdown');
+            if (!countdown) return;
+            countdown.classList.remove('is-visible');
+            void countdown.offsetWidth;
+            countdown.textContent = String(value);
+            countdown.classList.add('is-visible');
+        }
+
+        function beginKeepsakeCountdown() {
+            if (!keepsakeCameraActive || keepsakeCountdownActive || keepsakePhotoCaptured) return;
+            keepsakeCountdownActive = true;
+            document.body.classList.add('keepsake-counting');
+            const button = document.getElementById('keepsake-camera-button');
+            if (button) button.disabled = true;
+            let number = 3;
+
+            const tick = () => {
+                if (!keepsakeCountdownActive) return;
+                showKeepsakeCountdownNumber(number);
+                if (number === 1) {
+                    window.setTimeout(captureKeepsakePhoto, 850);
+                    return;
+                }
+                number -= 1;
+                window.setTimeout(tick, 850);
+            };
+            tick();
+        }
+
+        function finishKeepsakeCapture() {
+            keepsakeCountdownActive = false;
+            keepsakePhotoCaptured = true;
+            keepsakeCameraActive = false;
+            cancelAnimationFrame(keepsakePreviewFrame);
+            document.body.classList.remove('keepsake-counting', 'keepsake-camera-active');
+            document.body.classList.add('keepsake-photo-captured');
+
+            const countdown = document.getElementById('keepsake-countdown');
+            const flash = document.getElementById('keepsake-camera-flash');
+            const button = document.getElementById('keepsake-camera-button');
+            if (countdown) {
+                countdown.textContent = '';
+                countdown.classList.remove('is-visible');
+            }
+            if (button) button.disabled = false;
+            if (flash) {
+                flash.classList.remove('is-flashing');
+                void flash.offsetWidth;
+                flash.classList.add('is-flashing');
+            }
+            bgMusic.volume = 0.9;
+            playFinaleShimmer();
+            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 16 : 24, 0.5, 0.44);
+        }
+
+        function captureKeepsakePhoto() {
+            const video = document.querySelector('.input_video');
+            const canvas = document.getElementById('keepsake-camera-canvas');
+            const context = canvas?.getContext('2d');
+            if (!video || !canvas || !context || video.readyState < 2) {
+                keepsakeCountdownActive = false;
+                document.body.classList.remove('keepsake-counting');
+                document.getElementById('keepsake-file-input')?.click();
+                return;
+            }
+            drawKeepsakeSourceCover(context, video, canvas.width, canvas.height, true);
+            finishKeepsakeCapture();
+        }
+
+        function handleKeepsakeFile(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const image = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            image.onload = () => {
+                const canvas = document.getElementById('keepsake-camera-canvas');
+                const context = canvas?.getContext('2d');
+                if (canvas && context) {
+                    drawKeepsakeSourceCover(context, image, canvas.width, canvas.height, false);
+                    finishKeepsakeCapture();
+                }
+                URL.revokeObjectURL(objectUrl);
+                event.target.value = '';
+            };
+            image.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                event.target.value = '';
+            };
+            image.src = objectUrl;
+        }
+
+        function retakeKeepsakePhoto() {
+            if (!keepsakePhotoCaptured) return;
+            keepsakePhotoCaptured = false;
+            keepsakeCameraActive = false;
+            keepsakeCountdownActive = false;
+            document.body.classList.remove(
+                'keepsake-photo-captured',
+                'keepsake-camera-active',
+                'keepsake-counting'
+            );
+            const label = document.getElementById('keepsake-camera-button-label');
+            if (label) label.textContent = 'Mở camera trong khung';
+        }
+
+        function addKeepsakeRoundedRect(context, x, y, width, height, radius) {
+            const r = Math.min(radius, width / 2, height / 2);
+            context.beginPath();
+            context.moveTo(x + r, y);
+            context.lineTo(x + width - r, y);
+            context.quadraticCurveTo(x + width, y, x + width, y + r);
+            context.lineTo(x + width, y + height - r);
+            context.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+            context.lineTo(x + r, y + height);
+            context.quadraticCurveTo(x, y + height, x, y + height - r);
+            context.lineTo(x, y + r);
+            context.quadraticCurveTo(x, y, x + r, y);
+            context.closePath();
+        }
+
+        function drawKeepsakeFlower(context, x, y, size, color, phase = 0) {
+            context.save();
+            context.translate(x, y);
+            context.strokeStyle = 'rgba(57, 112, 68, 0.82)';
+            context.lineWidth = Math.max(2, size * 0.075);
+            context.beginPath();
+            context.moveTo(0, size * 0.25);
+            context.quadraticCurveTo(Math.sin(phase) * size * 0.18, size * 0.72, 0, size);
+            context.stroke();
+            context.fillStyle = color;
+            for (let petal = 0; petal < 5; petal++) {
+                context.save();
+                context.rotate(phase + petal * Math.PI * 2 / 5);
+                context.beginPath();
+                context.ellipse(0, -size * 0.2, size * 0.16, size * 0.31, 0, 0, Math.PI * 2);
+                context.fill();
+                context.restore();
+            }
+            context.fillStyle = '#ffd98d';
+            context.beginPath();
+            context.arc(0, 0, size * 0.13, 0, Math.PI * 2);
+            context.fill();
+            context.restore();
+        }
+
+        function drawKeepsakeHeart(context, x, y, size, color) {
+            context.save();
+            context.translate(x, y);
+            context.scale(size / 32, size / 32);
+            context.beginPath();
+            context.moveTo(0, 11);
+            context.bezierCurveTo(-4, 6, -14, 0, -14, -7);
+            context.bezierCurveTo(-14, -16, -3, -18, 0, -10);
+            context.bezierCurveTo(3, -18, 14, -16, 14, -7);
+            context.bezierCurveTo(14, 0, 4, 6, 0, 11);
+            context.fillStyle = color;
+            context.fill();
+            context.restore();
+        }
+
+        function saveKeepsakePhoto() {
+            if (!keepsakePhotoCaptured) return;
+            const source = document.getElementById('keepsake-camera-canvas');
+            if (!source) return;
+            const saveButton = document.getElementById('keepsake-save-button');
+            if (saveButton) {
+                saveButton.disabled = true;
+                saveButton.textContent = 'Đang chuẩn bị ảnh…';
+            }
+
+            const output = document.createElement('canvas');
+            output.width = 1200;
+            output.height = 1600;
+            const context = output.getContext('2d');
+            if (!context) {
+                if (saveButton) {
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Lưu khoảnh khắc này';
+                }
+                return;
+            }
+            const accent = flowerAccentColors[selectedFlowerType] || flowerAccentColors.tulip;
+
+            const backdrop = context.createLinearGradient(0, 0, 0, output.height);
+            backdrop.addColorStop(0, '#160611');
+            backdrop.addColorStop(0.54, '#090205');
+            backdrop.addColorStop(1, '#020102');
+            context.fillStyle = backdrop;
+            context.fillRect(0, 0, output.width, output.height);
+
+            const aura = context.createRadialGradient(600, 610, 10, 600, 610, 620);
+            aura.addColorStop(0, `${accent}66`);
+            aura.addColorStop(0.48, `${accent}22`);
+            aura.addColorStop(1, 'rgba(0,0,0,0)');
+            context.fillStyle = aura;
+            context.fillRect(0, 0, output.width, output.height);
+
+            context.save();
+            context.shadowColor = 'rgba(0,0,0,0.58)';
+            context.shadowBlur = 48;
+            context.shadowOffsetY = 24;
+            addKeepsakeRoundedRect(context, 66, 88, 1068, 1420, 28);
+            context.fillStyle = '#fffaf3';
+            context.fill();
+            context.restore();
+
+            context.fillStyle = accent;
+            context.font = '600 32px Georgia, serif';
+            context.textAlign = 'center';
+            context.fillText('✦', 135, 150);
+            context.fillText('✦', 1065, 150);
+            context.fillStyle = '#7e2948';
+            context.font = 'italic 600 43px Georgia, serif';
+            context.fillText('Chương đầu tiên của chúng mình', 600, 158);
+
+            context.save();
+            addKeepsakeRoundedRect(context, 112, 208, 976, 732, 14);
+            context.clip();
+            context.drawImage(source, 112, 208, 976, 732);
+            context.restore();
+            context.strokeStyle = 'rgba(91,32,59,0.14)';
+            context.lineWidth = 3;
+            addKeepsakeRoundedRect(context, 112, 208, 976, 732, 14);
+            context.stroke();
+
+            context.fillStyle = '#6d2943';
+            context.font = 'italic 600 54px Georgia, serif';
+            context.fillText('Vậy là món quà đã trọn vẹn rồi', 600, 1028);
+            drawKeepsakeHeart(context, 600, 1087, 39, accent);
+
+            context.fillStyle = '#8a5267';
+            context.font = '700 25px Arial, sans-serif';
+            context.fillText('13 · 11 · 2002          15 · 11 · 2003', 600, 1160);
+            drawKeepsakeHeart(context, 600, 1153, 25, accent);
+            context.font = '600 21px Arial, sans-serif';
+            context.fillStyle = '#a07686';
+            context.fillText(`NGÀY MÌNH BẮT ĐẦU · ${acceptanceDateText}`, 600, 1210);
+
+            const flowerSpacing = 91;
+            const flowerStartX = 600 - flowerSpacing * 4.5;
+            const keepsakeFlower = flowerEmojis[selectedFlowerType] || flowerEmojis.tulip;
+            context.font = '54px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+            context.textAlign = 'center';
+            for (let i = 0; i < 10; i++) {
+                const archY = 1340 - Math.sin((i / 9) * Math.PI) * 36;
+                context.save();
+                context.translate(flowerStartX + i * flowerSpacing, archY);
+                context.rotate((i - 4.5) * 0.025);
+                context.fillText(keepsakeFlower, 0, 0);
+                context.restore();
+            }
+
+            context.fillStyle = '#7c3d55';
+            context.font = 'italic 600 31px Georgia, serif';
+            context.fillText('Từ hai người, mình đã trở thành chúng ta. ♥', 600, 1452);
+
+            output.toBlob(blob => {
+                if (!blob) {
+                    if (saveButton) {
+                        saveButton.disabled = false;
+                        saveButton.textContent = 'Lưu khoảnh khắc này';
+                    }
+                    return;
+                }
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const datePart = new Date().toISOString().slice(0, 10);
+                link.href = url;
+                link.download = `chuong-dau-tien-cua-chung-minh-${datePart}.png`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.setTimeout(() => URL.revokeObjectURL(url), 1800);
+                if (saveButton) {
+                    saveButton.textContent = 'Đã tạo ảnh kỷ niệm ❤️';
+                    window.setTimeout(() => {
+                        saveButton.disabled = false;
+                        saveButton.textContent = 'Lưu khoảnh khắc này';
+                    }, 1800);
+                }
+            }, 'image/png');
         }
 
         function openAcceptanceFlower(index, button) {
-            if (!acceptanceExplorationActive || acceptanceFlowersOpened >= gardenFlowerLayout.length) return;
+            if (
+                !proposalJourneyActive
+                || loveAccepted
+                || !acceptanceExplorationActive
+                || acceptanceFlowersOpened >= gardenFlowerLayout.length
+            ) return;
             const bit = 1 << index;
             if ((acceptanceFlowerMask & bit) !== 0) return;
 
@@ -5405,7 +6591,7 @@
                 document.querySelectorAll('.acceptance-flower-hit').forEach(hit => {
                     hit.disabled = true;
                 });
-                window.setTimeout(completeAcceptanceGarden, 3050);
+                window.setTimeout(completeProposalGarden, 3050);
             }
         }
 
@@ -5424,9 +6610,34 @@
         }
 
         function acceptLove() {
-            if (!finaleActive || acceptanceActive) return;
+            if (
+                !finaleActive
+                || loveAccepted
+                || !proposalJourneyActive
+                || !document.body.classList.contains('love-letter-open')
+            ) return;
+            loveAccepted = true;
+            proposalJourneyActive = false;
             acceptanceActive = true;
             acceptanceStartedAt = performance.now();
+            acceptanceCompletedAt = -Infinity;
+            acceptanceExplorationActive = false;
+
+            document.body.classList.remove(
+                'proposal-journey-active',
+                'proposal-garden-complete',
+                'proposal-letter-open',
+                'acceptance-exploration-active',
+                'acceptance-complete',
+                'keepsake-ready'
+            );
+            document.body.classList.add('acceptance-active');
+            window.clearTimeout(acceptanceMemoryCardTimer);
+            const memoryCard = document.getElementById('flower-memory-card');
+            if (memoryCard) {
+                memoryCard.classList.remove('is-visible');
+                memoryCard.setAttribute('aria-hidden', 'true');
+            }
 
             const button = document.getElementById('love-letter-close');
             const label = document.getElementById('love-answer-label');
@@ -5449,9 +6660,11 @@
                 const pad = value => String(value).padStart(2, '0');
                 dateText = `${pad(acceptedOn.getDate())}/${pad(acceptedOn.getMonth() + 1)}/${acceptedOn.getFullYear()}`;
             }
+            acceptanceDateText = dateText;
 
             const date = document.getElementById('acceptance-date');
             const finalDate = document.getElementById('acceptance-final-date');
+            const keepsakeDate = document.getElementById('keepsake-date');
             if (date) {
                 date.textContent = `Chương đầu tiên của chúng mình · ${dateText}`;
                 date.dateTime = acceptedOn.toISOString();
@@ -5460,18 +6673,20 @@
                 finalDate.textContent = `Chương đầu tiên của chúng mình · ${dateText}`;
                 finalDate.dateTime = acceptedOn.toISOString();
             }
+            if (keepsakeDate) {
+                keepsakeDate.textContent = `Ngày mình bắt đầu · ${dateText}`;
+                keepsakeDate.dateTime = acceptedOn.toISOString();
+            }
 
-            // The heart gently unfolds back into the meaningful ten-flower
-            // garden. Camera inference remains paused because finaleActive is
-            // intentionally kept true for this permanent ending.
+            // The ten memories have already led to this answer. The same
+            // garden now bows inward while a new petal heart gathers above it,
+            // so accepting feels like the conclusion rather than the start.
             gardenModeActive = true;
             gardenTransitionActive = false;
             state = 'GARDEN';
             document.body.classList.add('garden-mode');
             document.body.classList.remove('garden-complete');
             createAcceptancePetalHeart();
-            createAcceptanceFlowerButtons();
-            document.body.classList.add('acceptance-active');
 
             const acceptance = document.getElementById('acceptance-finale');
             if (acceptance) acceptance.setAttribute('aria-hidden', 'false');
@@ -5486,21 +6701,22 @@
                 if (acceptanceActive) createPetalBurst(MOBILE_PERFORMANCE_MODE ? 18 : 28, 0.5, 0.36);
             }, 2050);
             window.setTimeout(
-                beginAcceptanceFlowerExploration,
-                prefersReducedMotion() ? 1200 : 9100
+                completeAcceptanceGarden,
+                prefersReducedMotion() ? 3200 : 9200
             );
         }
 
         function openLoveLetter() {
-            if (finaleActive) return;
-            finaleActive = true;
-            finaleStartedAt = performance.now();
-            secretRevealActive = false;
-            state = 'HEART';
+            if (
+                !proposalJourneyActive
+                || loveAccepted
+                || !document.body.classList.contains('proposal-garden-complete')
+                || document.body.classList.contains('love-letter-open')
+            ) return;
+
             setLoveLetterTriggerVisible(false);
-            document.body.classList.remove('secret-reveal-active');
-            setSecretRevealStage('complete');
-            document.body.classList.add('love-letter-open');
+            state = 'GARDEN';
+            document.body.classList.add('love-letter-open', 'proposal-letter-open');
 
             const overlay = document.getElementById('love-letter-overlay');
             if (overlay) overlay.setAttribute('aria-hidden', 'false');
@@ -5509,13 +6725,13 @@
             playSecretHeartbeat();
             playFinaleShimmer();
             transitionMusicToClimax();
-            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 34 : 48, 0.5, 0.5);
+            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 28 : 42, 0.5, 0.52);
             createFinalePetalCurtain();
-            lastPetalBurstAt = finaleStartedAt;
+            lastPetalBurstAt = performance.now();
         }
 
         function closeLoveLetter() {
-            if (!finaleActive || acceptanceActive) return;
+            if (!finaleActive || loveAccepted || proposalJourneyActive) return;
             finaleActive = false;
             state = gardenModeActive ? 'GARDEN' : 'FLOWER';
             document.body.classList.remove('love-letter-open');
@@ -7390,6 +8606,7 @@
                         handsInferenceInFlight = false;
                     }
                 },
+                facingMode: 'user',
                 width: PERFORMANCE.captureWidth,
                 height: PERFORMANCE.captureHeight
             });
