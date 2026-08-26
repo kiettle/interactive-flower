@@ -1193,9 +1193,10 @@
         body.proposal-journey-active #garden-message,
         body.proposal-journey-active #garden-butterfly,
         body.proposal-journey-active #gesture-feedback {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            animation: none !important;
         }
 
         #love-letter-close.is-accepted {
@@ -2099,10 +2100,7 @@
             align-items: center;
             box-sizing: border-box;
             padding:
-                max(22px, calc(env(safe-area-inset-top) + 12px))
-                max(16px, env(safe-area-inset-right))
-                max(22px, calc(env(safe-area-inset-bottom) + 12px))
-                max(16px, env(safe-area-inset-left));
+                max(22px, calc(env(safe-area-inset-top) + 12px)) max(16px, env(safe-area-inset-right)) max(22px, calc(env(safe-area-inset-bottom) + 12px)) max(16px, env(safe-area-inset-left));
             overflow-x: hidden;
             overflow-y: auto;
             color: #fff8f5;
@@ -2147,7 +2145,7 @@
                 0 0 21px rgba(var(--theme-primary), 0.42);
         }
 
-        .keepsake-heading > span {
+        .keepsake-heading>span {
             display: block;
             margin-bottom: 6px;
             color: rgba(var(--theme-stars), 0.7);
@@ -2328,7 +2326,7 @@
             text-align: center;
         }
 
-        .keepsake-polaroid-copy > strong {
+        .keepsake-polaroid-copy>strong {
             display: block;
             font: italic 700 clamp(19px, 5vw, 25px) / 1.05 'Cormorant Garamond', Georgia, serif;
         }
@@ -4254,13 +4252,34 @@
             .keepsake-heading {
                 grid-area: heading;
                 align-self: end;
+                width: 100%;
+                max-width: 100%;
                 margin: 0 0 9px;
+            }
+
+            .keepsake-heading h2 {
+                font-size: clamp(24px, 4.5vw, 34px);
+            }
+
+            .keepsake-heading p {
+                font-size: clamp(14px, 2.5vw, 18px);
             }
 
             #keepsake-polaroid {
                 grid-area: photo;
                 align-self: center;
-                width: min(265px, 34vw);
+                width: min(286px, 34vw);
+            }
+
+            .keepsake-birthdays {
+                white-space: nowrap;
+                font-size: 8px;
+                letter-spacing: 0.055em;
+            }
+
+            .keepsake-birthdays b {
+                margin-inline: 3px;
+                font-size: 9px;
             }
 
             #keepsake-primary-actions,
@@ -4335,7 +4354,7 @@
                 animation: none;
             }
 
-            #ui-layer {
+            body:not(.acceptance-active):not(.proposal-journey-active) #ui-layer {
                 visibility: visible;
                 opacity: 1;
                 transform: none;
@@ -4581,7 +4600,7 @@
         <section id="keepsake-stage" aria-labelledby="keepsake-title" aria-hidden="true">
             <div class="keepsake-heading">
                 <span>Mảnh ghép cuối cùng</span>
-                <h2 id="keepsake-title">Món quà này vẫn còn thiếu một điều…</h2>
+                <h2 id="keepsake-title">Món quà này vẫn còn<br>thiếu một điều…</h2>
                 <p>Một bức ảnh có cả hai chúng mình.</p>
             </div>
             <article id="keepsake-polaroid">
@@ -4598,7 +4617,7 @@
                 </div>
                 <div class="keepsake-polaroid-copy">
                     <strong>Chương đầu tiên của chúng mình</strong>
-                    <span class="keepsake-birthdays">13 · 11 · 2002 <b>♥</b> 15 · 11 · 2003</span>
+                    <span class="keepsake-birthdays">13 · 11 · 2002 · Kiệt <b>♥</b> Duyên · 15 · 11 · 2003</span>
                     <time id="keepsake-date"></time>
                 </div>
             </article>
@@ -4610,8 +4629,7 @@
                 <label id="keepsake-upload-button" for="keepsake-file-input">
                     Chọn ảnh từ thư viện
                 </label>
-                <input id="keepsake-file-input" type="file" accept="image/*"
-                    onchange="handleKeepsakeFile(event)" />
+                <input id="keepsake-file-input" type="file" accept="image/*" onchange="handleKeepsakeFile(event)" />
             </div>
             <div id="keepsake-captured-actions">
                 <button type="button" onclick="retakeKeepsakePhoto()">Chụp lại</button>
@@ -4619,7 +4637,7 @@
                     Lưu khoảnh khắc này
                 </button>
             </div>
-            <p id="keepsake-privacy">Ảnh chỉ được xử lý trên điện thoại này và không được tải đi đâu cả.</p>
+            <p id="keepsake-privacy"></p>
         </section>
     </section>
     <div id="error-log"></div>
@@ -6658,8 +6676,12 @@
 
             context.fillStyle = '#8a5267';
             context.font = '700 25px Arial, sans-serif';
-            context.fillText('13 · 11 · 2002          15 · 11 · 2003', 600, 1160);
+            context.textAlign = 'right';
+            context.fillText('13 · 11 · 2002 · KIỆT', 570, 1160);
+            context.textAlign = 'left';
+            context.fillText('DUYÊN · 15 · 11 · 2003', 630, 1160);
             drawKeepsakeHeart(context, 600, 1153, 25, accent);
+            context.textAlign = 'center';
             context.font = '600 21px Arial, sans-serif';
             context.fillStyle = '#a07686';
             context.fillText(`NGÀY MÌNH BẮT ĐẦU · ${acceptanceDateText}`, 600, 1210);
