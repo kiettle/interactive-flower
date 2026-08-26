@@ -1846,7 +1846,7 @@
 
         #flower-memory-card.is-visible {
             visibility: visible;
-            animation: flower-memory-card-show 3s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation: flower-memory-card-show 5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         .memory-photo-wrap {
@@ -4713,16 +4713,16 @@
 
         const loader = new THREE.TextureLoader();
         const photoFiles = [
-            './image1.jpg',
-            './image2.jpg',
-            './image3.jpg',
-            './image4.jpg',
-            './image5.jpg',
-            './image6.jpg',
-            './image7.jpg',
-            './image8.jpg',
-            './image9.jpg',
-            './image10.jpg'];
+            './assets/memories/image1.jpg',
+            './assets/memories/image2.jpg',
+            './assets/memories/image3.jpg',
+            './assets/memories/image4.jpg',
+            './assets/memories/image5.jpg',
+            './assets/memories/image6.jpg',
+            './assets/memories/image7.jpg',
+            './assets/memories/image8.jpg',
+            './assets/memories/image9.jpg',
+            './assets/memories/image10.jpg'];
         const acceptanceReasons = [
             'Vì nụ cười của em luôn khiến một ngày bình thường trở nên dịu dàng hơn.',
             'Vì từ khi quen em, những ngày bình thường cũng trở nên vui hơn.',
@@ -4735,8 +4735,12 @@
             'Vì trong rất nhiều người, anh lại đặc biệt để ý đến em.',
             'Và điều đơn giản nhất: anh thích em, chỉ vì đó là em.'
         ];
-        const photoTextures = [];
-        photoFiles.forEach((f, i) => photoTextures[i] = loader.load(f));
+        // Photo textures are requested only while the 3D photo orbit is
+        // actually visible. Safari no longer decodes all ten images at boot.
+        const photoTextures = new Array(photoFiles.length).fill(null);
+        const photoTextureLoading = new Array(photoFiles.length).fill(false);
+        let photoTextureLoadsInFlight = 0;
+        let photoTexturesReleased = false;
 
         function createCustomTexture(type) {
             const canvas = document.createElement('canvas');
@@ -4806,8 +4810,8 @@
         const PERFORMANCE = {
             showCameraPreview: false,
             pixelRatioCap: MOBILE_PERFORMANCE_MODE ? 1.5 : 2,
-            captureWidth: MOBILE_PERFORMANCE_MODE ? 960 : 640,
-            captureHeight: MOBILE_PERFORMANCE_MODE ? 720 : 480,
+            captureWidth: MOBILE_PERFORMANCE_MODE ? 720 : 640,
+            captureHeight: MOBILE_PERFORMANCE_MODE ? 540 : 480,
             previewWidth: 640,
             previewHeight: 480,
             analysisWidth: MOBILE_PERFORMANCE_MODE ? 480 : 640,
@@ -4835,6 +4839,10 @@
         let photoBorderGlowMaterial = null;
         let photoMeshes = [];
         let titleMesh, starMesh, loveMesh;
+        let handsController = null;
+        let cameraUtilsController = null;
+        let handTrackingReleased = false;
+        let handsInferenceInFlight = false;
 
         let state = 'FLOWER';
         let lastPetalVisualState = 'FLOWER';
@@ -5895,6 +5903,142 @@
             trigger.tabIndex = visible ? 0 : -1;
         }
 
+        function loadPhotoTexture(index) {
+            const maxConcurrentLoads = MOBILE_PERFORMANCE_MODE ? 3 : 4;
+            if (
+                photoTexturesReleased
+                || index < 0
+                || index >= photoFiles.length
+                || photoTextures[index]
+                || photoTextureLoading[index]
+                || photoTextureLoadsInFlight >= maxConcurrentLoads
+            ) return false;
+
+            photoTextureLoading[index] = true;
+            photoTextureLoadsInFlight += 1;
+            loader.load(
+                photoFiles[index],
+                texture => {
+                    photoTextureLoading[index] = false;
+                    photoTextureLoadsInFlight = Math.max(0, photoTextureLoadsInFlight - 1);
+                    if (photoTexturesReleased) {
+                        texture.dispose();
+                        texture.image = null;
+                        return;
+                    }
+
+                    // Linear filtering avoids the extra mipmap allocation;
+                    // these cards never need distant high-frequency detail.
+                    texture.generateMipmaps = false;
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    photoTextures[index] = texture;
+                    const mesh = photoMeshes[index];
+                    if (mesh?.material) {
+                        mesh.material.map = texture;
+                        mesh.material.opacity = 0;
+                        mesh.material.needsUpdate = true;
+                    }
+                },
+                undefined,
+                () => {
+                    photoTextureLoading[index] = false;
+                    photoTextureLoadsInFlight = Math.max(0, photoTextureLoadsInFlight - 1);
+                }
+            );
+            return true;
+        }
+
+        function loadNeededPhotoTextures(preferredIndex = -1, fillOrbit = false) {
+            if (photoTexturesReleased) return;
+            const maxConcurrentLoads = MOBILE_PERFORMANCE_MODE ? 3 : 4;
+            if (preferredIndex >= 0) loadPhotoTexture(preferredIndex);
+
+            if (!fillOrbit) return;
+
+            while (photoTextureLoadsInFlight < maxConcurrentLoads) {
+                const nextIndex = photoTextures.findIndex(
+                    (texture, index) => !texture && !photoTextureLoading[index]
+                );
+                if (nextIndex < 0 || !loadPhotoTexture(nextIndex)) break;
+            }
+        }
+
+        function getFrontFacingPhotoIndex() {
+            if (!groupGold || !photoFiles.length) return 0;
+            const baseAngle = groupGold.rotation.y;
+            const angleStep = (Math.PI * 2) / photoFiles.length;
+            let frontIndex = 0;
+            let frontZ = -Infinity;
+            for (let index = 0; index < photoFiles.length; index++) {
+                const z = Math.cos(baseAngle + index * angleStep) * CONFIG.photoOrbitRadius;
+                if (z > frontZ) {
+                    frontZ = z;
+                    frontIndex = index;
+                }
+            }
+            return frontIndex;
+        }
+
+        function releasePhotoTextureResources() {
+            if (photoTexturesReleased) return;
+            photoTexturesReleased = true;
+
+            photoTextures.forEach((texture, index) => {
+                if (texture) {
+                    texture.dispose();
+                    texture.image = null;
+                }
+                photoTextures[index] = null;
+            });
+
+            photoMeshes.forEach(mesh => {
+                scene?.remove(mesh);
+                if (mesh.material) {
+                    mesh.material.map = null;
+                    mesh.material.dispose();
+                }
+                mesh.geometry?.dispose();
+                mesh.children.forEach(child => child.geometry?.dispose());
+            });
+            photoMeshes = [];
+            photoBorderMaterial?.dispose();
+            photoBorderGlowMaterial?.dispose();
+            photoBorderMaterial = null;
+            photoBorderGlowMaterial = null;
+            renderer?.renderLists?.dispose();
+        }
+
+        function keepCameraStreamLightForKeepsake() {
+            const video = document.querySelector('.input_video');
+            const track = video?.srcObject?.getVideoTracks?.()[0];
+            if (!track?.applyConstraints) return;
+            track.applyConstraints({
+                width: { ideal: PERFORMANCE.captureWidth },
+                height: { ideal: PERFORMANCE.captureHeight },
+                frameRate: { ideal: 20, max: 24 }
+            }).catch(() => { });
+        }
+
+        function releaseHandTrackingForGarden() {
+            if (handTrackingReleased && !handsController) return;
+            handTrackingReleased = true;
+            keepCameraStreamLightForKeepsake();
+
+            // A frame may already be inside hands.send(). Wait for that one
+            // promise, then close only MediaPipe. The camera track deliberately
+            // stays alive for the final Polaroid selfie.
+            if (handsInferenceInFlight) {
+                window.setTimeout(releaseHandTrackingForGarden, 120);
+                return;
+            }
+
+            const controller = handsController;
+            handsController = null;
+            if (!controller?.close) return;
+            Promise.resolve(controller.close()).catch(() => { });
+        }
+
         function startProposalGardenJourney() {
             if (finaleActive || proposalJourneyActive || loveAccepted) return;
 
@@ -5931,6 +6075,9 @@
             state = 'GARDEN';
             document.body.classList.add('garden-mode', 'proposal-journey-active');
             document.body.classList.remove('garden-complete');
+
+            releasePhotoTextureResources();
+            releaseHandTrackingForGarden();
 
             createAcceptanceFlowerButtons();
             const counter = document.getElementById('flower-memory-counter');
@@ -6128,17 +6275,21 @@
             });
         }
 
-        function showAcceptanceMemory(index) {
+        function showAcceptanceMemory(flowerIndex, storyIndex) {
             const card = document.getElementById('flower-memory-card');
             const photo = document.getElementById('flower-memory-photo');
             const number = document.getElementById('flower-memory-number');
             const reason = document.getElementById('flower-memory-reason');
             if (!card || !photo || !number || !reason) return;
 
-            photo.src = photoFiles[index % photoFiles.length];
-            photo.alt = `Kỷ niệm số ${index + 1} dành cho Duyên`;
-            number.textContent = String(index + 1).padStart(2, '0');
-            reason.textContent = acceptanceReasons[index];
+            const safeStoryIndex = Math.min(
+                Math.max(storyIndex, 0),
+                acceptanceReasons.length - 1
+            );
+            photo.src = photoFiles[flowerIndex % photoFiles.length];
+            photo.alt = `Kỷ niệm thứ ${safeStoryIndex + 1} dành cho Duyên`;
+            number.textContent = String(safeStoryIndex + 1).padStart(2, '0');
+            reason.textContent = acceptanceReasons[safeStoryIndex];
             window.clearTimeout(acceptanceMemoryCardTimer);
             card.classList.remove('is-visible');
             void card.offsetWidth;
@@ -6147,7 +6298,7 @@
             acceptanceMemoryCardTimer = window.setTimeout(() => {
                 card.classList.remove('is-visible');
                 card.setAttribute('aria-hidden', 'true');
-            }, 3050);
+            }, 5000);
         }
 
         function completeProposalGarden() {
@@ -6575,7 +6726,7 @@
             button?.classList.add('is-opened');
             button?.setAttribute('aria-pressed', 'true');
             brightenAcceptanceFlower(index);
-            showAcceptanceMemory(index);
+            showAcceptanceMemory(index, acceptanceFlowersOpened - 1);
             updateAcceptanceButterflyPair();
 
             const counter = document.getElementById('flower-memory-counter');
@@ -6591,7 +6742,7 @@
                 document.querySelectorAll('.acceptance-flower-hit').forEach(hit => {
                     hit.disabled = true;
                 });
-                window.setTimeout(completeProposalGarden, 3050);
+                window.setTimeout(completeProposalGarden, 5000);
             }
         }
 
@@ -7995,7 +8146,12 @@
             });
 
             for (let i = 0; i < photoFiles.length; i++) {
-                const mat = new THREE.MeshBasicMaterial({ map: photoTextures[i], side: THREE.DoubleSide });
+                const mat = new THREE.MeshBasicMaterial({
+                    map: null,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0
+                });
                 const mesh = new THREE.Mesh(geo, mat);
                 const border = new THREE.Mesh(borderGeo, photoBorderMaterial);
                 border.position.z = -0.1;
@@ -8314,9 +8470,20 @@
             updateParticleGroup(groupGift, 'gift', state, speed, handRotY, time);
             updateParticleGroup(groupHeart, 'heart', state, speed, handRotY, time);
 
+            if (state === 'EXPLODE') {
+                loadNeededPhotoTextures(getFrontFacingPhotoIndex(), true);
+            } else if (state === 'PHOTO') {
+                loadNeededPhotoTextures(selectedIndex, false);
+            }
+
             photoMeshes.forEach((mesh, i) => {
                 if (!mesh.material.map && photoTextures[i]) {
-                    mesh.material.map = photoTextures[i]; mesh.material.needsUpdate = true;
+                    mesh.material.map = photoTextures[i];
+                    mesh.material.opacity = 0;
+                    mesh.material.needsUpdate = true;
+                }
+                if (mesh.material.map && mesh.material.opacity < 1) {
+                    mesh.material.opacity = Math.min(1, mesh.material.opacity + 0.12);
                 }
             });
 
@@ -8362,6 +8529,8 @@
                 let bestIdx = 0; let maxZ = -999;
 
                 photoMeshes.forEach((mesh, i) => {
+                    // Keep the coloured frame visible while its lazy-loaded
+                    // photo fades into the transparent centre.
                     mesh.visible = true;
                     // Cộng thêm baseAngle để ảnh xoay cùng hạt
                     const angle = baseAngle + i * angleStep;
@@ -8390,11 +8559,13 @@
                 photoMeshes.forEach((mesh, i) => {
                     if (i === selectedIndex) {
                         // Zoom ảnh được chọn
+                        mesh.visible = true;
                         mesh.position.lerp(new THREE.Vector3(0, 0, 60), 0.1);
                         mesh.scale.lerp(new THREE.Vector3(5, 5, 5), 0.1);
                         mesh.lookAt(camera.position); mesh.rotation.z = 0;
                     } else {
                         // Thu nhỏ các ảnh khác
+                        mesh.visible = false;
                         mesh.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1);
                     }
                 });
@@ -8488,6 +8659,8 @@
             const analysisContext = analysisCanvas.getContext('2d');
 
             const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+            handsController = hands;
+            handTrackingReleased = false;
             hands.setOptions({
                 maxNumHands: 2,
                 modelComplexity: 1,
@@ -8572,8 +8745,7 @@
             });
 
             let lastHandsInferenceAt = -Infinity;
-            let handsInferenceInFlight = false;
-            const cameraUtils = new Camera(video, {
+            cameraUtilsController = new Camera(video, {
                 onFrame: async () => {
                     if (PERFORMANCE.showCameraPreview) {
                         drawCameraFrameCover(ctx, video, canvas.width, canvas.height);
@@ -8582,7 +8754,9 @@
                     // capture may run, but MediaPipe waits until the flower is
                     // fully revealed before doing any hand inference.
                     if (
-                        finaleActive
+                        handTrackingReleased
+                        || !handsController
+                        || finaleActive
                         || flowerIntroActive
                         || gardenTransitionActive
                     ) return;
@@ -8610,7 +8784,7 @@
                 width: PERFORMANCE.captureWidth,
                 height: PERFORMANCE.captureHeight
             });
-            cameraUtils.start();
+            cameraUtilsController.start();
         }
 
         window.addEventListener('resize', scheduleSceneResize);
