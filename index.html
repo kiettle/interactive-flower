@@ -47,6 +47,9 @@
             --petal-light: #fff6f9;
             --petal-middle: #ff8bb5;
             --petal-dark: #c52463;
+            --tilt-x: 0px;
+            --tilt-y: 0px;
+            --flower-accent: #ff75a7;
         }
 
         body[data-flower="rose"] {
@@ -277,6 +280,779 @@
 
         body.secret-reveal-message #secret-reveal-overlay {
             opacity: 0;
+        }
+
+        #flower-intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            background:
+                radial-gradient(ellipse at 50% 68%, rgba(var(--theme-tertiary), 0.2), transparent 18%),
+                radial-gradient(circle at 50% 48%, transparent 0 18%, rgba(0, 0, 0, 0.18) 48%, rgba(0, 0, 0, 0.7) 100%);
+            transition: opacity 850ms ease, background 900ms ease;
+        }
+
+        body.flower-intro-active #flower-intro-overlay {
+            opacity: 1;
+        }
+
+        body.flower-intro-active #romantic-background {
+            filter: brightness(0.48) saturate(0.82);
+            transform: scale(1.018);
+        }
+
+        body.flower-intro-bloom #romantic-background {
+            filter: brightness(0.86) saturate(1.12);
+            transform: scale(1.006);
+        }
+
+        body.flower-intro-active #dedication,
+        body.flower-intro-active #ui-layer {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        .flower-intro-seed {
+            position: absolute;
+            left: 50%;
+            top: 68%;
+            width: clamp(30px, 9vw, 54px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.1);
+            background: radial-gradient(circle,
+                    rgba(255, 255, 255, 0.96),
+                    rgba(var(--theme-stars), 0.72) 14%,
+                    rgba(var(--theme-tertiary), 0.32) 42%,
+                    transparent 72%);
+            filter: blur(1px);
+        }
+
+        body.flower-intro-active .flower-intro-seed {
+            animation: flower-seed-awaken 2.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .flower-intro-ring {
+            position: absolute;
+            left: 50%;
+            top: 48%;
+            width: min(64vw, 480px);
+            aspect-ratio: 1;
+            border: 1px solid rgba(var(--theme-stars), 0.46);
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.24);
+            box-shadow:
+                0 0 36px rgba(var(--theme-tertiary), 0.2),
+                inset 0 0 48px rgba(var(--theme-primary), 0.12);
+        }
+
+        body.flower-intro-bloom .flower-intro-ring {
+            animation: flower-bloom-ring 1.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Flower changes reuse the opening language, but at a quicker pace so
+           browsing the picker still feels responsive. */
+        body.flower-intro-change .flower-intro-seed {
+            animation-duration: 1.55s;
+        }
+
+        body.flower-intro-change .flower-intro-spark {
+            --active-spark-duration: var(--spark-change-duration);
+            --active-spark-delay: var(--spark-change-delay);
+        }
+
+        body.flower-intro-change.flower-intro-bloom .flower-intro-ring {
+            animation-duration: 1.15s;
+        }
+
+        .flower-intro-spark {
+            position: absolute;
+            left: calc(50% + var(--spark-x));
+            top: 68%;
+            width: var(--spark-size);
+            height: var(--spark-size);
+            border-radius: 50%;
+            opacity: 0;
+            background: rgba(var(--theme-stars), 0.92);
+            box-shadow: 0 0 12px rgba(var(--theme-tertiary), 0.86);
+        }
+
+        body.flower-intro-active .flower-intro-spark {
+            animation: flower-spark-rise var(--active-spark-duration, var(--spark-duration)) ease-out var(--active-spark-delay, var(--spark-delay)) both;
+        }
+
+        .flower-intro-spark:nth-of-type(1) {
+            --spark-x: -42px;
+            --spark-size: 4px;
+            --spark-duration: 2.5s;
+            --spark-delay: 0.25s;
+            --spark-change-duration: 1.8s;
+            --spark-change-delay: 0.14s;
+            --spark-drift: -22px;
+        }
+
+        .flower-intro-spark:nth-of-type(2) {
+            --spark-x: 31px;
+            --spark-size: 3px;
+            --spark-duration: 2.9s;
+            --spark-delay: 0.52s;
+            --spark-change-duration: 2.1s;
+            --spark-change-delay: 0.29s;
+            --spark-drift: 18px;
+        }
+
+        .flower-intro-spark:nth-of-type(3) {
+            --spark-x: -13px;
+            --spark-size: 5px;
+            --spark-duration: 2.7s;
+            --spark-delay: 0.82s;
+            --spark-change-duration: 1.95s;
+            --spark-change-delay: 0.45s;
+            --spark-drift: 28px;
+        }
+
+        .flower-intro-spark:nth-of-type(4) {
+            --spark-x: 57px;
+            --spark-size: 3px;
+            --spark-duration: 2.35s;
+            --spark-delay: 1.12s;
+            --spark-change-duration: 1.7s;
+            --spark-change-delay: 0.62s;
+            --spark-drift: -18px;
+        }
+
+        .flower-intro-spark:nth-of-type(5) {
+            --spark-x: -68px;
+            --spark-size: 3px;
+            --spark-duration: 2.65s;
+            --spark-delay: 1.35s;
+            --spark-change-duration: 1.9s;
+            --spark-change-delay: 0.74s;
+            --spark-drift: 24px;
+        }
+
+        .flower-intro-spark:nth-of-type(6) {
+            --spark-x: 9px;
+            --spark-size: 4px;
+            --spark-duration: 2.45s;
+            --spark-delay: 1.62s;
+            --spark-change-duration: 1.75s;
+            --spark-change-delay: 0.9s;
+            --spark-drift: -14px;
+        }
+
+        @keyframes flower-seed-awaken {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.1);
+            }
+
+            34% {
+                opacity: 0.92;
+                transform: translate(-50%, -50%) scale(0.62);
+            }
+
+            68% {
+                opacity: 0.58;
+                transform: translate(-50%, -50%) scale(1.15);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.9);
+            }
+        }
+
+        @keyframes flower-spark-rise {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, 12px, 0) scale(0.4);
+            }
+
+            18%,
+            68% {
+                opacity: 0.9;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate3d(var(--spark-drift), -45dvh, 0) scale(1.15);
+            }
+        }
+
+        @keyframes flower-bloom-ring {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.24);
+            }
+
+            24% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.42);
+            }
+        }
+
+        #garden-transition-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 4;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            background:
+                radial-gradient(ellipse at 50% 72%, rgba(var(--theme-tertiary), 0.22), transparent 25%),
+                radial-gradient(ellipse at 50% 105%, rgba(var(--theme-primary), 0.18), transparent 54%);
+            transition: opacity 700ms ease;
+        }
+
+        body.garden-transition-active #garden-transition-overlay {
+            opacity: 1;
+        }
+
+        body.garden-mode:not(.secret-reveal-active):not(.flower-intro-active) #romantic-background {
+            filter: brightness(0.8) saturate(1.14);
+        }
+
+        .garden-wave {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            width: min(50vw, 330px);
+            aspect-ratio: 1;
+            border: 1px solid rgba(var(--theme-stars), 0.38);
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.18) rotateX(66deg);
+            box-shadow: 0 0 30px rgba(var(--theme-tertiary), 0.18);
+        }
+
+        body.garden-transition-bloom .garden-wave:first-child {
+            animation: garden-wave-expand 1.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        body.garden-transition-bloom .garden-wave:nth-child(2) {
+            animation: garden-wave-expand 1.7s cubic-bezier(0.16, 1, 0.3, 1) 220ms both;
+        }
+
+        .garden-seed-spark {
+            position: absolute;
+            left: 50%;
+            top: 55%;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            opacity: 0;
+            background: rgba(var(--theme-stars), 0.95);
+            box-shadow: 0 0 12px rgba(var(--theme-tertiary), 0.8);
+        }
+
+        body.garden-transition-active .garden-seed-spark {
+            animation: garden-seed-scatter 2.25s cubic-bezier(0.16, 0.7, 0.28, 1) var(--seed-delay) both;
+        }
+
+        body.garden-transition-collapse .garden-seed-spark,
+        body.garden-transition-collapse .garden-wave {
+            animation-direction: reverse;
+        }
+
+        .garden-seed-spark:nth-of-type(3) { --seed-x: -34vw; --seed-y: 29vh; --seed-delay: 80ms; }
+        .garden-seed-spark:nth-of-type(4) { --seed-x: -20vw; --seed-y: 12vh; --seed-delay: 180ms; }
+        .garden-seed-spark:nth-of-type(5) { --seed-x: -8vw; --seed-y: 34vh; --seed-delay: 260ms; }
+        .garden-seed-spark:nth-of-type(6) { --seed-x: 12vw; --seed-y: 22vh; --seed-delay: 120ms; }
+        .garden-seed-spark:nth-of-type(7) { --seed-x: 25vw; --seed-y: 10vh; --seed-delay: 230ms; }
+        .garden-seed-spark:nth-of-type(8) { --seed-x: 36vw; --seed-y: 31vh; --seed-delay: 320ms; }
+        .garden-seed-spark:nth-of-type(9) { --seed-x: -28vw; --seed-y: -8vh; --seed-delay: 360ms; }
+        .garden-seed-spark:nth-of-type(10) { --seed-x: 30vw; --seed-y: -5vh; --seed-delay: 410ms; }
+
+        #garden-hold-indicator {
+            --hold-angle: 0deg;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            z-index: 109;
+            width: 68px;
+            height: 68px;
+            box-sizing: border-box;
+            padding: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.72);
+            background: conic-gradient(
+                rgba(var(--theme-stars), 0.96) 0 var(--hold-angle),
+                rgba(var(--theme-tertiary), 0.16) var(--hold-angle) 360deg
+            );
+            box-shadow: 0 0 24px rgba(var(--theme-tertiary), 0.26);
+            transition: opacity 180ms ease, transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #garden-hold-indicator::before {
+            content: '✦';
+            display: grid;
+            width: 100%;
+            height: 100%;
+            place-items: center;
+            border-radius: 50%;
+            color: rgba(var(--theme-stars), 0.95);
+            background: rgba(9, 2, 8, 0.82);
+            box-shadow: inset 0 0 18px rgba(var(--theme-primary), 0.2);
+            font-size: 24px;
+        }
+
+        #garden-hold-indicator::after {
+            content: attr(data-label);
+            position: absolute;
+            left: 50%;
+            top: calc(100% + 12px);
+            width: max-content;
+            max-width: min(260px, 74vw);
+            padding: 7px 12px;
+            border: 1px solid rgba(var(--theme-stars), 0.22);
+            border-radius: 999px;
+            color: rgba(255, 248, 252, 0.92);
+            background: rgba(8, 1, 7, 0.72);
+            transform: translateX(-50%);
+            font: italic 600 15px/1.1 'Cormorant Garamond', Georgia, serif;
+            white-space: nowrap;
+        }
+
+        #garden-hold-indicator.is-active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #garden-hold-indicator.is-complete {
+            animation: garden-hold-complete 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes garden-wave-expand {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.18) rotateX(66deg); }
+            28% { opacity: 0.8; }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(3.3) rotateX(66deg); }
+        }
+
+        @keyframes garden-seed-scatter {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            18%, 68% { opacity: 1; }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--seed-x)), calc(-50% + var(--seed-y))) scale(1.25); }
+        }
+
+        @keyframes garden-hold-complete {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            45% { opacity: 1; transform: translate(-50%, -50%) scale(1.28); filter: brightness(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.7); }
+        }
+
+        /* A neutral acknowledgement from the hidden camera: only a soft
+           themed glow, never the heart silhouette or proposal message. */
+        #gesture-feedback {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: clamp(88px, 23vw, 150px);
+            aspect-ratio: 1;
+            z-index: 84;
+            pointer-events: none;
+            opacity: 0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0.55);
+            background: radial-gradient(circle,
+                    rgba(var(--theme-stars), 0.3) 0 8%,
+                    rgba(var(--theme-tertiary), 0.16) 22%,
+                    transparent 68%);
+            filter: blur(1px);
+            will-change: opacity, transform, filter;
+        }
+
+        #gesture-feedback::after {
+            content: '';
+            position: absolute;
+            inset: 24%;
+            border: 1px solid rgba(var(--theme-stars), 0.42);
+            border-radius: 50%;
+            box-shadow: 0 0 24px rgba(var(--theme-tertiary), 0.22);
+        }
+
+        #gesture-feedback.is-pulsing {
+            animation: gesture-acknowledged 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes gesture-acknowledged {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.55);
+                filter: blur(4px);
+            }
+
+            34% {
+                opacity: 0.72;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.3);
+                filter: blur(0);
+            }
+        }
+
+        #love-letter-trigger {
+            position: fixed;
+            left: 50%;
+            bottom: max(34px, calc(env(safe-area-inset-bottom) + 22px));
+            z-index: 108;
+            width: min(290px, calc(100vw - 44px));
+            min-height: 48px;
+            padding: 12px 25px;
+            border: 1px solid rgba(var(--theme-stars), 0.72);
+            color: #fff9fc;
+            background: linear-gradient(135deg,
+                    rgba(var(--theme-primary), 0.9),
+                    rgba(var(--theme-secondary), 0.94));
+            box-shadow:
+                0 12px 42px rgba(0, 0, 0, 0.46),
+                0 0 28px rgba(var(--theme-tertiary), 0.27),
+                inset 0 1px rgba(255, 255, 255, 0.22);
+            opacity: 0;
+            visibility: hidden;
+            transform: translate(-50%, 18px) scale(0.94);
+            transition: opacity 500ms ease, transform 600ms cubic-bezier(0.16, 1, 0.3, 1), visibility 500ms;
+            animation: none;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 19px;
+            font-style: italic;
+            letter-spacing: 0.025em;
+        }
+
+        #love-letter-trigger.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0) scale(1);
+        }
+
+        #love-letter-trigger.is-visible::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border: 1px solid rgba(var(--theme-stars), 0.22);
+            border-radius: inherit;
+            animation: letter-trigger-halo 2.4s ease-in-out infinite;
+        }
+
+        @keyframes letter-trigger-halo {
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scale(0.98);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.035);
+            }
+        }
+
+        #love-letter-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 130;
+            display: grid;
+            place-items: center;
+            box-sizing: border-box;
+            padding:
+                max(24px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 34%, rgba(var(--theme-primary), 0.28), transparent 42%),
+                rgba(3, 0, 4, 0.84);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            transition: opacity 700ms ease 360ms, visibility 700ms 360ms;
+        }
+
+        body.love-letter-open #love-letter-overlay {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        body.love-letter-open #petal-layer {
+            z-index: 135;
+        }
+
+        .love-letter-card {
+            position: relative;
+            width: min(560px, 92vw);
+            max-height: min(650px, 82dvh);
+            overflow: auto;
+            box-sizing: border-box;
+            padding: clamp(34px, 6vw, 58px) clamp(27px, 7vw, 66px) clamp(28px, 6vw, 48px);
+            color: #5b203b;
+            border: 1px solid rgba(255, 239, 228, 0.9);
+            border-radius: 4px 22px 6px 20px;
+            background:
+                linear-gradient(110deg, rgba(255, 255, 255, 0.52), transparent 22%),
+                linear-gradient(160deg, #fffaf1, #fce7e8 66%, #f8d7de);
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.52),
+                0 0 55px rgba(var(--theme-tertiary), 0.18),
+                inset 0 0 34px rgba(170, 75, 105, 0.08);
+            opacity: 0;
+            transform: translateY(30px) rotate(-1.2deg) scale(0.86);
+        }
+
+        body.love-letter-open .love-letter-card {
+            animation: love-letter-arrive 900ms cubic-bezier(0.16, 1, 0.3, 1) 620ms both;
+        }
+
+        .love-letter-card::before,
+        .love-letter-card::after {
+            content: '❦';
+            position: absolute;
+            color: rgba(var(--theme-primary), 0.34);
+            font-size: 28px;
+        }
+
+        .love-letter-card::before {
+            left: 22px;
+            top: 14px;
+        }
+
+        .love-letter-card::after {
+            right: 22px;
+            bottom: 14px;
+            transform: rotate(180deg);
+        }
+
+        .love-letter-card h2 {
+            margin: 0 0 20px;
+            color: #8f2851;
+            font: italic 600 clamp(34px, 8vw, 49px) / 1 'Cormorant Garamond', Georgia, serif;
+            text-align: center;
+            letter-spacing: 0.025em;
+        }
+
+        .love-letter-card p {
+            margin: 0;
+            font: 500 clamp(16px, 3.9vw, 19px) / 1.72 Georgia, 'Times New Roman', serif;
+            text-align: left;
+        }
+
+        .love-letter-signature {
+            display: block;
+            margin-top: 22px;
+            color: #a1275a;
+            font: italic 600 24px/1.2 'Cormorant Garamond', Georgia, serif;
+            text-align: center;
+        }
+
+        .love-confession-highlight {
+            display: inline-block;
+            position: relative;
+            isolation: isolate;
+            margin: 4px 2px 2px 0;
+            color: #ba1855;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.2em;
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: 0.018em;
+            text-shadow:
+                0 1px rgba(255, 255, 255, 0.8),
+                0 0 12px rgba(211, 47, 107, 0.22);
+        }
+
+        .love-confession-highlight::after {
+            content: '';
+            position: absolute;
+            left: -2%;
+            right: -2%;
+            bottom: 0.08em;
+            z-index: -1;
+            height: 0.38em;
+            border-radius: 999px;
+            background: linear-gradient(90deg,
+                    rgba(255, 135, 176, 0.08),
+                    rgba(255, 105, 153, 0.34),
+                    rgba(255, 135, 176, 0.08));
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        body.love-letter-open .love-confession-highlight {
+            animation: confession-glow 850ms ease 1.45s both;
+        }
+
+        body.love-letter-open .love-confession-highlight::after {
+            animation: confession-underline 850ms cubic-bezier(0.16, 1, 0.3, 1) 1.65s forwards;
+        }
+
+        @keyframes confession-glow {
+            0% {
+                opacity: 0;
+                filter: blur(4px);
+                transform: translateY(5px) scale(0.94);
+            }
+
+            65% {
+                opacity: 1;
+                filter: blur(0) brightness(1.2);
+                transform: translateY(0) scale(1.035);
+            }
+
+            100% {
+                opacity: 1;
+                filter: blur(0) brightness(1);
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes confession-underline {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        #love-letter-close {
+            position: relative;
+            isolation: isolate;
+            display: block;
+            width: min(280px, 100%);
+            min-height: 54px;
+            margin: 30px auto 0;
+            padding: 12px 30px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 236, 191, 0.92);
+            color: #fffaf2;
+            background:
+                linear-gradient(135deg, #d93369 0%, #b31952 48%, #7e123e 100%);
+            box-shadow:
+                0 12px 28px rgba(126, 18, 62, 0.3),
+                0 0 0 5px rgba(196, 47, 101, 0.08),
+                0 0 26px rgba(217, 51, 105, 0.28),
+                inset 0 1px rgba(255, 255, 255, 0.32);
+            animation: love-answer-pulse 1.85s ease-in-out infinite;
+            font: italic 700 20px/1 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.035em;
+            text-shadow: 0 1px 5px rgba(74, 0, 28, 0.44);
+            transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+        }
+
+        #love-letter-close::before {
+            content: '';
+            position: absolute;
+            z-index: 0;
+            pointer-events: none;
+            top: -70%;
+            bottom: -70%;
+            left: -55%;
+            width: 35%;
+            transform: rotate(18deg);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+            animation: love-answer-shimmer 2.8s ease-in-out infinite;
+        }
+
+        #love-letter-close::after {
+            content: ' ♥';
+            display: inline-block;
+            margin-left: 5px;
+            color: #ffe0eb;
+            filter: drop-shadow(0 0 5px rgba(255, 226, 236, 0.72));
+            animation: love-answer-heartbeat 1.15s ease-in-out infinite;
+        }
+
+        #love-letter-close:hover {
+            filter: brightness(1.09) saturate(1.08);
+            box-shadow:
+                0 14px 34px rgba(126, 18, 62, 0.38),
+                0 0 0 6px rgba(196, 47, 101, 0.1),
+                0 0 34px rgba(217, 51, 105, 0.4),
+                inset 0 1px rgba(255, 255, 255, 0.38);
+        }
+
+        #love-letter-close:active {
+            animation-play-state: paused;
+            transform: scale(0.97);
+        }
+
+        #love-letter-close:focus-visible {
+            outline: 3px solid rgba(143, 40, 81, 0.3);
+            outline-offset: 4px;
+        }
+
+        @keyframes love-answer-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.035);
+            }
+        }
+
+        @keyframes love-answer-shimmer {
+
+            0%,
+            24% {
+                left: -55%;
+                opacity: 0;
+            }
+
+            38% {
+                opacity: 1;
+            }
+
+            58%,
+            100% {
+                left: 125%;
+                opacity: 0;
+            }
+        }
+
+        @keyframes love-answer-heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            42% {
+                transform: scale(1.28);
+            }
+        }
+
+        @keyframes love-letter-arrive {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) rotate(-1.2deg) scale(0.86);
+            }
+
+            72% {
+                opacity: 1;
+                transform: translateY(-5px) rotate(0.35deg) scale(1.015);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotate(0) scale(1);
+            }
         }
 
         @keyframes secret-heart-flash {
@@ -641,6 +1417,13 @@
             animation: petal-burst var(--petal-duration) cubic-bezier(0.18, 0.78, 0.3, 1) forwards;
         }
 
+        .petal--finale {
+            left: var(--petal-left);
+            top: -18vh;
+            opacity: 0;
+            animation: petal-finale var(--petal-duration) cubic-bezier(0.22, 0.55, 0.42, 1) var(--petal-delay) forwards;
+        }
+
         @keyframes petal-fall {
             0% {
                 opacity: 0;
@@ -657,8 +1440,118 @@
 
             100% {
                 opacity: 0;
-                transform: translate3d(var(--petal-drift), 124vh, 0) rotate(var(--petal-spin)) rotateX(180deg);
+                transform: translate3d(calc(var(--petal-drift) + var(--tilt-x)), calc(124vh + var(--tilt-y)), 0) rotate(var(--petal-spin)) rotateX(180deg);
             }
+        }
+
+        #firefly-layer {
+            position: fixed;
+            inset: -8%;
+            z-index: 3;
+            pointer-events: none;
+            transform: translate3d(var(--tilt-x), var(--tilt-y), 0);
+            transition: transform 90ms linear;
+            overflow: hidden;
+        }
+
+        .firefly {
+            position: absolute;
+            left: var(--firefly-left);
+            top: var(--firefly-top);
+            width: var(--firefly-size);
+            height: var(--firefly-size);
+            border-radius: 50%;
+            background: rgba(var(--theme-stars), 0.94);
+            box-shadow: 0 0 7px rgba(var(--theme-stars), 0.92), 0 0 18px rgba(var(--theme-tertiary), 0.54);
+            opacity: 0;
+            animation:
+                firefly-drift var(--firefly-duration) ease-in-out var(--firefly-delay) infinite alternate,
+                firefly-glow 2.7s ease-in-out var(--firefly-delay) infinite;
+        }
+
+        @keyframes firefly-drift {
+            from { transform: translate3d(-14px, 12px, 0); }
+            to { transform: translate3d(24px, -22px, 0); }
+        }
+
+        @keyframes firefly-glow {
+            0%, 100% { opacity: 0.08; filter: brightness(0.72); }
+            45% { opacity: 0.88; filter: brightness(1.45); }
+            70% { opacity: 0.25; filter: brightness(0.92); }
+        }
+
+        #garden-message {
+            position: fixed;
+            top: max(86px, calc(env(safe-area-inset-top) + 58px));
+            left: 50%;
+            z-index: 92;
+            width: min(360px, calc(100vw - 44px));
+            margin: 0;
+            color: rgba(255, 245, 235, 0.68);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(15px, 3.8vw, 20px);
+            font-style: italic;
+            line-height: 1.45;
+            letter-spacing: 0.035em;
+            text-align: center;
+            text-shadow: 0 0 14px rgba(var(--theme-primary), 0.55);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translate(-50%, 12px);
+            transition: opacity 1.45s ease, transform 1.45s ease, visibility 1.45s;
+        }
+
+        body.garden-complete #garden-message {
+            opacity: 0.72;
+            visibility: visible;
+            transform: translate(-50%, 0);
+        }
+
+        #garden-butterfly {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 96;
+            width: 34px;
+            height: 27px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform-origin: 50% 70%;
+            filter: drop-shadow(0 0 6px rgba(var(--theme-tertiary), 0.55));
+            will-change: transform, opacity;
+        }
+
+        #garden-butterfly.is-visible { opacity: 0.92; visibility: visible; }
+
+        .butterfly-body {
+            position: absolute;
+            left: 15px;
+            top: 6px;
+            width: 4px;
+            height: 17px;
+            border-radius: 50%;
+            background: #2d1722;
+        }
+
+        .butterfly-wing {
+            position: absolute;
+            top: 2px;
+            width: 18px;
+            height: 20px;
+            background: linear-gradient(145deg, #fff5fb, #e89bd9 48%, #8d5bc1 100%);
+            border: 1px solid rgba(255,255,255,0.45);
+            animation: butterfly-wing 210ms ease-in-out infinite alternate;
+        }
+
+        .butterfly-wing--left { left: 0; border-radius: 90% 28% 70% 35%; transform-origin: 100% 55%; }
+        .butterfly-wing--right { right: 0; border-radius: 28% 90% 35% 70%; transform-origin: 0 55%; animation-direction: alternate-reverse; }
+        #garden-butterfly.is-landed .butterfly-wing { animation-duration: 1.8s; }
+
+        @keyframes butterfly-wing {
+            from { transform: rotateY(18deg) rotateZ(-5deg); }
+            to { transform: rotateY(72deg) rotateZ(5deg); }
         }
 
         @keyframes petal-burst {
@@ -674,6 +1567,23 @@
             100% {
                 opacity: 0;
                 transform: translate(calc(-50% + var(--petal-x)), calc(-50% + var(--petal-y))) scale(1) rotate(var(--petal-spin));
+            }
+        }
+
+        @keyframes petal-finale {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, -10vh, 0) rotate(0deg) scale(0.7);
+            }
+
+            12%,
+            68% {
+                opacity: var(--petal-opacity, 0.9);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate3d(var(--petal-drift), 128vh, 0) rotate(var(--petal-spin)) scale(1.15);
             }
         }
 
@@ -702,6 +1612,125 @@
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
+
+        .flower-dock {
+            width: min(100%, 360px);
+            margin: 0 auto;
+            pointer-events: auto;
+        }
+
+        #flowerPickerToggle {
+            display: grid;
+            grid-template-columns: 42px 1fr 28px;
+            align-items: center;
+            gap: 10px;
+            width: min(100%, 330px);
+            min-height: 58px;
+            margin: 0 auto 12px;
+            padding: 8px 12px;
+            color: #fff8f2;
+            text-align: left;
+            background: linear-gradient(135deg, rgba(28, 6, 18, 0.82), rgba(var(--theme-primary), 0.2));
+            border: 1px solid rgba(var(--theme-stars), 0.52);
+            border-radius: 22px;
+            box-shadow: inset 0 1px rgba(255,255,255,0.12), 0 12px 36px rgba(0,0,0,0.3), 0 0 20px rgba(var(--theme-primary),0.16);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            animation: none;
+        }
+
+        .flower-dock-icon {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 15px;
+            background: radial-gradient(circle at 35% 28%, rgba(255,255,255,0.24), rgba(var(--theme-primary),0.18));
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14), 0 0 15px rgba(var(--theme-tertiary),0.22);
+            font-size: 23px;
+        }
+
+        .flower-dock-copy { min-width: 0; }
+        .flower-dock-kicker { display:block; color:rgba(255,240,246,.58); font-size:10px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; }
+        .flower-dock-name { display:block; margin-top:2px; overflow:hidden; font-size:15px; font-weight:750; text-overflow:ellipsis; white-space:nowrap; }
+        .flower-dock-chevron { color:rgba(var(--theme-stars),.8); font-size:17px; text-align:center; transition:transform .25s ease; }
+        body.flower-picker-open .flower-dock-chevron { transform:rotate(180deg); }
+
+        #btnStart {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            width: min(100%, 340px);
+            background: linear-gradient(135deg, #7f0f36 0%, rgb(var(--theme-primary)) 48%, #991438 100%);
+            border-color: rgba(var(--theme-stars), 0.88);
+            box-shadow: inset 0 1px rgba(255,255,255,.28), 0 0 0 1px rgba(var(--theme-primary),.35), 0 12px 34px rgba(var(--theme-primary),.38);
+            animation: start-button-glow 3.6s ease-in-out infinite;
+        }
+
+        #btnStart::after {
+            content:'';
+            position:absolute;
+            inset:-30% auto -30% -40%;
+            z-index:-1;
+            width:32%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);
+            transform:skewX(-18deg);
+            animation:start-button-shimmer 4.6s ease-in-out infinite;
+        }
+
+        #btnStart:active { transform:scale(.98); }
+        @keyframes start-button-glow { 0%,100% { filter:brightness(.94); } 50% { filter:brightness(1.08); } }
+        @keyframes start-button-shimmer { 0%,55% { left:-45%; opacity:0; } 68% { opacity:1; } 86%,100% { left:118%; opacity:0; } }
+
+        #flowerPickerBackdrop {
+            position:fixed;
+            inset:0;
+            z-index:150;
+            background:rgba(0,0,0,.46);
+            opacity:0;
+            visibility:hidden;
+            pointer-events:none;
+            transition:opacity .28s ease, visibility .28s;
+        }
+
+        #flowerPickerSheet {
+            position:fixed;
+            left:50%;
+            bottom:max(14px, env(safe-area-inset-bottom));
+            z-index:151;
+            width:min(410px, calc(100vw - 24px));
+            box-sizing:border-box;
+            padding:18px;
+            color:#fff;
+            background:linear-gradient(150deg,rgba(29,6,20,.96),rgba(7,1,6,.97));
+            border:1px solid rgba(var(--theme-stars),.36);
+            border-radius:28px;
+            box-shadow:0 24px 80px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.1);
+            opacity:0;
+            visibility:hidden;
+            pointer-events:none;
+            transform:translate(-50%,24px) scale(.97);
+            transition:opacity .32s ease, transform .32s cubic-bezier(.2,.8,.2,1), visibility .32s;
+        }
+
+        body.flower-picker-open #flowerPickerBackdrop,
+        body.flower-picker-open #flowerPickerSheet { opacity:1; visibility:visible; pointer-events:auto; }
+        body.flower-picker-open #flowerPickerSheet { transform:translate(-50%,0) scale(1); }
+        .flower-sheet-title { margin:0 0 14px; font-family:'Cormorant Garamond',Georgia,serif; font-size:25px; font-style:italic; text-align:center; }
+        .flower-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+        .flower-choice {
+            display:flex; align-items:center; gap:10px; min-height:52px; padding:8px 11px; color:rgba(255,248,251,.78);
+            background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.08); border-radius:16px;
+            box-shadow:none; animation:none; font-size:13px; font-weight:650; text-align:left;
+        }
+        .flower-choice span { font-size:22px; }
+        .flower-choice.is-selected { color:#fff; border-color:rgba(var(--theme-stars),.68); background:rgba(var(--theme-primary),.2); box-shadow:0 0 18px rgba(var(--theme-primary),.2); }
+        .flower-choice:focus-visible, #flowerPickerToggle:focus-visible, #btnStart:focus-visible { outline:2px solid rgba(var(--theme-stars),.95); outline-offset:3px; }
+
+        body.system-started .flower-dock { display:flex; justify-content:center; }
+        body.system-started #flowerPickerToggle { width:auto; min-width:174px; min-height:48px; grid-template-columns:34px 1fr 22px; margin-bottom:0; padding:6px 10px; border-radius:19px; }
+        body.system-started .flower-dock-icon { width:32px; height:32px; border-radius:12px; font-size:19px; }
+        body.system-started .flower-dock-kicker { display:none; }
 
         #flowerSelect {
             color: #fff;
@@ -850,6 +1879,24 @@
             #camera-preview {
                 width: clamp(124px, 32vw, 142px);
             }
+
+            #love-letter-trigger {
+                bottom: max(26px, calc(env(safe-area-inset-bottom) + 18px));
+                font-size: 18px;
+            }
+
+            .love-letter-card {
+                width: min(390px, 92vw);
+                max-height: min(690px, 78dvh);
+            }
+
+            #love-letter-overlay {
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                background:
+                    radial-gradient(circle at 50% 34%, rgba(var(--theme-primary), 0.24), transparent 44%),
+                    rgba(3, 0, 4, 0.94);
+            }
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -887,6 +1934,25 @@
             #camera-preview {
                 width: 116px;
             }
+
+            #love-letter-trigger {
+                left: auto;
+                right: max(18px, env(safe-area-inset-right));
+                bottom: max(12px, env(safe-area-inset-bottom));
+                width: 220px;
+                transform: translateY(18px) scale(0.94);
+            }
+
+            #love-letter-trigger.is-visible {
+                transform: translateY(0) scale(1);
+            }
+
+            .love-letter-card {
+                width: min(620px, 82vw);
+                max-height: 82dvh;
+                padding-top: 28px;
+                padding-bottom: 24px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -901,6 +1967,26 @@
             #opening-curtain,
             #secret-reveal-overlay,
             #secret-reveal-overlay::before,
+            #flower-intro-overlay,
+            .flower-intro-seed,
+            .flower-intro-ring,
+            .flower-intro-spark,
+            #garden-transition-overlay,
+            .garden-wave,
+            .garden-seed-spark,
+            #garden-hold-indicator,
+            .firefly,
+            #garden-butterfly,
+            .butterfly-wing,
+            #garden-message,
+            #flowerPickerSheet,
+            #flowerPickerBackdrop,
+            #gesture-feedback,
+            #love-letter-trigger,
+            #love-letter-trigger::after,
+            .love-letter-card,
+            .love-confession-highlight,
+            .love-confession-highlight::after,
             #romantic-background::before,
             #romantic-background::after,
             .romantic-orb {
@@ -927,11 +2013,34 @@
                 will-change: auto;
             }
 
+            .love-letter-card {
+                opacity: 1;
+                transform: none;
+            }
+
+            .love-confession-highlight {
+                opacity: 1;
+                filter: none;
+                transform: none;
+            }
+
+            .love-confession-highlight::after {
+                transform: scaleX(1);
+            }
+
+            #love-letter-overlay {
+                transition: none;
+            }
+
             #petal-layer {
                 display: none;
             }
 
             #opening-curtain {
+                display: none;
+            }
+
+            #flower-intro-overlay {
                 display: none;
             }
         }
@@ -949,7 +2058,55 @@
     </div>
 
     <div id="petal-layer" aria-hidden="true"></div>
+    <div id="firefly-layer" aria-hidden="true"></div>
+    <p id="garden-message" role="status">Mọi điều đẹp đẽ đều bắt đầu từ một điều nhỏ bé…</p>
+    <div id="garden-butterfly" aria-hidden="true">
+        <span class="butterfly-wing butterfly-wing--left"></span>
+        <span class="butterfly-wing butterfly-wing--right"></span>
+        <span class="butterfly-body"></span>
+    </div>
     <div id="secret-reveal-overlay" aria-hidden="true"></div>
+    <div id="flower-intro-overlay" aria-hidden="true">
+        <span class="flower-intro-spark"></span>
+        <span class="flower-intro-spark"></span>
+        <span class="flower-intro-spark"></span>
+        <span class="flower-intro-spark"></span>
+        <span class="flower-intro-spark"></span>
+        <span class="flower-intro-spark"></span>
+        <span class="flower-intro-seed"></span>
+        <span class="flower-intro-ring"></span>
+    </div>
+    <div id="garden-transition-overlay" aria-hidden="true">
+        <span class="garden-wave"></span>
+        <span class="garden-wave"></span>
+        <span class="garden-seed-spark"></span>
+        <span class="garden-seed-spark"></span>
+        <span class="garden-seed-spark"></span>
+        <span class="garden-seed-spark"></span>
+        <span class="garden-seed-spark"></span>
+        <span class="garden-seed-spark"></span>
+        <span class="garden-seed-spark"></span>
+        <span class="garden-seed-spark"></span>
+    </div>
+    <div id="garden-hold-indicator" data-label="Giữ để gieo vườn hoa" aria-hidden="true"></div>
+    <div id="gesture-feedback" aria-hidden="true"></div>
+    <button id="love-letter-trigger" type="button" aria-hidden="true" tabindex="-1" onclick="openLoveLetter()">Chạm vào
+        đây…</button>
+    <section id="love-letter-overlay" role="dialog" aria-modal="true" aria-hidden="true"
+        aria-labelledby="love-letter-title">
+        <article class="love-letter-card">
+            <h2 id="love-letter-title">Gửi Duyên,</h2>
+            <p>
+                Anh đã đặt rất nhiều yêu thương vào món quà nhỏ này. Cảm ơn em vì đã xuất hiện và khiến
+                những ngày bình thường trở nên đặc biệt hơn. <br />
+                <span class="love-confession-highlight">Anh thích em.</span> Anh mong từ hôm nay mình có thể cùng nhau
+                tạo nên thật nhiều kỷ niệm dịu dàng,
+                không chỉ trong món quà này, mà cả những ngày sau nữa.
+                <span class="love-letter-signature">Làm người yêu anh nhé ❤️</span>
+            </p>
+            <button id="love-letter-close" type="button" onclick="closeLoveLetter()">Em đồng ý</button>
+        </article>
+    </section>
     <div id="error-log"></div>
 
     <div id="dedication" aria-label="Tặng Duyên. Một món quà nhỏ dành riêng cho em…">
@@ -967,20 +2124,38 @@
             🖐 <b>Xòe tay:</b> Bung nở &nbsp;|&nbsp; 🫶 <b>Trái tim:</b> Tình yêu &nbsp;|&nbsp; ✊ <b>Nắm tay:</b> Bông hoa
             &nbsp;|&nbsp; 👆 <b>Một ngón:</b> Phóng to
         </div> -->
-        <label class="flower-picker" for="flowerSelect">
-            Loại hoa
-            <select id="flowerSelect" onchange="setFlowerType(this.value)">
-                <option value="tulip">🌷 Hoa tulip</option>
-                <option value="rose">🌹 Hoa hồng</option>
-                <option value="peony">🌸 Hoa mẫu đơn</option>
-                <option value="carnation">🌺 Hoa cẩm chướng</option>
-                <option value="daisy">🌼 Hoa cúc</option>
-                <option value="lavender">🪻 Hoa oải hương</option>
-                <option value="sunflower">🌻 Hoa hướng dương</option>
-            </select>
-        </label>
-        <button id="btnStart" onclick="startSystem()">🌷Em bấm vào đâyyyy🌷</button>
+        <div class="flower-dock">
+            <button id="flowerPickerToggle" type="button" aria-haspopup="dialog" aria-expanded="false"
+                onclick="toggleFlowerPicker()">
+                <span id="flowerDockIcon" class="flower-dock-icon">🌷</span>
+                <span class="flower-dock-copy">
+                    <span class="flower-dock-kicker">Khu vườn của em</span>
+                    <span id="flowerDockName" class="flower-dock-name">Hoa tulip</span>
+                </span>
+                <span class="flower-dock-chevron" aria-hidden="true">⌄</span>
+            </button>
+        </div>
+        <button id="btnStart" type="button" onclick="startSystem()">
+            <span id="btnStartFlowerLeft">🌷</span>
+            <span>Em bấm vào đâyyyy</span>
+            <span id="btnStartFlowerRight">🌷</span>
+        </button>
     </div>
+
+    <div id="flowerPickerBackdrop" aria-hidden="true" onclick="closeFlowerPicker()"></div>
+    <section id="flowerPickerSheet" role="dialog" aria-modal="true" aria-labelledby="flowerPickerTitle"
+        aria-hidden="true">
+        <h2 id="flowerPickerTitle" class="flower-sheet-title">Chọn một khu vườn cho em</h2>
+        <div class="flower-choice-grid" role="listbox" aria-label="Loại hoa">
+            <button class="flower-choice is-selected" type="button" role="option" aria-selected="true" data-flower="tulip" onclick="selectFlowerFromPicker('tulip')"><span>🌷</span>Hoa tulip</button>
+            <button class="flower-choice" type="button" role="option" aria-selected="false" data-flower="rose" onclick="selectFlowerFromPicker('rose')"><span>🌹</span>Hoa hồng</button>
+            <button class="flower-choice" type="button" role="option" aria-selected="false" data-flower="peony" onclick="selectFlowerFromPicker('peony')"><span>🌸</span>Hoa mẫu đơn</button>
+            <button class="flower-choice" type="button" role="option" aria-selected="false" data-flower="carnation" onclick="selectFlowerFromPicker('carnation')"><span>🌺</span>Hoa cẩm chướng</button>
+            <button class="flower-choice" type="button" role="option" aria-selected="false" data-flower="daisy" onclick="selectFlowerFromPicker('daisy')"><span>🌼</span>Hoa cúc</button>
+            <button class="flower-choice" type="button" role="option" aria-selected="false" data-flower="lavender" onclick="selectFlowerFromPicker('lavender')"><span>🪻</span>Hoa oải hương</button>
+            <button class="flower-choice" type="button" role="option" aria-selected="false" data-flower="sunflower" onclick="selectFlowerFromPicker('sunflower')"><span>🌻</span>Hoa hướng dương</button>
+        </div>
+    </section>
 
     <!-- Vandiep -->
     <div id="copyright">©</div>
@@ -1044,6 +2219,22 @@
                 ctx.fillStyle = '#D32F2F'; ctx.fillRect(20, 20, 88, 88);
                 ctx.fillStyle = '#FFD700'; ctx.fillRect(54, 20, 20, 88); ctx.fillRect(20, 54, 88, 20);
                 ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 2; ctx.strokeRect(20, 20, 88, 88);
+            } else if (type === 'heart_soft') {
+                ctx.translate(cx, cy + 5);
+                ctx.beginPath();
+                ctx.moveTo(0, 34);
+                ctx.bezierCurveTo(-7, 25, -38, 7, -38, -14);
+                ctx.bezierCurveTo(-38, -35, -12, -42, 0, -23);
+                ctx.bezierCurveTo(12, -42, 38, -35, 38, -14);
+                ctx.bezierCurveTo(38, 7, 7, 25, 0, 34);
+                const heartGradient = ctx.createRadialGradient(-10, -17, 2, 0, 0, 48);
+                heartGradient.addColorStop(0, '#ffffff');
+                heartGradient.addColorStop(0.38, '#fff1f7');
+                heartGradient.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = heartGradient;
+                ctx.shadowColor = '#ffffff';
+                ctx.shadowBlur = 12;
+                ctx.fill();
             }
             return new THREE.CanvasTexture(canvas);
         }
@@ -1052,6 +2243,7 @@
             gold: createCustomTexture('gold_glow'),
             red: createCustomTexture('red_light'),
             gift: createCustomTexture('gift_red'),
+            heart: createCustomTexture('heart_soft'),
             neutral: createCustomTexture('white_glow')
         };
 
@@ -1084,7 +2276,11 @@
         let scene, camera, renderer;
         let resizeAnimationFrame;
         let themeTransitionTimer;
-        let groupGold, groupRed, groupGift;
+        let groupGold, groupRed, groupGift, groupHeart;
+        let gardenFillPoints = null;
+        let gardenStemLines = null;
+        let photoBorderMaterial = null;
+        let photoBorderGlowMaterial = null;
         let photoMeshes = [];
         let titleMesh, starMesh, loveMesh;
 
@@ -1099,15 +2295,100 @@
         let secretRevealStartedAt = -Infinity;
         let secretRevealStage = 'idle';
         let secretAudioContext = null;
+        let flowerIntroActive = false;
+        let flowerIntroStartedAt = -Infinity;
+        let flowerIntroCameraUnlockAt = -Infinity;
+        let flowerIntroDurationMs = 5200;
+        let flowerIntroIsChange = false;
+        let flowerIntroMusicStartVolume = 0.16;
+        let flowerIntroBloomPlayed = false;
+        let flowerIntroPetalsPlayed = false;
+        let gardenModeActive = false;
+        let gardenTransitionActive = false;
+        let gardenTransitionExpanding = true;
+        let gardenTransitionStartedAt = -Infinity;
+        let gardenTransitionBloomPlayed = false;
+        let gardenHoldStartedAt = null;
+        let gardenHoldPointerId = null;
+        let gardenHoldStartPoint = null;
+        let gardenHoldCanvas = null;
+        let gardenHoldAnimationFrame = null;
+        let gardenRestingStartedAt = null;
+        let gardenFillTexture = null;
+        let tiltPermissionRequested = false;
+        let tiltPermissionGranted = false;
+        const tiltState = {
+            neutralBeta: null, neutralGamma: null,
+            targetX: 0, targetY: 0, x: 0, y: 0
+        };
+        let finaleActive = false;
+        let finaleStartedAt = -Infinity;
+        let lastGestureFeedbackAt = -Infinity;
+        let gestureFeedbackTimer = null;
+        let singleHandFeedbackCandidate = '';
+        let singleHandFeedbackStartedAt = null;
+        let singleHandFeedbackAcknowledged = '';
+        let loveGestureFeedbackShown = false;
         const SECRET_REVEAL_GATHER_MS = 850;
         const SECRET_REVEAL_MESSAGE_MS = 1450;
+        const SECRET_REVEAL_CTA_MS = 2850;
         const SECRET_REVEAL_MUSIC_RETURN_MS = 3200;
         const SECRET_REVEAL_DURATION_MS = 6200;
+        const FLOWER_INTRO_DURATION_MS = 5200;
+        const FLOWER_CHANGE_INTRO_DURATION_MS = 3300;
+        const FLOWER_INTRO_BLOOM_PROGRESS = 0.64;
+        const FLOWER_INTRO_PETAL_PROGRESS = 0.82;
+        const GARDEN_HOLD_MS = 1200;
+        const GARDEN_TRANSITION_MS = 2700;
+        const GARDEN_TRANSITION_BLOOM_PROGRESS = 0.5;
+        const MUSIC_CLIMAX_TIME_SECONDS = 118;
         const flowerEmojis = {
             tulip: '🌷', rose: '🌹', peony: '🌸', carnation: '🌺',
             daisy: '🌼', lavender: '🪻', sunflower: '🌻'
         };
+        const flowerNames = {
+            tulip: 'Hoa tulip', rose: 'Hoa hồng', peony: 'Hoa mẫu đơn',
+            carnation: 'Hoa cẩm chướng', daisy: 'Hoa cúc',
+            lavender: 'Hoa oải hương', sunflower: 'Hoa hướng dương'
+        };
+        const flowerAccentColors = {
+            tulip: '#ff75a7', rose: '#e94b63', peony: '#f1a1c4',
+            carnation: '#ff769d', daisy: '#f7c947',
+            lavender: '#c297f2', sunflower: '#f7c947'
+        };
+        const gardenPresets = {
+            tulip: { mobileCount: 84, seed: 117, layout: 'rows', landing: [0.64, 0.46] },
+            rose: { mobileCount: 76, seed: 223, layout: 'spiral', landing: [0.58, 0.43] },
+            peony: { mobileCount: 72, seed: 337, layout: 'clusters', landing: [0.66, 0.49] },
+            carnation: { mobileCount: 82, seed: 449, layout: 'waves', landing: [0.38, 0.47] },
+            daisy: { mobileCount: 90, seed: 557, layout: 'meadow', landing: [0.61, 0.45] },
+            lavender: { mobileCount: 88, seed: 661, layout: 'perspective', landing: [0.43, 0.42] },
+            sunflower: { mobileCount: 70, seed: 773, layout: 'horizon', landing: [0.63, 0.45] }
+        };
         const flowerTypes = Object.keys(flowerEmojis);
+        const flowerMotionStyles = {
+            tulip: { style: 0, leafSpeed: 0.76, leafAmount: 0.82 },
+            rose: { style: 1, leafSpeed: 0.62, leafAmount: 0.58 },
+            peony: { style: 2, leafSpeed: 0.88, leafAmount: 0.72 },
+            carnation: { style: 3, leafSpeed: 1.18, leafAmount: 0.7 },
+            daisy: { style: 4, leafSpeed: 0.94, leafAmount: 0.68 },
+            lavender: { style: 5, leafSpeed: 1.5, leafAmount: 1.0 },
+            sunflower: { style: 6, leafSpeed: 0.72, leafAmount: 0.84 }
+        };
+        const gardenFlowerLayout = [
+            // 10 flowers = two soft arcs of five, carrying both of
+            // Duyên's favourite numbers without crowding the iPhone view.
+            { x: -30, rootY: -38, z: 13, scale: 0.34 },
+            { x: -15, rootY: -41, z: 15, scale: 0.36 },
+            { x: 0, rootY: -43, z: 16, scale: 0.37 },
+            { x: 15, rootY: -41, z: 15, scale: 0.36 },
+            { x: 30, rootY: -38, z: 13, scale: 0.34 },
+            { x: -27, rootY: -17, z: -1, scale: 0.28 },
+            { x: -13, rootY: -20, z: 1, scale: 0.3 },
+            { x: 0, rootY: -22, z: 2, scale: 0.31 },
+            { x: 13, rootY: -20, z: 1, scale: 0.3 },
+            { x: 27, rootY: -17, z: -1, scale: 0.28 }
+        ];
         let selectedFlowerType = 'tulip';
         const gestureHeartColor = new THREE.Color(0xFF69B4);
 
@@ -1228,6 +2509,350 @@
                 petal.style.setProperty('--petal-duration', `${duration.toFixed(0)}ms`);
                 layer.appendChild(petal);
                 window.setTimeout(() => petal.remove(), duration + 150);
+            }
+        }
+
+        function createFinalePetalCurtain() {
+            const layer = document.getElementById('petal-layer');
+            if (!layer || prefersReducedMotion()) return;
+
+            const petalCount = MOBILE_PERFORMANCE_MODE ? 44 : 78;
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('span');
+                const duration = 2500 + Math.random() * 1800;
+                const delay = Math.random() * 1050;
+                petal.className = 'petal petal--finale';
+                configurePetalSize(petal, 8, 13);
+                petal.style.setProperty('--petal-left', `${(-4 + Math.random() * 108).toFixed(1)}%`);
+                petal.style.setProperty('--petal-duration', `${duration.toFixed(0)}ms`);
+                petal.style.setProperty('--petal-delay', `${delay.toFixed(0)}ms`);
+                petal.style.setProperty('--petal-drift', `${(-150 + Math.random() * 300).toFixed(0)}px`);
+                petal.style.setProperty('--petal-spin', `${(-720 + Math.random() * 1440).toFixed(0)}deg`);
+                petal.style.setProperty('--petal-opacity', (0.68 + Math.random() * 0.3).toFixed(2));
+                layer.appendChild(petal);
+                window.setTimeout(() => petal.remove(), duration + delay + 180);
+            }
+        }
+
+        function pulseGestureFeedback(now = performance.now()) {
+            if (
+                secretRevealActive
+                || finaleActive
+                || now - lastGestureFeedbackAt < 620
+            ) return;
+
+            const feedback = document.getElementById('gesture-feedback');
+            if (!feedback) return;
+            lastGestureFeedbackAt = now;
+            feedback.classList.remove('is-pulsing');
+            void feedback.offsetWidth;
+            feedback.classList.add('is-pulsing');
+            window.clearTimeout(gestureFeedbackTimer);
+            gestureFeedbackTimer = window.setTimeout(
+                () => feedback.classList.remove('is-pulsing'),
+                800
+            );
+        }
+
+        function updateSingleHandFeedback(gestureName, now = performance.now()) {
+            if (!gestureName) {
+                singleHandFeedbackCandidate = '';
+                singleHandFeedbackStartedAt = null;
+                singleHandFeedbackAcknowledged = '';
+                return;
+            }
+
+            if (gestureName !== singleHandFeedbackCandidate) {
+                singleHandFeedbackCandidate = gestureName;
+                singleHandFeedbackStartedAt = now;
+                singleHandFeedbackAcknowledged = '';
+                return;
+            }
+
+            if (
+                singleHandFeedbackStartedAt !== null
+                && now - singleHandFeedbackStartedAt >= 280
+                && singleHandFeedbackAcknowledged !== gestureName
+            ) {
+                singleHandFeedbackAcknowledged = gestureName;
+                pulseGestureFeedback(now);
+            }
+        }
+
+        function getFlowerIntroProgress(now = performance.now()) {
+            if (!flowerIntroActive) return 1;
+            return clamp((now - flowerIntroStartedAt) / flowerIntroDurationMs);
+        }
+
+        function startFlowerIntro(now = performance.now(), isFlowerChange = false) {
+            state = 'FLOWER';
+            flowerIntroIsChange = isFlowerChange;
+            flowerIntroDurationMs = isFlowerChange
+                ? FLOWER_CHANGE_INTRO_DURATION_MS
+                : FLOWER_INTRO_DURATION_MS;
+            flowerIntroMusicStartVolume = isFlowerChange ? 0.38 : 0.16;
+            flowerIntroBloomPlayed = false;
+            flowerIntroPetalsPlayed = false;
+
+            if (prefersReducedMotion()) {
+                flowerIntroActive = false;
+                flowerIntroCameraUnlockAt = now;
+                bgMusic.volume = 1;
+                document.body.classList.remove(
+                    'flower-intro-active',
+                    'flower-intro-bloom',
+                    'flower-intro-change'
+                );
+                return;
+            }
+
+            flowerIntroActive = true;
+            flowerIntroStartedAt = now;
+            flowerIntroCameraUnlockAt = now + flowerIntroDurationMs + (isFlowerChange ? 420 : 700);
+            bgMusic.volume = flowerIntroMusicStartVolume;
+            document.body.classList.add('flower-intro-active');
+            document.body.classList.toggle('flower-intro-change', isFlowerChange);
+            document.body.classList.remove('flower-intro-bloom');
+        }
+
+        function updateFlowerIntro(now) {
+            if (!flowerIntroActive) return;
+            const progress = getFlowerIntroProgress(now);
+            const musicProgress = 1 - Math.pow(1 - progress, 2);
+            state = 'FLOWER';
+            bgMusic.volume = flowerIntroMusicStartVolume
+                + musicProgress * (1 - flowerIntroMusicStartVolume);
+
+            if (progress >= FLOWER_INTRO_BLOOM_PROGRESS) {
+                document.body.classList.add('flower-intro-bloom');
+                if (!flowerIntroBloomPlayed) {
+                    flowerIntroBloomPlayed = true;
+                    playFlowerBloomChime();
+                }
+            }
+
+            if (progress >= FLOWER_INTRO_PETAL_PROGRESS && !flowerIntroPetalsPlayed) {
+                flowerIntroPetalsPlayed = true;
+                const petalCount = flowerIntroIsChange
+                    ? (MOBILE_PERFORMANCE_MODE ? 14 : 20)
+                    : (MOBILE_PERFORMANCE_MODE ? 20 : 30);
+                createPetalBurst(petalCount, 0.5, 0.47);
+                lastPetalBurstAt = now;
+            }
+
+            if (progress >= 1) {
+                flowerIntroActive = false;
+                bgMusic.volume = 1;
+                document.body.classList.remove(
+                    'flower-intro-active',
+                    'flower-intro-bloom',
+                    'flower-intro-change'
+                );
+            }
+        }
+
+        function cancelGardenHold(showCompletion = false) {
+            if (gardenHoldAnimationFrame !== null) {
+                cancelAnimationFrame(gardenHoldAnimationFrame);
+                gardenHoldAnimationFrame = null;
+            }
+
+            if (
+                gardenHoldCanvas
+                && gardenHoldPointerId !== null
+                && gardenHoldCanvas.hasPointerCapture?.(gardenHoldPointerId)
+            ) {
+                try { gardenHoldCanvas.releasePointerCapture(gardenHoldPointerId); } catch (_) { }
+            }
+
+            gardenHoldStartedAt = null;
+            gardenHoldPointerId = null;
+            gardenHoldStartPoint = null;
+            const indicator = document.getElementById('garden-hold-indicator');
+            if (!indicator) return;
+            indicator.classList.remove('is-active', 'is-complete');
+            indicator.style.setProperty('--hold-angle', '0deg');
+
+            if (showCompletion) {
+                void indicator.offsetWidth;
+                indicator.classList.add('is-complete');
+                window.setTimeout(() => indicator.classList.remove('is-complete'), 560);
+            }
+        }
+
+        function updateGardenHold(now) {
+            if (gardenHoldStartedAt === null) return;
+            if (
+                gardenTransitionActive
+                || flowerIntroActive
+                || secretRevealActive
+                || finaleActive
+                || (state !== 'FLOWER' && state !== 'GARDEN')
+            ) {
+                cancelGardenHold();
+                return;
+            }
+
+            const progress = clamp((now - gardenHoldStartedAt) / GARDEN_HOLD_MS);
+            const indicator = document.getElementById('garden-hold-indicator');
+            if (indicator) {
+                indicator.style.setProperty('--hold-angle', `${(progress * 360).toFixed(1)}deg`);
+            }
+
+            if (progress >= 1) {
+                const shouldExpand = !gardenModeActive;
+                cancelGardenHold(true);
+                startGardenTransition(shouldExpand, now);
+                return;
+            }
+
+            gardenHoldAnimationFrame = requestAnimationFrame(updateGardenHold);
+        }
+
+        function beginGardenHold(event) {
+            if (
+                event.button !== undefined && event.button !== 0
+                || gardenTransitionActive
+                || flowerIntroActive
+                || secretRevealActive
+                || finaleActive
+                || (state !== 'FLOWER' && state !== 'GARDEN')
+            ) return;
+
+            const centerDistanceX = Math.abs(event.clientX - window.innerWidth / 2);
+            const centerDistanceY = Math.abs(event.clientY - window.innerHeight / 2);
+            if (
+                centerDistanceX > Math.min(window.innerWidth * 0.38, 210)
+                || centerDistanceY > Math.min(window.innerHeight * 0.36, 270)
+            ) return;
+
+            event.preventDefault();
+            cancelGardenHold();
+            gardenHoldStartedAt = performance.now();
+            gardenHoldPointerId = event.pointerId;
+            gardenHoldStartPoint = { x: event.clientX, y: event.clientY };
+            gardenHoldCanvas = event.currentTarget;
+            try { gardenHoldCanvas.setPointerCapture?.(event.pointerId); } catch (_) { }
+
+            const indicator = document.getElementById('garden-hold-indicator');
+            if (indicator) {
+                indicator.dataset.label = gardenModeActive
+                    ? 'Giữ để thu khu vườn'
+                    : 'Giữ để gieo vườn hoa';
+                indicator.style.left = `${event.clientX}px`;
+                indicator.style.top = `${event.clientY}px`;
+                indicator.classList.add('is-active');
+            }
+            gardenHoldAnimationFrame = requestAnimationFrame(updateGardenHold);
+        }
+
+        function moveGardenHold(event) {
+            if (
+                gardenHoldStartedAt === null
+                || event.pointerId !== gardenHoldPointerId
+                || !gardenHoldStartPoint
+            ) return;
+            if (
+                Math.hypot(
+                    event.clientX - gardenHoldStartPoint.x,
+                    event.clientY - gardenHoldStartPoint.y
+                ) > 30
+            ) {
+                cancelGardenHold();
+            }
+        }
+
+        function toggleGardenFromDoubleTap(event) {
+            if (
+                gardenTransitionActive
+                || flowerIntroActive
+                || secretRevealActive
+                || finaleActive
+                || (state !== 'FLOWER' && state !== 'GARDEN')
+            ) return;
+
+            const centerDistanceX = Math.abs(event.clientX - window.innerWidth / 2);
+            const centerDistanceY = Math.abs(event.clientY - window.innerHeight / 2);
+            if (
+                centerDistanceX > Math.min(window.innerWidth * 0.38, 210)
+                || centerDistanceY > Math.min(window.innerHeight * 0.36, 270)
+            ) return;
+
+            event.preventDefault();
+            startGardenTransition(!gardenModeActive, performance.now());
+        }
+
+        function bindGardenHoldInteraction(canvas) {
+            if (!canvas || canvas.dataset.gardenHoldReady === 'true') return;
+            canvas.dataset.gardenHoldReady = 'true';
+            canvas.addEventListener('pointerdown', beginGardenHold);
+            canvas.addEventListener('pointermove', moveGardenHold);
+            canvas.addEventListener('pointerup', () => cancelGardenHold());
+            canvas.addEventListener('pointercancel', () => cancelGardenHold());
+            canvas.addEventListener('dblclick', toggleGardenFromDoubleTap);
+            canvas.addEventListener('contextmenu', event => event.preventDefault());
+        }
+
+        function startGardenTransition(expand, now = performance.now(), refreshGarden = false) {
+            if (
+                gardenTransitionActive
+                || flowerIntroActive
+                || secretRevealActive
+                || finaleActive
+                || (!refreshGarden && gardenModeActive === expand)
+            ) return;
+
+            cancelGardenHold();
+            gardenModeActive = expand;
+            gardenTransitionExpanding = expand;
+            gardenTransitionBloomPlayed = false;
+            gardenRestingStartedAt = null;
+            document.body.classList.remove('garden-complete');
+            state = expand ? 'GARDEN' : 'FLOWER';
+            document.body.classList.toggle('garden-mode', expand);
+
+            if (prefersReducedMotion()) {
+                gardenTransitionActive = false;
+                bgMusic.volume = 1;
+                return;
+            }
+
+            gardenTransitionActive = true;
+            gardenTransitionStartedAt = now;
+            bgMusic.volume = 0.52;
+            document.body.classList.add('garden-transition-active');
+            document.body.classList.toggle('garden-transition-collapse', !expand);
+            document.body.classList.remove('garden-transition-bloom');
+            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 12 : 18, 0.5, 0.54);
+            lastPetalBurstAt = now;
+        }
+
+        function updateGardenTransition(now) {
+            if (!gardenTransitionActive) return;
+            const progress = clamp((now - gardenTransitionStartedAt) / GARDEN_TRANSITION_MS);
+            const musicProgress = 1 - Math.pow(1 - progress, 2);
+            state = gardenTransitionExpanding ? 'GARDEN' : 'FLOWER';
+            bgMusic.volume = 0.52 + musicProgress * 0.48;
+
+            if (progress >= GARDEN_TRANSITION_BLOOM_PROGRESS) {
+                document.body.classList.add('garden-transition-bloom');
+                if (!gardenTransitionBloomPlayed) {
+                    gardenTransitionBloomPlayed = true;
+                    playFlowerBloomChime();
+                    createPetalBurst(MOBILE_PERFORMANCE_MODE ? 16 : 24, 0.5, 0.55);
+                    lastPetalBurstAt = now;
+                }
+            }
+
+            if (progress >= 1) {
+                gardenTransitionActive = false;
+                bgMusic.volume = 1;
+                state = gardenModeActive ? 'GARDEN' : 'FLOWER';
+                document.body.classList.remove(
+                    'garden-transition-active',
+                    'garden-transition-bloom',
+                    'garden-transition-collapse'
+                );
             }
         }
 
@@ -1418,6 +3043,7 @@
             lastTwoHandsSeenAt = -Infinity;
             heldHandsStartedAt = null;
             twoHandHeartStartedAt = null;
+            loveGestureFeedbackShown = false;
         }
 
         function updateHeartGesture(allHands, now = performance.now()) {
@@ -1489,6 +3115,16 @@
                 && twoHandHeartStartedAt !== null
                 && now - twoHandHeartStartedAt >= TWO_HAND_HEART_HOLD_MS;
             const aLoveGestureIsVisible = handsLookHeld || handsAreInterlaced || handsMakeHeart;
+
+            if (
+                hasTwoHands
+                && (heldHandsStable || handsAreInterlaced || handsMakeHeart)
+                && !isHeartGestureActive
+                && !loveGestureFeedbackShown
+            ) {
+                loveGestureFeedbackShown = true;
+                pulseGestureFeedback(now);
+            }
 
             if (heldHandsConfirmed || twoHandHeartConfirmed) {
                 isHeartGestureActive = true;
@@ -1591,7 +3227,7 @@
                 secretAudioContext = new AudioContextClass();
             }
             if (secretAudioContext.state === 'suspended') {
-                secretAudioContext.resume().catch(() => {});
+                secretAudioContext.resume().catch(() => { });
             }
         }
 
@@ -1621,10 +3257,151 @@
             };
 
             if (secretAudioContext.state === 'suspended') {
-                secretAudioContext.resume().then(schedulePulses).catch(() => {});
+                secretAudioContext.resume().then(schedulePulses).catch(() => { });
             } else {
                 schedulePulses();
             }
+        }
+
+        function playFlowerBloomChime() {
+            if (!secretAudioContext) return;
+
+            const scheduleBloom = () => {
+                const startAt = secretAudioContext.currentTime + 0.04;
+                [392, 523.25, 659.25].forEach((frequency, index) => {
+                    const oscillator = secretAudioContext.createOscillator();
+                    const gain = secretAudioContext.createGain();
+                    const noteStart = startAt + index * 0.12;
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(frequency, noteStart);
+                    oscillator.frequency.exponentialRampToValueAtTime(
+                        frequency * 1.012,
+                        noteStart + 1.15
+                    );
+                    gain.gain.setValueAtTime(0.0001, noteStart);
+                    gain.gain.exponentialRampToValueAtTime(0.032, noteStart + 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 1.3);
+                    oscillator.connect(gain);
+                    gain.connect(secretAudioContext.destination);
+                    oscillator.start(noteStart);
+                    oscillator.stop(noteStart + 1.35);
+                });
+            };
+
+            if (secretAudioContext.state === 'suspended') {
+                secretAudioContext.resume().then(scheduleBloom).catch(() => { });
+            } else {
+                scheduleBloom();
+            }
+        }
+
+        function playFinaleShimmer() {
+            if (!secretAudioContext) return;
+
+            const scheduleChord = () => {
+                const startAt = secretAudioContext.currentTime + 0.06;
+                [523.25, 659.25, 783.99, 1046.5].forEach((frequency, index) => {
+                    const oscillator = secretAudioContext.createOscillator();
+                    const gain = secretAudioContext.createGain();
+                    const noteStart = startAt + index * 0.085;
+                    oscillator.type = index % 2 === 0 ? 'sine' : 'triangle';
+                    oscillator.frequency.setValueAtTime(frequency, noteStart);
+                    gain.gain.setValueAtTime(0.0001, noteStart);
+                    gain.gain.exponentialRampToValueAtTime(0.045, noteStart + 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 1.55);
+                    oscillator.connect(gain);
+                    gain.connect(secretAudioContext.destination);
+                    oscillator.start(noteStart);
+                    oscillator.stop(noteStart + 1.65);
+                });
+            };
+
+            if (secretAudioContext.state === 'suspended') {
+                secretAudioContext.resume().then(scheduleChord).catch(() => { });
+            } else {
+                scheduleChord();
+            }
+        }
+
+        function transitionMusicToClimax() {
+            const fadeOutStartedAt = performance.now();
+            const initialVolume = bgMusic.volume;
+
+            const fadeOut = now => {
+                const progress = clamp((now - fadeOutStartedAt) / 260);
+                bgMusic.volume = initialVolume * (1 - progress);
+                if (progress < 1) {
+                    requestAnimationFrame(fadeOut);
+                    return;
+                }
+
+                const safeClimaxTime = Number.isFinite(bgMusic.duration)
+                    ? Math.min(MUSIC_CLIMAX_TIME_SECONDS, Math.max(0, bgMusic.duration - 8))
+                    : MUSIC_CLIMAX_TIME_SECONDS;
+                try {
+                    if (bgMusic.readyState >= 1) bgMusic.currentTime = safeClimaxTime;
+                } catch (_) {
+                    // Metadata may not be ready on the first iPhone playback.
+                }
+                bgMusic.play().catch(() => { });
+
+                const fadeInStartedAt = performance.now();
+                const fadeIn = fadeInNow => {
+                    const fadeInProgress = clamp((fadeInNow - fadeInStartedAt) / 1450);
+                    bgMusic.volume = fadeInProgress;
+                    if (fadeInProgress < 1) requestAnimationFrame(fadeIn);
+                };
+                requestAnimationFrame(fadeIn);
+            };
+
+            requestAnimationFrame(fadeOut);
+        }
+
+        function setLoveLetterTriggerVisible(visible) {
+            const trigger = document.getElementById('love-letter-trigger');
+            if (!trigger) return;
+            trigger.classList.toggle('is-visible', visible);
+            trigger.setAttribute('aria-hidden', visible ? 'false' : 'true');
+            trigger.tabIndex = visible ? 0 : -1;
+        }
+
+        function getFinaleHeartScale(now = performance.now()) {
+            if (!finaleActive) return 1;
+            const progress = clamp((now - finaleStartedAt) / 1150);
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            return 0.24 + easeOut * 0.76 + Math.sin(progress * Math.PI) * 0.28;
+        }
+
+        function openLoveLetter() {
+            if (finaleActive) return;
+            finaleActive = true;
+            finaleStartedAt = performance.now();
+            secretRevealActive = false;
+            state = 'HEART';
+            setLoveLetterTriggerVisible(false);
+            document.body.classList.remove('secret-reveal-active');
+            setSecretRevealStage('complete');
+            document.body.classList.add('love-letter-open');
+
+            const overlay = document.getElementById('love-letter-overlay');
+            if (overlay) overlay.setAttribute('aria-hidden', 'false');
+
+            prepareSecretAudio();
+            playSecretHeartbeat();
+            playFinaleShimmer();
+            transitionMusicToClimax();
+            createPetalBurst(MOBILE_PERFORMANCE_MODE ? 34 : 48, 0.5, 0.5);
+            createFinalePetalCurtain();
+            lastPetalBurstAt = finaleStartedAt;
+        }
+
+        function closeLoveLetter() {
+            if (!finaleActive) return;
+            finaleActive = false;
+            state = gardenModeActive ? 'GARDEN' : 'FLOWER';
+            document.body.classList.remove('love-letter-open');
+            const overlay = document.getElementById('love-letter-overlay');
+            if (overlay) overlay.setAttribute('aria-hidden', 'true');
         }
 
         function setSecretRevealStage(stage) {
@@ -1641,11 +3418,12 @@
         }
 
         function startSecretReveal(now = performance.now()) {
-            if (secretRevealActive || !secretRevealArmed) return;
+            if (secretRevealActive || finaleActive || !secretRevealArmed) return;
             secretRevealArmed = false;
             secretRevealActive = true;
             secretRevealStartedAt = now;
             state = 'SECRET_GATHER';
+            setLoveLetterTriggerVisible(false);
             document.body.classList.add('secret-reveal-active');
             setSecretRevealStage('gather');
             if (loveMesh) {
@@ -1679,6 +3457,10 @@
                 bgMusic.volume = 1;
             }
 
+            if (elapsed >= SECRET_REVEAL_CTA_MS) {
+                setLoveLetterTriggerVisible(true);
+            }
+
             if (elapsed >= SECRET_REVEAL_DURATION_MS) {
                 secretRevealActive = false;
                 document.body.classList.remove('secret-reveal-active');
@@ -1700,12 +3482,523 @@
         // ==========================================
         // 3. THREE.JS SYSTEM Vandiep
         // ==========================================
+        function toggleFlowerPicker() {
+            const isOpen = document.body.classList.toggle('flower-picker-open');
+            const toggle = document.getElementById('flowerPickerToggle');
+            const sheet = document.getElementById('flowerPickerSheet');
+            if (toggle) toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (sheet) sheet.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            if (isOpen) {
+                window.setTimeout(() => document.querySelector('.flower-choice.is-selected')?.focus(), 80);
+            }
+        }
+
+        function closeFlowerPicker() {
+            document.body.classList.remove('flower-picker-open');
+            document.getElementById('flowerPickerToggle')?.setAttribute('aria-expanded', 'false');
+            document.getElementById('flowerPickerSheet')?.setAttribute('aria-hidden', 'true');
+        }
+
+        function selectFlowerFromPicker(type) {
+            setFlowerType(type);
+            closeFlowerPicker();
+            document.getElementById('flowerPickerToggle')?.focus();
+        }
+
+        function applyFlowerAccent(type) {
+            const accent = flowerAccentColors[type] || flowerAccentColors.tulip;
+            document.body.style.setProperty('--flower-accent', accent);
+            if (photoBorderMaterial) photoBorderMaterial.color.set(accent);
+            if (photoBorderGlowMaterial) photoBorderGlowMaterial.color.set(accent);
+            if (groupHeart?.geometry?.userData?.baseColor) {
+                groupHeart.geometry.userData.baseColor.set(accent);
+                groupHeart.userData.lastVisualKey = '';
+                groupHeart.geometry.userData.positionsSettled = false;
+            }
+        }
+
+        function createFireflies() {
+            const layer = document.getElementById('firefly-layer');
+            if (!layer || layer.childElementCount || prefersReducedMotion()) return;
+            const count = MOBILE_PERFORMANCE_MODE ? 8 : 14;
+            for (let i = 0; i < count; i++) {
+                const firefly = document.createElement('span');
+                firefly.className = 'firefly';
+                firefly.style.setProperty('--firefly-left', `${(6 + Math.random() * 88).toFixed(1)}%`);
+                firefly.style.setProperty('--firefly-top', `${(8 + Math.random() * 78).toFixed(1)}%`);
+                firefly.style.setProperty('--firefly-size', `${(2 + Math.random() * 2.4).toFixed(1)}px`);
+                firefly.style.setProperty('--firefly-duration', `${(5.5 + Math.random() * 6).toFixed(1)}s`);
+                firefly.style.setProperty('--firefly-delay', `${(-Math.random() * 8).toFixed(1)}s`);
+                layer.appendChild(firefly);
+            }
+        }
+
+        function handleDeviceOrientation(event) {
+            if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return;
+            if (tiltState.neutralBeta === null) {
+                tiltState.neutralBeta = event.beta;
+                tiltState.neutralGamma = event.gamma;
+                return;
+            }
+
+            const deltaBeta = event.beta - tiltState.neutralBeta;
+            const deltaGamma = event.gamma - tiltState.neutralGamma;
+            const angle = screen.orientation?.angle ?? window.orientation ?? 0;
+            let horizontal = deltaGamma;
+            let vertical = deltaBeta;
+            if (angle === 90) {
+                horizontal = deltaBeta;
+                vertical = -deltaGamma;
+            } else if (angle === -90 || angle === 270) {
+                horizontal = -deltaBeta;
+                vertical = deltaGamma;
+            } else if (Math.abs(angle) === 180) {
+                horizontal = -deltaGamma;
+                vertical = -deltaBeta;
+            }
+            tiltState.targetX = clamp(horizontal / 15, -1, 1);
+            tiltState.targetY = clamp(vertical / 15, -1, 1);
+        }
+
+        function enableTiltListener() {
+            if (tiltPermissionGranted) return;
+            tiltPermissionGranted = true;
+            window.addEventListener('deviceorientation', handleDeviceOrientation, { passive: true });
+        }
+
+        function requestTiltAccess() {
+            if (tiltPermissionRequested || prefersReducedMotion()) return;
+            tiltPermissionRequested = true;
+            const OrientationEvent = window.DeviceOrientationEvent;
+            if (!OrientationEvent) return;
+            if (typeof OrientationEvent.requestPermission === 'function') {
+                OrientationEvent.requestPermission()
+                    .then(permission => { if (permission === 'granted') enableTiltListener(); })
+                    .catch(() => { });
+            } else {
+                enableTiltListener();
+            }
+        }
+
+        function updateTiltEffects() {
+            tiltState.x += (tiltState.targetX - tiltState.x) * 0.075;
+            tiltState.y += (tiltState.targetY - tiltState.y) * 0.075;
+            document.body.style.setProperty('--tilt-x', `${(tiltState.x * 24).toFixed(2)}px`);
+            document.body.style.setProperty('--tilt-y', `${(tiltState.y * 14).toFixed(2)}px`);
+        }
+
+        function seededRandom(seed) {
+            let value = seed >>> 0;
+            return () => {
+                value = (value * 1664525 + 1013904223) >>> 0;
+                return value / 4294967296;
+            };
+        }
+
+        function createGardenBloomTexture(type) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            const base = new THREE.Color(flowerAccentColors[type]);
+            const light = base.clone().offsetHSL(0, -0.08, 0.28).getStyle();
+            const middle = base.getStyle();
+            const dark = base.clone().offsetHSL(0, 0.1, -0.25).getStyle();
+            ctx.translate(128, 128);
+            ctx.shadowColor = middle;
+            ctx.shadowBlur = 8;
+
+            const drawEllipsePetal = (angle, radius, width, height, color, rotationOffset = 0) => {
+                ctx.save();
+                ctx.rotate(angle);
+                ctx.translate(0, -radius);
+                ctx.rotate(rotationOffset);
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, -height * .22, width, height, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            };
+
+            if (type === 'lavender') {
+                ctx.lineWidth = 11;
+                ctx.lineCap = 'round';
+                for (let i = -5; i <= 5; i++) {
+                    const y = i * 15;
+                    ctx.strokeStyle = i % 2 ? light : middle;
+                    ctx.beginPath();
+                    ctx.moveTo(-2, y + 9);
+                    ctx.lineTo(-26 + Math.abs(i) * 2.4, y - 2);
+                    ctx.moveTo(2, y + 9);
+                    ctx.lineTo(26 - Math.abs(i) * 2.4, y - 2);
+                    ctx.stroke();
+                }
+                ctx.strokeStyle = dark;
+                ctx.lineWidth = 6;
+                ctx.beginPath(); ctx.moveTo(0, 91); ctx.lineTo(0, -83); ctx.stroke();
+            } else if (type === 'tulip') {
+                const gradient = ctx.createLinearGradient(0, -78, 0, 74);
+                gradient.addColorStop(0, light); gradient.addColorStop(0.5, middle); gradient.addColorStop(1, dark);
+                ctx.fillStyle = gradient;
+                [[-33, 5, -.28], [0, -8, 0], [33, 5, .28]].forEach(([x, y, rotation]) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(rotation);
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 43, 74, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+                ctx.fillStyle = dark;
+                ctx.beginPath();
+                ctx.moveTo(-77, 12); ctx.quadraticCurveTo(-38, 82, 0, 73); ctx.quadraticCurveTo(38, 82, 77, 12);
+                ctx.quadraticCurveTo(63, 89, 0, 92); ctx.quadraticCurveTo(-63, 89, -77, 12); ctx.fill();
+            } else if (type === 'rose') {
+                for (let ring = 0; ring < 3; ring++) {
+                    const petals = 13 - ring * 3;
+                    const radius = 49 - ring * 17;
+                    const width = 34 - ring * 5;
+                    const height = 48 - ring * 6;
+                    for (let i = 0; i < petals; i++) {
+                        drawEllipsePetal(i * Math.PI * 2 / petals + ring * .22, radius, width, height,
+                            ring === 0 ? dark : ring === 1 ? middle : light, (i % 2 ? .13 : -.13));
+                    }
+                }
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = light;
+                ctx.lineWidth = 7;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                for (let t = 0; t < Math.PI * 4.5; t += .12) {
+                    const r = 3.5 + t * 2.2;
+                    const x = Math.cos(t) * r, y = Math.sin(t) * r;
+                    if (t === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            } else if (type === 'peony') {
+                for (let ring = 0; ring < 3; ring++) {
+                    const petals = 16 - ring * 3;
+                    const radius = 52 - ring * 16;
+                    for (let i = 0; i < petals; i++) {
+                        drawEllipsePetal(i * Math.PI * 2 / petals + ring * .17, radius, 38 - ring * 5, 47 - ring * 4,
+                            ring === 0 ? light : ring === 1 ? middle : dark, Math.sin(i * 2.4) * .15);
+                    }
+                }
+                ctx.fillStyle = light;
+                ctx.beginPath(); ctx.arc(0, 0, 17, 0, Math.PI * 2); ctx.fill();
+            } else if (type === 'carnation') {
+                for (let ring = 0; ring < 3; ring++) {
+                    const outer = 80 - ring * 22;
+                    const points = 46 - ring * 8;
+                    ctx.fillStyle = ring === 0 ? dark : ring === 1 ? middle : light;
+                    ctx.beginPath();
+                    for (let i = 0; i <= points; i++) {
+                        const angle = i * Math.PI * 2 / points;
+                        const radius = outer * (i % 2 ? .78 : 1) + Math.sin(i * 2.7) * 4;
+                        const x = Math.cos(angle) * radius, y = Math.sin(angle) * radius;
+                        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath(); ctx.fill();
+                }
+            } else {
+                const petalCounts = { daisy: 14, sunflower: 20 };
+                const petals = petalCounts[type] || 12;
+                const length = type === 'sunflower' ? 65 : 57;
+                const width = type === 'sunflower' ? 18 : 15;
+                for (let i = 0; i < petals; i++) {
+                    const petalColor = type === 'daisy'
+                        ? '#fffdf0'
+                        : (i % 2 ? '#f7c947' : '#efa91d');
+                    drawEllipsePetal(i * Math.PI * 2 / petals, 45, width, length,
+                        petalColor);
+                }
+                ctx.fillStyle = type === 'sunflower' ? '#5d3215' : '#f4b928';
+                ctx.beginPath(); ctx.arc(0, 0, type === 'sunflower' ? 39 : 25, 0, Math.PI * 2); ctx.fill();
+                if (type === 'sunflower') {
+                    ctx.fillStyle = '#d79a27';
+                    for (let i = 0; i < 34; i++) {
+                        const angle = i * 2.39996, radius = Math.sqrt(i / 34) * 31;
+                        ctx.beginPath(); ctx.arc(Math.cos(angle) * radius, Math.sin(angle) * radius, 2.4, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+            }
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            return texture;
+        }
+
+        function createGardenBloomPosition(type, index, count, random) {
+            const preset = gardenPresets[type];
+            const t = count <= 1 ? 0 : index / (count - 1);
+            const baseSizes = {
+                tulip: 39, rose: 47, peony: 54, carnation: 46,
+                daisy: 42, lavender: 43, sunflower: 52
+            };
+            let x = 0, y = 0, z = 0, size = baseSizes[type] || 44;
+            if (preset.layout === 'rows') {
+                const rows = 7, row = index % rows, colT = Math.floor(index / rows) / Math.max(1, Math.ceil(count / rows) - 1);
+                x = -49 + colT * 98 + Math.sin(row * 1.7) * 3 + (random() - .5) * 6;
+                y = -34 + row * 12 + Math.sin(colT * Math.PI * 2) * 4 + (random() - .5) * 5;
+                z = 18 - row * 7;
+                size = 44 - row * 1.45;
+            } else if (preset.layout === 'spiral') {
+                const radius = Math.sqrt((index + .35) / count) * 55;
+                const angle = index * 2.39996;
+                x = Math.cos(angle) * radius + (random() - .5) * 4;
+                y = -5 + Math.sin(angle) * radius * .76 + (random() - .5) * 4;
+                z = 16 - radius * .72;
+                size = 52 - Math.sqrt(t) * 8;
+            } else if (preset.layout === 'clusters') {
+                const anchors = [[-.68,-.28],[-.22,.14],[.25,-.18],[.66,.2],[0,.55]];
+                const anchor = anchors[index % anchors.length];
+                x = anchor[0] * 55 + (random() - .5) * 22;
+                y = anchor[1] * 65 + (random() - .5) * 19;
+                z = 8 - (y + 34) * .52;
+                size = 52 + random() * 8;
+            } else if (preset.layout === 'waves') {
+                x = -50 + t * 100;
+                const row = index % 6;
+                y = -34 + row * 14 + Math.sin(t * Math.PI * 3 + row) * 6;
+                z = 16 - row * 8;
+                size = 44 + random() * 8;
+            } else if (preset.layout === 'perspective') {
+                const row = index % 8;
+                const spread = 1 - row * .075;
+                x = (-50 + random() * 100) * spread;
+                y = -36 + row * 11 + Math.sin(index * .8) * 2;
+                z = 18 - row * 7;
+                size = 49 - row * 2.1;
+            } else if (preset.layout === 'horizon') {
+                const row = index % 5;
+                x = -50 + t * 100 + (random() - .5) * 7;
+                y = -34 + row * 15 + Math.sin(t * 8) * 3 + (random() - .5) * 6;
+                z = 18 - row * 9;
+                size = 57 - row * 3.5;
+            } else {
+                x = -50 + random() * 100;
+                y = -37 + random() * 78;
+                z = 18 - (y + 37) * .62 + (random() - .5) * 6;
+                size = 39 + random() * 10;
+            }
+            return { x, y, z, size, delay: Math.min(.88, .08 + (y + 40) / 105 * .72 + random() * .12) };
+        }
+
+        function buildGardenFillLayer(type) {
+            if (!scene) return;
+            if (gardenFillPoints) {
+                scene.remove(gardenFillPoints);
+                gardenFillPoints.geometry.dispose();
+                gardenFillPoints.material.dispose();
+            }
+            if (gardenStemLines) {
+                scene.remove(gardenStemLines);
+                gardenStemLines.geometry.dispose();
+                gardenStemLines.material.dispose();
+            }
+            gardenFillTexture?.dispose();
+
+            const preset = gardenPresets[type];
+            const totalCount = MOBILE_PERFORMANCE_MODE ? preset.mobileCount : Math.round(preset.mobileCount * 1.4);
+            const count = Math.max(40, totalCount - gardenFlowerLayout.length);
+            const random = seededRandom(preset.seed);
+            const positions = [], sizes = [], delays = [], rotations = [], tones = [], stems = [];
+            for (let i = 0; i < count; i++) {
+                const bloom = createGardenBloomPosition(type, i, count, random);
+                positions.push(bloom.x, bloom.y, bloom.z);
+                sizes.push(bloom.size * (.86 + random() * .26));
+                delays.push(bloom.delay);
+                const rotationRange = type === 'tulip' || type === 'lavender' ? .28 : Math.PI;
+                rotations.push((random() - .5) * rotationRange);
+                tones.push(.84 + random() * .28);
+                const stemBottom = Math.max(-48, bloom.y - (15 + random() * 13));
+                stems.push(bloom.x, stemBottom, bloom.z - .3, bloom.x, bloom.y - 2, bloom.z - .3);
+            }
+
+            gardenFillTexture = createGardenBloomTexture(type);
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('aSize', new THREE.Float32BufferAttribute(sizes, 1));
+            geometry.setAttribute('aDelay', new THREE.Float32BufferAttribute(delays, 1));
+            geometry.setAttribute('aRotation', new THREE.Float32BufferAttribute(rotations, 1));
+            geometry.setAttribute('aTone', new THREE.Float32BufferAttribute(tones, 1));
+            const material = new THREE.ShaderMaterial({
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.NormalBlending,
+                uniforms: {
+                    uMap: { value: gardenFillTexture },
+                    uProgress: { value: 0 },
+                    uTime: { value: 0 },
+                    uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, PERFORMANCE.pixelRatioCap) },
+                    uTilt: { value: new THREE.Vector2() },
+                    uSwaySpeed: { value: flowerMotionStyles[type].leafSpeed },
+                    uSwayAmount: { value: flowerMotionStyles[type].leafAmount }
+                },
+                vertexShader: `
+                    attribute float aSize;
+                    attribute float aDelay;
+                    attribute float aRotation;
+                    attribute float aTone;
+                    uniform float uProgress;
+                    uniform float uTime;
+                    uniform float uPixelRatio;
+                    uniform vec2 uTilt;
+                    uniform float uSwaySpeed;
+                    uniform float uSwayAmount;
+                    varying float vAlpha;
+                    varying float vRotation;
+                    varying float vTone;
+                    void main() {
+                        float local = smoothstep(aDelay, min(1.0, aDelay + 0.22), uProgress);
+                        vec3 transformed = position;
+                        transformed.y -= (1.0 - local) * 9.0;
+                        transformed.x += sin(uTime * uSwaySpeed + position.y * 0.09 + position.z * 0.12) * (0.28 + uSwayAmount * 0.34) * local + uTilt.x * 0.62;
+                        transformed.y += uTilt.y * 0.3;
+                        vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
+                        gl_Position = projectionMatrix * mvPosition;
+                        gl_PointSize = aSize * uPixelRatio * (135.0 / max(70.0, -mvPosition.z)) * local;
+                        vAlpha = local;
+                        vRotation = aRotation;
+                        vTone = aTone;
+                    }
+                `,
+                fragmentShader: `
+                    uniform sampler2D uMap;
+                    varying float vAlpha;
+                    varying float vRotation;
+                    varying float vTone;
+                    void main() {
+                        vec2 centered = gl_PointCoord - .5;
+                        float sine = sin(vRotation);
+                        float cosine = cos(vRotation);
+                        vec2 rotated = mat2(cosine, -sine, sine, cosine) * centered + .5;
+                        vec4 texel = texture2D(uMap, vec2(rotated.x, 1.0 - rotated.y));
+                        if (texel.a < 0.03) discard;
+                        gl_FragColor = vec4(texel.rgb * vTone, texel.a * vAlpha * 0.94);
+                    }
+                `
+            });
+            gardenFillPoints = new THREE.Points(geometry, material);
+            gardenFillPoints.visible = false;
+            const gardenAspect = getViewportDimensions().width / getViewportDimensions().height;
+            gardenFillPoints.scale.set(gardenAspect > 1.15 ? 1.92 : 1, gardenAspect > 1.15 ? .82 : 1, 1);
+            scene.add(gardenFillPoints);
+
+            const stemGeometry = new THREE.BufferGeometry();
+            stemGeometry.setAttribute('position', new THREE.Float32BufferAttribute(stems, 3));
+            const stemColor = type === 'lavender' ? 0x53764b : type === 'sunflower' ? 0x496b2d : 0x3f7544;
+            const stemMaterial = new THREE.LineBasicMaterial({ color: stemColor, transparent: true, opacity: 0, depthWrite: false });
+            gardenStemLines = new THREE.LineSegments(stemGeometry, stemMaterial);
+            gardenStemLines.visible = false;
+            gardenStemLines.scale.copy(gardenFillPoints.scale);
+            scene.add(gardenStemLines);
+        }
+
+        function getGardenHeroPlacement(type, index) {
+            const slot = index % gardenFlowerLayout.length;
+            const base = gardenFlowerLayout[slot];
+            if (type === 'rose') {
+                const arch = slot % 3 - 1;
+                return { ...base, x: base.x + arch * 2.2, rootY: base.rootY + Math.abs(arch) * 3, scale: base.scale * 1.04 };
+            }
+            if (type === 'peony') return { ...base, rootY: base.rootY + (slot % 3 === 1 ? 2 : 0), scale: base.scale * 1.06 };
+            if (type === 'carnation') return { ...base, rootY: base.rootY + Math.sin(slot * 1.7) * 2.5 };
+            if (type === 'daisy') return { ...base, x: base.x + Math.sin(slot * 2.4) * 2.5, rootY: base.rootY + Math.cos(slot * 1.3) * 2.5, scale: base.scale * .94 };
+            if (type === 'lavender') return { ...base, rootY: base.rootY + (slot % 3) * 2, scale: base.scale * .9 };
+            if (type === 'sunflower') return { ...base, rootY: base.rootY - (slot % 2) * 2, scale: base.scale * 1.08 };
+            return base;
+        }
+
+        function updateGardenAtmosphere(now, time) {
+            updateTiltEffects();
+            const transitionProgress = gardenTransitionActive
+                ? clamp((now - gardenTransitionStartedAt) / GARDEN_TRANSITION_MS)
+                : (gardenModeActive ? 1 : 0);
+            const gardenProgress = gardenTransitionActive && !gardenTransitionExpanding
+                ? 1 - transitionProgress
+                : transitionProgress;
+            // The garden now uses the same particle geometry as the single
+            // flower. The old billboard layer stays disabled so every bloom
+            // keeps its real petals, stem and leaves.
+            const showGardenLayers = false;
+            if (gardenFillPoints) {
+                gardenFillPoints.visible = showGardenLayers;
+                gardenFillPoints.material.uniforms.uProgress.value = gardenProgress;
+                gardenFillPoints.material.uniforms.uTime.value = time;
+                gardenFillPoints.material.uniforms.uTilt.value.set(tiltState.x, tiltState.y);
+            }
+            if (gardenStemLines) {
+                gardenStemLines.visible = showGardenLayers;
+                gardenStemLines.material.opacity = Math.max(0, Math.min(.22, gardenProgress * .3));
+            }
+
+            const resting = gardenModeActive && state === 'GARDEN' && !gardenTransitionActive && !finaleActive && !secretRevealActive;
+            if (resting && gardenRestingStartedAt === null) gardenRestingStartedAt = now;
+            if (!resting) gardenRestingStartedAt = null;
+            const restedFor = gardenRestingStartedAt === null ? 0 : now - gardenRestingStartedAt;
+            document.body.classList.toggle('garden-complete', resting && restedFor >= 720);
+
+            const butterfly = document.getElementById('garden-butterfly');
+            if (!butterfly) return;
+            if (!resting || restedFor < 800 || prefersReducedMotion()) {
+                butterfly.classList.remove('is-visible', 'is-landed');
+                return;
+            }
+            const preset = gardenPresets[selectedFlowerType];
+            const cycle = (restedFor - 800) % 22000;
+            const flightDuration = 6200;
+            let x, y, angle = 0;
+            if (cycle < flightDuration) {
+                const t = cycle / flightDuration;
+                const eased = t * t * (3 - 2 * t);
+                const start = [-.08, .28], c1 = [.22, .08], c2 = [.83, .24], end = preset.landing;
+                const mt = 1 - eased;
+                x = mt * mt * mt * start[0] + 3 * mt * mt * eased * c1[0] + 3 * mt * eased * eased * c2[0] + eased * eased * eased * end[0];
+                y = mt * mt * mt * start[1] + 3 * mt * mt * eased * c1[1] + 3 * mt * eased * eased * c2[1] + eased * eased * eased * end[1] + Math.sin(t * Math.PI * 5) * .035 * (1 - t);
+                angle = Math.sin(t * Math.PI * 4) * 12;
+                butterfly.classList.remove('is-landed');
+            } else {
+                x = preset.landing[0];
+                y = preset.landing[1] + Math.sin(time * 1.7) * .002;
+                butterfly.classList.add('is-landed');
+            }
+            butterfly.classList.add('is-visible');
+            butterfly.style.transform = `translate3d(${(x * window.innerWidth - 17).toFixed(1)}px, ${(y * window.innerHeight - 14).toFixed(1)}px, 0) rotate(${angle.toFixed(1)}deg)`;
+        }
+
         function setFlowerType(type) {
             if (!flowerTypes.includes(type)) return;
+            const flowerChanged = selectedFlowerType !== type;
             selectedFlowerType = type;
 
             const emoji = flowerEmojis[type];
-            document.getElementById('btnStart').textContent = `${emoji}Em bấm vào đâyyyy${emoji}`;
+            const leftIcon = document.getElementById('btnStartFlowerLeft');
+            const rightIcon = document.getElementById('btnStartFlowerRight');
+            if (leftIcon) leftIcon.textContent = emoji;
+            if (rightIcon) rightIcon.textContent = emoji;
+            const dockIcon = document.getElementById('flowerDockIcon');
+            const dockName = document.getElementById('flowerDockName');
+            if (dockIcon) dockIcon.textContent = emoji;
+            if (dockName) dockName.textContent = flowerNames[type];
+            document.querySelectorAll('.flower-choice').forEach(choice => {
+                const selected = choice.dataset.flower === type;
+                choice.classList.toggle('is-selected', selected);
+                choice.setAttribute('aria-selected', selected ? 'true' : 'false');
+            });
+            applyFlowerAccent(type);
+
+            if (
+                flowerChanged
+                && renderer
+                && !secretRevealActive
+                && !finaleActive
+            ) {
+                if (gardenModeActive) {
+                    startGardenTransition(true, performance.now(), true);
+                } else {
+                    startFlowerIntro(performance.now(), true);
+                }
+            }
 
             window.clearTimeout(themeTransitionTimer);
             if (prefersReducedMotion() || document.body.dataset.flower === type) {
@@ -1949,6 +4242,16 @@
             camera.updateProjectionMatrix();
             renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, PERFORMANCE.pixelRatioCap));
             renderer.setSize(width, height, false);
+            if (gardenFillPoints?.material?.uniforms?.uPixelRatio) {
+                gardenFillPoints.material.uniforms.uPixelRatio.value = Math.min(
+                    window.devicePixelRatio || 1,
+                    PERFORMANCE.pixelRatioCap
+                );
+                const gardenScaleX = aspect > 1.15 ? 1.92 : 1;
+                const gardenScaleY = aspect > 1.15 ? 0.82 : 1;
+                gardenFillPoints.scale.set(gardenScaleX, gardenScaleY, 1);
+                gardenStemLines?.scale.set(gardenScaleX, gardenScaleY, 1);
+            }
         }
 
         function scheduleSceneResize() {
@@ -1971,14 +4274,17 @@
             });
             renderer.setClearColor(0x000000, 0);
             container.appendChild(renderer.domElement);
+            bindGardenHoldInteraction(renderer.domElement);
             updateSceneViewport();
 
             groupGold = createParticleSystem('gold', CONFIG.goldCount, 2.0);
             groupRed = createParticleSystem('red', CONFIG.redCount, 3.5);
-            groupGift = createParticleSystem('gift', CONFIG.giftCount, 3.0);
+            groupGift = createParticleSystem('gift', Math.ceil(CONFIG.giftCount / 2), 3.0);
+            groupHeart = createParticleSystem('heart', Math.floor(CONFIG.giftCount / 2), 3.0);
 
             createPhotos();
             createDecorations();
+            applyFlowerAccent(selectedFlowerType);
             animate();
         }
 
@@ -1989,9 +4295,11 @@
             const pHeartTargets = [];
             const pSecretGatherTargets = [];
             const flowerTargets = {};
+            const gardenTargets = {};
             const flowerColors = {};
             flowerTypes.forEach(flowerType => {
                 flowerTargets[flowerType] = [];
+                gardenTargets[flowerType] = [];
                 flowerColors[flowerType] = [];
             });
             const sizes = [];
@@ -2008,8 +4316,13 @@
                 pTreeTargets.push(r * Math.cos(theta), y, r * Math.sin(theta));
 
                 // --- EXPLODE Vandiep ---
-                const u = Math.random();
-                const v = Math.random();
+                const decorativeIndex = i * 2 + (type === 'heart' ? 1 : 0);
+                const u = (type === 'gift' || type === 'heart')
+                    ? (decorativeIndex * 0.61803398875) % 1
+                    : Math.random();
+                const v = (type === 'gift' || type === 'heart')
+                    ? (0.12 + ((decorativeIndex * 0.38196601125) % 1) * 0.76)
+                    : Math.random();
                 const phi = Math.acos(2 * v - 1);
                 const lam = 2 * Math.PI * u;
                 let radMult = (type === 'gift') ? 1.2 : 1.0;
@@ -2045,7 +4358,13 @@
                 // --- SELECTABLE FLOWERS ---
                 flowerTypes.forEach(flowerType => {
                     const point = createFlowerPoint(flowerType);
+                    const gardenFlower = getGardenHeroPlacement(flowerType, i);
                     flowerTargets[flowerType].push(point.x, point.y, point.z);
+                    gardenTargets[flowerType].push(
+                        gardenFlower.x + point.x * gardenFlower.scale,
+                        gardenFlower.rootY + (point.y + 35) * gardenFlower.scale,
+                        gardenFlower.z + point.z * gardenFlower.scale
+                    );
                     flowerColors[flowerType].push(point.color.r, point.color.g, point.color.b);
                 });
 
@@ -2065,6 +4384,7 @@
             const baseColor = new THREE.Color();
             if (type === 'gold') baseColor.setHex(0xFFD700);
             else if (type === 'red') baseColor.setHex(0xFF0000);
+            else if (type === 'heart') baseColor.set(flowerAccentColors[selectedFlowerType]);
             else baseColor.setHex(0xFFFFFF);
 
             for (let i = 0; i < count; i++) {
@@ -2077,6 +4397,7 @@
             const flowerGeometryData = {};
             flowerTypes.forEach(flowerType => {
                 flowerGeometryData[flowerType] = flowerTargets[flowerType];
+                flowerGeometryData[`${flowerType}Garden`] = gardenTargets[flowerType];
                 flowerGeometryData[`${flowerType}Colors`] = flowerColors[flowerType];
             });
 
@@ -2094,10 +4415,155 @@
                 map: textures[type],
                 transparent: true, opacity: 1.0,
                 vertexColors: true,
-                blending: (type === 'gift') ? THREE.NormalBlending : THREE.AdditiveBlending,
+                blending: (type === 'gift' || type === 'heart') ? THREE.NormalBlending : THREE.AdditiveBlending,
                 depthWrite: false,
                 sizeAttenuation: true
             });
+
+            // Animate only the upper flower/petal area on the GPU. The flower
+            // itself remains front-facing, while its petals breathe and sway
+            // subtly without continuous CPU-side position uploads.
+            const flowerTimeUniform = { value: 0 };
+            const flowerMotionUniform = { value: 0 };
+            const gardenMotionUniform = { value: 0 };
+            const flowerIntroUniform = { value: flowerIntroActive ? 0 : 1 };
+            const flowerStyleUniform = { value: 0 };
+            const leafSpeedUniform = { value: flowerMotionStyles.tulip.leafSpeed };
+            const leafAmountUniform = { value: flowerMotionStyles.tulip.leafAmount };
+            const deviceTiltUniform = { value: new THREE.Vector2() };
+            mat.userData.flowerTimeUniform = flowerTimeUniform;
+            mat.userData.flowerMotionUniform = flowerMotionUniform;
+            mat.userData.gardenMotionUniform = gardenMotionUniform;
+            mat.userData.flowerIntroUniform = flowerIntroUniform;
+            mat.userData.flowerStyleUniform = flowerStyleUniform;
+            mat.userData.leafSpeedUniform = leafSpeedUniform;
+            mat.userData.leafAmountUniform = leafAmountUniform;
+            mat.userData.deviceTiltUniform = deviceTiltUniform;
+            mat.onBeforeCompile = shader => {
+                shader.uniforms.uFlowerTime = flowerTimeUniform;
+                shader.uniforms.uFlowerMotion = flowerMotionUniform;
+                shader.uniforms.uGardenMotion = gardenMotionUniform;
+                shader.uniforms.uFlowerIntro = flowerIntroUniform;
+                shader.uniforms.uFlowerStyle = flowerStyleUniform;
+                shader.uniforms.uLeafSpeed = leafSpeedUniform;
+                shader.uniforms.uLeafAmount = leafAmountUniform;
+                shader.uniforms.uDeviceTilt = deviceTiltUniform;
+                shader.vertexShader = `
+                    uniform float uFlowerTime;
+                    uniform float uFlowerMotion;
+                    uniform float uGardenMotion;
+                    uniform float uFlowerIntro;
+                    uniform float uFlowerStyle;
+                    uniform float uLeafSpeed;
+                    uniform float uLeafAmount;
+                    uniform vec2 uDeviceTilt;
+                ` + shader.vertexShader;
+                shader.vertexShader = shader.vertexShader.replace(
+                    '#include <begin_vertex>',
+                    `
+                        vec3 transformed = vec3(position);
+                        float introPointScale = 1.0;
+                        float settledMotion = smoothstep(0.66, 1.0, uFlowerIntro);
+                        float petalMask = smoothstep(2.0, 11.0, position.y) * uFlowerMotion * settledMotion;
+                        float leafSideMask = smoothstep(1.8, 5.5, abs(position.x));
+                        float leafHeightMask = 1.0 - smoothstep(-2.0, 7.0, position.y);
+                        float leafMask = leafSideMask * leafHeightMask * uFlowerMotion * smoothstep(0.42, 0.92, uFlowerIntro);
+                        vec2 flowerCenter = vec2(0.0, 17.0);
+                        vec2 fromCenter = vec2(position.x, position.y) - flowerCenter;
+                        float centerRadius = length(fromCenter);
+                        vec2 radialDirection = fromCenter / max(centerRadius, 0.001);
+
+                        if (uFlowerStyle < 0.5) {
+                            // Tulip: the cup gently closes and opens.
+                            float opening = sin(uFlowerTime * 0.82) * 0.5 + 0.5;
+                            float cupMask = smoothstep(4.0, 15.0, position.y) * uFlowerMotion;
+                            float openOffset = (opening - 0.5) * cupMask;
+                            transformed.x *= 1.0 + openOffset * 0.038;
+                            transformed.z *= 1.0 + openOffset * 0.055;
+                            transformed.y -= abs(openOffset) * 0.08;
+                        } else if (uFlowerStyle < 1.5) {
+                            // Rose: a breath travels from the centre to the rim.
+                            float roseBreath = sin(uFlowerTime * 0.96 - centerRadius * 0.24);
+                            float roseAmount = roseBreath * (0.12 + centerRadius * 0.012) * petalMask;
+                            transformed.xy += radialDirection * roseAmount;
+                            transformed.z += roseBreath * 0.24 * petalMask;
+                        } else if (uFlowerStyle < 2.5) {
+                            // Peony: broad, soft concentric ripples.
+                            float peonyRipple = sin(uFlowerTime * 0.86 - centerRadius * 0.31);
+                            transformed.xy += radialDirection * peonyRipple * 0.18 * petalMask;
+                            transformed.z += peonyRipple * 0.31 * petalMask;
+                        } else if (uFlowerStyle < 3.5) {
+                            // Carnation: quick movement only along the frilled edges.
+                            float frill = sin(uFlowerTime * 1.72 + centerRadius * 0.7 + position.x * 0.22);
+                            float edgeMask = smoothstep(7.0, 16.0, centerRadius) * petalMask;
+                            transformed.xy += radialDirection * frill * 0.23 * edgeMask;
+                            transformed.z += frill * 0.34 * edgeMask;
+                        } else if (uFlowerStyle < 4.5) {
+                            // Daisy: a calm nod with a tiny ripple around its petals.
+                            float nod = sin(uFlowerTime * 0.78);
+                            float daisyWave = sin(uFlowerTime * 1.05 + atan(fromCenter.y, fromCenter.x) * 2.0);
+                            transformed.x += nod * 0.24 * petalMask;
+                            transformed.z += daisyWave * 0.22 * smoothstep(5.0, 17.0, centerRadius) * petalMask;
+                        } else if (uFlowerStyle < 5.5) {
+                            // Lavender: separate stems sway with a travelling breeze.
+                            float lavenderMask = smoothstep(-6.0, 7.0, position.y) * uFlowerMotion;
+                            float branchWave = sin(uFlowerTime * 1.48 + position.y * 0.19 + position.x * 0.43);
+                            float branchWaveFine = sin(uFlowerTime * 2.05 + position.y * 0.31 - position.x * 0.24);
+                            transformed.x += (branchWave * 0.43 + branchWaveFine * 0.12) * lavenderMask;
+                            transformed.z += branchWave * 0.25 * lavenderMask;
+                        } else {
+                            // Sunflower: petal movement rolls around the head in waves.
+                            float petalAngle = atan(fromCenter.y, fromCenter.x);
+                            float sunflowerWave = sin(uFlowerTime * 1.02 + petalAngle * 3.0 - centerRadius * 0.15);
+                            float sunflowerPetals = smoothstep(7.0, 19.0, centerRadius) * petalMask;
+                            transformed.xy += radialDirection * sunflowerWave * 0.16 * sunflowerPetals;
+                            transformed.z += sunflowerWave * 0.38 * sunflowerPetals;
+                        }
+
+                        // Every flower keeps its own leaf tempo and sway range.
+                        float leafWave = sin(uFlowerTime * uLeafSpeed + position.y * 0.13 + sign(position.x) * 0.72);
+                        float leafFine = cos(uFlowerTime * uLeafSpeed * 0.71 + position.x * 0.16);
+                        transformed.x += leafWave * 0.44 * leafMask * uLeafAmount;
+                        transformed.y += leafFine * 0.09 * leafMask * uLeafAmount;
+                        transformed.z += leafWave * 0.2 * leafMask * uLeafAmount;
+
+                        // The garden uses a lightweight shared breeze because
+                        // each mini flower has its own local centre.
+                        float gardenBreeze = sin(
+                            uFlowerTime * 0.82
+                            + position.x * 0.12
+                            + position.y * 0.08
+                            + position.z * 0.17
+                        );
+                        transformed.x += gardenBreeze * 0.18 * uGardenMotion;
+                        transformed.y += cos(uFlowerTime * 0.68 + position.x * 0.1)
+                            * 0.055 * uGardenMotion;
+                        transformed.z += gardenBreeze * 0.09 * uGardenMotion;
+
+                        float tiltMotion = max(uFlowerMotion, uGardenMotion) * settledMotion;
+                        float tiltHeight = smoothstep(-18.0, 20.0, position.y);
+                        transformed.x += uDeviceTilt.x * (0.28 + tiltHeight * 0.72) * tiltMotion;
+                        transformed.y += uDeviceTilt.y * (0.12 + tiltHeight * 0.3) * tiltMotion;
+
+                        // First reveal: particles grow from a single seed. The
+                        // height-based delay draws the stem first, then leaves,
+                        // and finally lets the flower head bloom.
+                        float introHeight = clamp((position.y + 36.0) / 74.0, 0.0, 1.0);
+                        float introStagger = sin(position.x * 1.37 + position.z * 1.91) * 0.025;
+                        float introOrder = clamp(introHeight * 0.42 + introStagger, 0.0, 0.48);
+                        float introLocal = clamp((uFlowerIntro - introOrder) / 0.58, 0.0, 1.0);
+                        float introEase = 1.0 - pow(1.0 - introLocal, 3.0);
+                        vec3 introSeed = vec3(position.x * 0.018, -36.0, position.z * 0.018);
+                        transformed = mix(introSeed, transformed, introEase);
+                        introPointScale = smoothstep(0.0, 0.14, introLocal)
+                            * (1.0 + sin(introLocal * 3.14159265) * 0.46);
+                    `
+                );
+                shader.vertexShader = shader.vertexShader.replace(
+                    'gl_PointSize = size;',
+                    'gl_PointSize = size * introPointScale;'
+                );
+            };
 
             const points = new THREE.Points(geo, mat);
             scene.add(points);
@@ -2107,14 +4573,25 @@
         function createPhotos() {
             const geo = new THREE.PlaneGeometry(8, 8);
             const borderGeo = new THREE.PlaneGeometry(9, 9);
-            const borderMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
+            const glowGeo = new THREE.PlaneGeometry(9.65, 9.65);
+            photoBorderMaterial = new THREE.MeshBasicMaterial({ color: flowerAccentColors[selectedFlowerType] });
+            photoBorderGlowMaterial = new THREE.MeshBasicMaterial({
+                color: flowerAccentColors[selectedFlowerType],
+                transparent: true,
+                opacity: 0.2,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
 
             for (let i = 0; i < photoFiles.length; i++) {
                 const mat = new THREE.MeshBasicMaterial({ map: photoTextures[i], side: THREE.DoubleSide });
                 const mesh = new THREE.Mesh(geo, mat);
-                const border = new THREE.Mesh(borderGeo, borderMat);
+                const border = new THREE.Mesh(borderGeo, photoBorderMaterial);
                 border.position.z = -0.1;
+                const glow = new THREE.Mesh(glowGeo, photoBorderGlowMaterial);
+                glow.position.z = -0.16;
                 mesh.add(border);
+                mesh.add(glow);
                 mesh.visible = false; mesh.scale.set(0, 0, 0);
                 scene.add(mesh);
                 photoMeshes.push(mesh);
@@ -2163,7 +4640,8 @@
             lCtx.strokeStyle = 'rgba(0, 0, 0, 0.9)'; lCtx.lineWidth = 8;
             lCtx.shadowColor = 'rgba(0, 0, 0, 0.95)'; lCtx.shadowBlur = 24;
             lCtx.shadowOffsetX = 0; lCtx.shadowOffsetY = 6;
-            const proposalLines = ['Làm người yêu', 'anh nhé ❤️'];
+            // const proposalLines = ['Làm người yêu', 'anh nhé ❤️'];
+            const proposalLines = [];
             const lineHeight = 92;
             const centerX = loveCanvas.width / 2;
             const startY = loveCanvas.height / 2 - ((proposalLines.length - 1) * lineHeight) / 2;
@@ -2187,15 +4665,36 @@
             const phases = group.geometry.userData.phases;
             const baseColor = group.geometry.userData.baseColor;
             const baseSize = group.geometry.userData.baseSize;
+            group.material.size = targetState === 'GARDEN' ? baseSize * 0.65 : baseSize;
+            group.material.opacity = targetState === 'GARDEN' ? 0.94 : 1;
+
+            if (group.material.userData.flowerTimeUniform) {
+                const motionStyle = flowerMotionStyles[selectedFlowerType];
+                group.material.userData.flowerTimeUniform.value = time;
+                group.material.userData.flowerMotionUniform.value = targetState === 'FLOWER' ? 1 : 0;
+                group.material.userData.gardenMotionUniform.value = targetState === 'GARDEN' ? 1 : 0;
+                group.material.userData.flowerIntroUniform.value = flowerIntroActive
+                    ? getFlowerIntroProgress()
+                    : 1;
+                group.material.userData.flowerStyleUniform.value = motionStyle.style;
+                group.material.userData.leafSpeedUniform.value = motionStyle.leafSpeed;
+                group.material.userData.leafAmountUniform.value = motionStyle.leafAmount;
+                group.material.userData.deviceTiltUniform?.value.set(tiltState.x, tiltState.y);
+            }
 
             const targetKey = (targetState === 'PHOTO')
                 ? 'explode'
                 : (targetState === 'SECRET_GATHER')
                     ? 'secretGather'
-                    : (targetState === 'FLOWER' ? selectedFlowerType : targetState.toLowerCase());
+                    : (targetState === 'FLOWER')
+                        ? selectedFlowerType
+                        : (targetState === 'GARDEN')
+                            ? `${selectedFlowerType}Garden`
+                            : targetState.toLowerCase();
             const targets = group.geometry.userData[targetKey];
             const targetTexture = (
                 targetState === 'FLOWER'
+                || targetState === 'GARDEN'
                 || targetState === 'HEART'
                 || targetState === 'SECRET_GATHER'
             ) ? textures.neutral : textures[type];
@@ -2246,7 +4745,10 @@
 
             } else if (targetState === 'FLOWER') {
                 group.scale.set(1, 1, 1);
-                group.rotation.y += 0.002;
+                group.material.size = baseSize;
+                // The generated flowers face the camera along the +Z axis.
+                // Reset all rotation so users always see their best angle.
+                group.rotation.set(0, 0, 0);
                 const flowerColors = group.geometry.userData[`${selectedFlowerType}Colors`];
 
                 if (visualChanged) {
@@ -2255,6 +4757,23 @@
                         colors[i * 3] = flowerColors[i * 3];
                         colors[i * 3 + 1] = flowerColors[i * 3 + 1];
                         colors[i * 3 + 2] = flowerColors[i * 3 + 2];
+                    }
+                    group.geometry.attributes.color.needsUpdate = true;
+                    group.geometry.attributes.size.needsUpdate = true;
+                }
+
+            } else if (targetState === 'GARDEN') {
+                group.scale.set(1, 1, 1);
+                group.rotation.set(0, 0, 0);
+                group.material.size = baseSize * 0.65;
+                const gardenColors = group.geometry.userData[`${selectedFlowerType}Colors`];
+
+                if (visualChanged) {
+                    for (let i = 0; i < count; i++) {
+                        sizes[i] = baseSize * 0.65;
+                        colors[i * 3] = gardenColors[i * 3];
+                        colors[i * 3 + 1] = gardenColors[i * 3 + 1];
+                        colors[i * 3 + 2] = gardenColors[i * 3 + 2];
                     }
                     group.geometry.attributes.color.needsUpdate = true;
                     group.geometry.attributes.size.needsUpdate = true;
@@ -2283,10 +4802,15 @@
             } else if (targetState === 'HEART') {
                 group.rotation.y = 0;
                 const beatScale = 1 + Math.abs(Math.sin(time * 3)) * 0.15;
-                group.scale.set(beatScale, beatScale, beatScale);
+                const finaleScale = getFinaleHeartScale();
+                group.scale.set(
+                    beatScale * finaleScale,
+                    beatScale * finaleScale,
+                    beatScale * finaleScale
+                );
 
                 // Vandiep
-                const heartColor = isHeartGestureActive ? gestureHeartColor : baseColor;
+                const heartColor = (isHeartGestureActive || finaleActive) ? gestureHeartColor : baseColor;
                 if (visualChanged) {
                     for (let i = 0; i < count; i++) {
                         colors[i * 3] = heartColor.r; colors[i * 3 + 1] = heartColor.g; colors[i * 3 + 2] = heartColor.b;
@@ -2324,8 +4848,11 @@
             const time = Date.now() * 0.001;
             const speed = 0.08;
 
+            updateFlowerIntro(animationNow);
+            updateGardenTransition(animationNow);
             updateSecretReveal(animationNow);
             updatePetalStateEffects(animationNow);
+            updateGardenAtmosphere(animationNow, time);
 
             // --- ĐOẠN SỬA ĐỔI: Logic lướt ảnh liên tục ---
             // Nếu tay ở giữa (0.5) -> Tốc độ = 0
@@ -2345,6 +4872,7 @@
             updateParticleGroup(groupGold, 'gold', state, speed, handRotY, time);
             updateParticleGroup(groupRed, 'red', state, speed, handRotY, time);
             updateParticleGroup(groupGift, 'gift', state, speed, handRotY, time);
+            updateParticleGroup(groupHeart, 'heart', state, speed, handRotY, time);
 
             photoMeshes.forEach((mesh, i) => {
                 if (!mesh.material.map && photoTextures[i]) {
@@ -2360,6 +4888,10 @@
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
                 photoMeshes.forEach(m => { m.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1); m.visible = false; });
 
+            } else if (state === 'GARDEN') {
+                titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
+                photoMeshes.forEach(m => { m.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1); m.visible = false; });
+
             } else if (state === 'TREE') {
                 titleMesh.visible = true; starMesh.visible = true; loveMesh.visible = false;
                 titleMesh.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
@@ -2370,9 +4902,9 @@
             } else if (state === 'HEART') {
                 const messageProgress = secretRevealActive ? getSecretRevealMessageProgress() : 1;
                 const easedMessageProgress = 1 - Math.pow(1 - messageProgress, 3);
-                const shouldShowMessage = secretRevealActive
+                const shouldShowMessage = finaleActive || (secretRevealActive
                     ? messageProgress > 0
-                    : isHeartGestureActive;
+                    : isHeartGestureActive);
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = shouldShowMessage;
                 photoMeshes.forEach(m => { m.visible = false; });
                 loveMesh.material.opacity = easedMessageProgress;
@@ -2465,11 +4997,13 @@
         }
 
         function startSystem() {
+            const systemStartTime = performance.now();
+            requestTiltAccess();
+            closeFlowerPicker();
             document.body.classList.add('system-started');
             document.getElementById('btnStart').style.display = 'none';
-            createPetalBurst(window.innerWidth <= 600 ? 20 : 28, 0.5, 0.56);
-            lastPetalBurstAt = performance.now();
             prepareSecretAudio();
+            startFlowerIntro(systemStartTime);
             bgMusic.play().catch(e => console.log(e));
             init3D();
 
@@ -2500,6 +5034,19 @@
                 // --- Hand Logic  ---
                 const allHands = results.multiHandLandmarks || [];
                 const gestureTime = performance.now();
+                if (finaleActive) return;
+                if (gardenHoldStartedAt !== null) {
+                    state = gardenModeActive ? 'GARDEN' : 'FLOWER';
+                    return;
+                }
+                if (gardenTransitionActive) {
+                    state = gardenTransitionExpanding ? 'GARDEN' : 'FLOWER';
+                    return;
+                }
+                if (flowerIntroActive || gestureTime < flowerIntroCameraUnlockAt) {
+                    state = 'FLOWER';
+                    return;
+                }
 
                 // Hai luồng tách biệt: zoom chỉ dùng đúng một bàn tay; trái tim
                 // bí mật chỉ dùng đúng hai bàn tay và phải giữ đủ một giây.
@@ -2523,26 +5070,43 @@
                     const tips = [8, 12, 16, 20]; const wrist = lm[0];
                     let openDist = 0; tips.forEach(i => openDist += Math.hypot(lm[i].x - wrist.x, lm[i].y - wrist.y));
                     const avgDist = openDist / 4;
+                    const extendedFingerCount = [
+                        [5, 6, 8],
+                        [9, 10, 12],
+                        [13, 14, 16],
+                        [17, 18, 20]
+                    ].reduce(
+                        (total, indices) => total + (isFingerExtended(lm, ...indices) ? 1 : 0),
+                        0
+                    );
 
                     // --- Quyết định trạng thái ---
                     if (pointingGestureActive) {
                         // Đúng một bàn tay trỏ ổn định 350ms -> Xem ảnh
+                        updateSingleHandFeedback('pointing', gestureTime);
                         state = 'PHOTO';
                     }
                     else if (avgDist < 0.25) {
                         // Nắm tay (Fist) -> Hiện bông hoa
-                        state = 'FLOWER';
+                        updateSingleHandFeedback('fist', gestureTime);
+                        state = gardenModeActive ? 'GARDEN' : 'FLOWER';
                     }
                     else {
                         // Xòe tay hoặc các thế tay khác -> Xoay vòng tròn ảnh
+                        updateSingleHandFeedback(
+                            extendedFingerCount >= 3 ? 'open' : '',
+                            gestureTime
+                        );
                         state = 'EXPLODE';
                     }
                 } else if (allHands.length === 2) {
                     // Hai tay chưa giữ đúng cử chỉ đủ 1 giây thì tuyệt đối
                     // không được rơi vào chế độ zoom và làm lộ bất ngờ.
+                    updateSingleHandFeedback('', gestureTime);
                     state = 'EXPLODE';
                 } else {
-                    state = 'FLOWER';
+                    updateSingleHandFeedback('', gestureTime);
+                    state = gardenModeActive ? 'GARDEN' : 'FLOWER';
                 }
             });
 
@@ -2553,6 +5117,15 @@
                     if (PERFORMANCE.showCameraPreview) {
                         drawCameraFrameCover(ctx, video, canvas.width, canvas.height);
                     }
+                    // Keep the opening cinematic smooth on iPhone: camera
+                    // capture may run, but MediaPipe waits until the flower is
+                    // fully revealed before doing any hand inference.
+                    if (
+                        finaleActive
+                        || flowerIntroActive
+                        || gardenTransitionActive
+                        || gardenHoldStartedAt !== null
+                    ) return;
                     const now = performance.now();
                     if (
                         handsInferenceInFlight
@@ -2581,11 +5154,24 @@
 
         window.addEventListener('resize', scheduleSceneResize);
         window.addEventListener('orientationchange', scheduleSceneResize);
+        window.addEventListener('orientationchange', () => {
+            tiltState.neutralBeta = null;
+            tiltState.neutralGamma = null;
+            tiltState.targetX = 0;
+            tiltState.targetY = 0;
+        });
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', scheduleSceneResize);
         }
+        window.addEventListener('keydown', event => {
+            if (event.key !== 'Escape') return;
+            if (document.body.classList.contains('flower-picker-open')) closeFlowerPicker();
+            else if (finaleActive) closeLoveLetter();
+        });
         prepareDedicationLetters();
         createAmbientPetals();
+        createFireflies();
+        applyFlowerAccent(selectedFlowerType);
     </script>
 </body>
 
