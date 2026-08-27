@@ -1931,7 +1931,12 @@
             background: transparent;
             box-shadow: none;
             animation: none;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
+            transition: transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .birthday-star-symbol {
@@ -1965,6 +1970,26 @@
                 0 0 34px rgba(var(--theme-tertiary), 0.95);
         }
 
+        .birthday-star.is-being-held .birthday-star-symbol {
+            animation: none !important;
+            filter: brightness(1.55);
+            transform: scale(1.2);
+            text-shadow:
+                0 0 9px #fff,
+                0 0 24px rgba(var(--theme-stars), 1),
+                0 0 44px rgba(var(--theme-tertiary), 1);
+        }
+
+        #birthday-constellation.is-holding-together #birthday-star-him,
+        #birthday-constellation.is-complete #birthday-star-him {
+            transform: translateX(6px) scale(1.04);
+        }
+
+        #birthday-constellation.is-holding-together #birthday-star,
+        #birthday-constellation.is-complete #birthday-star {
+            transform: translateX(-6px) scale(1.04);
+        }
+
         .birthday-star-connection {
             position: relative;
             display: block;
@@ -1980,16 +2005,46 @@
                 box-shadow 900ms ease, background 900ms ease;
         }
 
+        .birthday-star-connection::after {
+            content: '';
+            position: absolute;
+            inset: -2px 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg,
+                    rgba(var(--theme-stars), 0.78),
+                    #fff,
+                    rgba(var(--theme-stars), 0.78));
+            box-shadow:
+                0 0 9px rgba(var(--theme-stars), 0.8),
+                0 0 18px rgba(var(--theme-tertiary), 0.68);
+            opacity: 0;
+            z-index: 0;
+            transform: scaleX(0);
+            transform-origin: center;
+        }
+
+        #birthday-constellation.is-holding-together .birthday-star-connection::after {
+            opacity: 1;
+            animation: birthday-star-hold-fill 1s linear forwards;
+        }
+
         .birthday-star-connection span {
             position: absolute;
             left: 50%;
             top: 50%;
             color: rgba(var(--theme-stars), 0.72);
             opacity: 0.45;
+            z-index: 1;
             font-size: 12px;
             text-shadow: 0 0 10px rgba(var(--theme-tertiary), 0.9);
             transform: translate(-50%, -50%) scale(0.72);
             transition: opacity 700ms ease, transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #birthday-constellation.is-holding-together .birthday-star-connection span {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.18);
+            animation: love-answer-heartbeat 1s ease-in-out infinite;
         }
 
         #birthday-constellation.is-complete .birthday-star-connection {
@@ -2007,6 +2062,44 @@
             opacity: 1;
             transform: translate(-50%, -50%) scale(1.18);
             animation: love-answer-heartbeat 1.15s ease-in-out infinite;
+        }
+
+        #birthday-star-fallback {
+            position: absolute;
+            top: calc(100% + 70px);
+            right: 0;
+            width: auto;
+            min-height: 34px;
+            margin: 0;
+            padding: 7px 14px;
+            border: 1px solid rgba(var(--theme-stars), 0.22);
+            border-radius: 999px;
+            color: rgba(255, 248, 244, 0.66);
+            background: rgba(3, 0, 3, 0.58);
+            box-shadow: 0 7px 22px rgba(0, 0, 0, 0.46);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            font: italic 600 12px/1 'Cormorant Garamond', Georgia, serif;
+            transform: translateY(-4px);
+            transition: opacity 600ms ease, visibility 600ms, transform 600ms ease;
+        }
+
+        #birthday-constellation.is-fallback-visible #birthday-star-fallback {
+            opacity: 0.72;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        @keyframes birthday-star-hold-fill {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
         }
 
         #birthday-star-secret {
@@ -2331,25 +2424,27 @@
             font: italic 700 clamp(19px, 5vw, 25px) / 1.05 'Cormorant Garamond', Georgia, serif;
         }
 
-        .keepsake-birthdays,
+        .keepsake-names {
+            display: block;
+            margin-top: 8px;
+            color: rgba(104, 38, 63, 0.72);
+            font: italic 700 clamp(13px, 3.5vw, 16px) / 1.1 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.07em;
+        }
+
+        .keepsake-names b {
+            margin: 0 7px;
+            color: rgb(var(--theme-primary));
+            font-size: 1.05em;
+        }
+
         #keepsake-date {
             display: block;
-            margin-top: 7px;
+            margin-top: 4px;
             color: rgba(104, 38, 63, 0.72);
-            font: 700 9px/1.2 'Segoe UI', sans-serif;
+            font: 600 9px/1.2 'Segoe UI', sans-serif;
             letter-spacing: 0.085em;
             text-transform: uppercase;
-        }
-
-        .keepsake-birthdays b {
-            margin: 0 5px;
-            color: rgb(var(--theme-primary));
-            font-size: 11px;
-        }
-
-        #keepsake-date {
-            margin-top: 4px;
-            font-weight: 600;
             opacity: 0.72;
         }
 
@@ -4082,9 +4177,9 @@
             }
 
             .birthday-star {
-                width: 42px;
-                min-width: 42px;
-                min-height: 46px;
+                width: 48px;
+                min-width: 48px;
+                min-height: 50px;
                 padding: 1px 2px 0;
             }
 
@@ -4221,9 +4316,9 @@
             }
 
             .birthday-star {
-                width: 40px;
-                min-width: 40px;
-                min-height: 40px;
+                width: 44px;
+                min-width: 44px;
+                min-height: 44px;
                 padding: 0 2px;
             }
 
@@ -4271,15 +4366,13 @@
                 width: min(286px, 34vw);
             }
 
-            .keepsake-birthdays {
+            .keepsake-names {
                 white-space: nowrap;
-                font-size: 8px;
-                letter-spacing: 0.055em;
+                font-size: 14px;
             }
 
-            .keepsake-birthdays b {
-                margin-inline: 3px;
-                font-size: 9px;
+            .keepsake-names b {
+                margin-inline: 5px;
             }
 
             #keepsake-primary-actions,
@@ -4338,6 +4431,8 @@
             #flower-memory-card,
             .birthday-star-symbol,
             .birthday-star-connection span,
+            .birthday-star-connection::after,
+            #birthday-star-fallback,
             #acceptance-finale::after,
             #acceptance-final-message,
             #proposal-garden-intro,
@@ -4457,6 +4552,11 @@
                 transform: none;
             }
 
+            #birthday-constellation.is-holding-together .birthday-star-connection::after {
+                opacity: 1;
+                transform: scaleX(1);
+            }
+
             #keepsake-countdown.is-visible {
                 opacity: 1;
                 transform: translate(-50%, -50%) scale(1);
@@ -4560,20 +4660,26 @@
             <span class="butterfly-body"></span>
         </div>
         <div id="birthday-constellation" aria-label="Hai ngôi sao của chúng mình">
-            <button id="birthday-star-him" class="birthday-star" type="button" aria-label="Ngôi sao của anh"
+            <button id="birthday-star-him" class="birthday-star" type="button" data-star-owner="him"
+                aria-label="Ngôi sao của Kiệt" aria-describedby="birthday-star-secret"
                 onclick="revealBirthdayStar('him')">
                 <span class="birthday-star-symbol" aria-hidden="true">✦</span>
-                <span class="birthday-star-name">Anh</span>
+                <span class="birthday-star-name">Kiệt</span>
             </button>
             <span class="birthday-star-connection" aria-hidden="true">
                 <span>♥</span>
             </span>
-            <button id="birthday-star" class="birthday-star" type="button" aria-label="Ngôi sao của Duyên"
+            <button id="birthday-star" class="birthday-star" type="button" data-star-owner="duyen"
+                aria-label="Ngôi sao của Duyên" aria-describedby="birthday-star-secret"
                 onclick="revealBirthdayStar('duyen')">
                 <span class="birthday-star-symbol" aria-hidden="true">✦</span>
                 <span class="birthday-star-name">Duyên</span>
             </button>
             <p id="birthday-star-secret" role="status"></p>
+            <button id="birthday-star-fallback" type="button" aria-hidden="true" tabindex="-1"
+                onclick="completeBirthdayStarConnection(true)">
+                Chạm để tiếp tục
+            </button>
         </div>
         <div class="acceptance-copy">
             <p class="acceptance-line acceptance-line--one">Vậy là từ hôm nay…</p>
@@ -4617,7 +4723,7 @@
                 </div>
                 <div class="keepsake-polaroid-copy">
                     <strong>Chương đầu tiên của chúng mình</strong>
-                    <span class="keepsake-birthdays">13 · 11 · 2002 · Kiệt <b>♥</b> Duyên · 15 · 11 · 2003</span>
+                    <span class="keepsake-names">Kiệt <b>♥</b> Duyên</span>
                     <time id="keepsake-date"></time>
                 </div>
             </article>
@@ -4912,6 +5018,11 @@
         let acceptanceFlowerPulseStartedAt = -Infinity;
         let acceptanceCompletedAt = -Infinity;
         let acceptanceMemoryCardTimer = null;
+        let birthdayStarConnectionArmed = false;
+        let birthdayStarConnectionComplete = false;
+        let birthdayStarHoldTimer = null;
+        let birthdayStarFallbackTimer = null;
+        const birthdayStarActivePointers = new Map();
         let acceptanceDateText = '';
         let keepsakeReady = false;
         let keepsakeCameraActive = false;
@@ -4929,6 +5040,9 @@
         const SECRET_REVEAL_CTA_MS = 2850;
         const SECRET_REVEAL_MUSIC_RETURN_MS = 3200;
         const SECRET_REVEAL_DURATION_MS = 6200;
+        const BIRTHDAY_STAR_HOLD_MS = 1000;
+        const BIRTHDAY_STAR_FALLBACK_MS = 12000;
+        const BIRTHDAY_STAR_LETTER_DELAY_MS = 2200;
         const FLOWER_INTRO_DURATION_MS = 5200;
         const FLOWER_CHANGE_INTRO_DURATION_MS = 3300;
         const FLOWER_INTRO_BLOOM_PROGRESS = 0.64;
@@ -6073,6 +6187,7 @@
             acceptanceFlowerPulseStartedAt = -Infinity;
             acceptanceCompletedAt = -Infinity;
             secretRevealActive = false;
+            resetBirthdayStarConnection();
 
             setLoveLetterTriggerVisible(false);
             document.body.classList.remove(
@@ -6234,6 +6349,197 @@
             bgMusic.volume = Math.max(bgMusic.volume, 0.88);
         }
 
+        function resetBirthdayStarConnection() {
+            window.clearTimeout(birthdayStarHoldTimer);
+            window.clearTimeout(birthdayStarFallbackTimer);
+            birthdayStarHoldTimer = null;
+            birthdayStarFallbackTimer = null;
+            birthdayStarConnectionArmed = false;
+            birthdayStarConnectionComplete = false;
+            birthdayStarActivePointers.clear();
+
+            const constellation = document.getElementById('birthday-constellation');
+            const secret = document.getElementById('birthday-star-secret');
+            const fallback = document.getElementById('birthday-star-fallback');
+            constellation?.classList.remove(
+                'is-revealed',
+                'is-ready',
+                'is-holding-together',
+                'is-complete',
+                'is-fallback-visible'
+            );
+            document.querySelectorAll('.birthday-star').forEach(star => {
+                star.classList.remove('is-revealed', 'is-being-held');
+                star.removeAttribute('aria-pressed');
+            });
+            document.getElementById('birthday-star-him')?.setAttribute('aria-label', 'Ngôi sao của Kiệt');
+            document.getElementById('birthday-star')?.setAttribute('aria-label', 'Ngôi sao của Duyên');
+            if (secret) secret.textContent = '';
+            if (fallback) {
+                fallback.setAttribute('aria-hidden', 'true');
+                fallback.tabIndex = -1;
+            }
+        }
+
+        function armBirthdayStarConnection() {
+            if (
+                !proposalJourneyActive
+                || loveAccepted
+                || birthdayStarConnectionArmed
+                || birthdayStarConnectionComplete
+            ) return;
+
+            birthdayStarConnectionArmed = true;
+            const constellation = document.getElementById('birthday-constellation');
+            const secret = document.getElementById('birthday-star-secret');
+            const fallback = document.getElementById('birthday-star-fallback');
+            constellation?.classList.add('is-revealed', 'is-ready');
+            if (secret) {
+                secret.textContent = 'Mỗi người chạm vào một ngôi sao và giữ cùng nhau 1 giây nhé…';
+            }
+            document.getElementById('birthday-star-him')?.setAttribute(
+                'aria-label',
+                'Ngôi sao của Kiệt — chạm và giữ cùng Duyên'
+            );
+            document.getElementById('birthday-star')?.setAttribute(
+                'aria-label',
+                'Ngôi sao của Duyên — chạm và giữ cùng Kiệt'
+            );
+
+            window.clearTimeout(birthdayStarFallbackTimer);
+            birthdayStarFallbackTimer = window.setTimeout(() => {
+                if (!birthdayStarConnectionArmed || birthdayStarConnectionComplete) return;
+                constellation?.classList.add('is-fallback-visible');
+                if (fallback) {
+                    fallback.setAttribute('aria-hidden', 'false');
+                    fallback.tabIndex = 0;
+                }
+            }, BIRTHDAY_STAR_FALLBACK_MS);
+        }
+
+        function cancelBirthdayStarHold() {
+            window.clearTimeout(birthdayStarHoldTimer);
+            birthdayStarHoldTimer = null;
+            const constellation = document.getElementById('birthday-constellation');
+            constellation?.classList.remove('is-holding-together');
+            const secret = document.getElementById('birthday-star-secret');
+            if (secret && birthdayStarConnectionArmed && !birthdayStarConnectionComplete) {
+                secret.textContent = 'Mỗi người chạm vào một ngôi sao và giữ cùng nhau 1 giây nhé…';
+            }
+        }
+
+        function updateBirthdayStarHold() {
+            if (!birthdayStarConnectionArmed || birthdayStarConnectionComplete) return;
+            const himPointer = birthdayStarActivePointers.get('him');
+            const duyenPointer = birthdayStarActivePointers.get('duyen');
+            const bothStarsHeld = himPointer !== undefined
+                && duyenPointer !== undefined
+                && himPointer !== duyenPointer;
+
+            if (!bothStarsHeld) {
+                cancelBirthdayStarHold();
+                return;
+            }
+            if (birthdayStarHoldTimer !== null) return;
+
+            document.getElementById('birthday-constellation')?.classList.add('is-holding-together');
+            const secret = document.getElementById('birthday-star-secret');
+            if (secret) secret.textContent = 'Cứ giữ như vậy thêm một chút…';
+            birthdayStarHoldTimer = window.setTimeout(() => {
+                birthdayStarHoldTimer = null;
+                completeBirthdayStarConnection(false);
+            }, BIRTHDAY_STAR_HOLD_MS);
+        }
+
+        function handleBirthdayStarPointerDown(event) {
+            if (!birthdayStarConnectionArmed || birthdayStarConnectionComplete) return;
+            const owner = event.currentTarget?.dataset?.starOwner;
+            if (!owner || birthdayStarActivePointers.has(owner)) return;
+            event.preventDefault();
+            birthdayStarActivePointers.set(owner, event.pointerId);
+            event.currentTarget.classList.add('is-being-held');
+            try {
+                event.currentTarget.setPointerCapture(event.pointerId);
+            } catch (_) { }
+            updateBirthdayStarHold();
+        }
+
+        function handleBirthdayStarPointerEnd(event) {
+            const owner = event.currentTarget?.dataset?.starOwner;
+            if (!owner || birthdayStarActivePointers.get(owner) !== event.pointerId) return;
+            birthdayStarActivePointers.delete(owner);
+            event.currentTarget.classList.remove('is-being-held');
+            if (!birthdayStarConnectionComplete) updateBirthdayStarHold();
+        }
+
+        function completeBirthdayStarConnection(force = false) {
+            if (
+                !proposalJourneyActive
+                || loveAccepted
+                || !birthdayStarConnectionArmed
+                || birthdayStarConnectionComplete
+            ) return;
+
+            const himPointer = birthdayStarActivePointers.get('him');
+            const duyenPointer = birthdayStarActivePointers.get('duyen');
+            if (
+                !force
+                && (himPointer === undefined || duyenPointer === undefined || himPointer === duyenPointer)
+            ) return;
+
+            birthdayStarConnectionComplete = true;
+            birthdayStarConnectionArmed = false;
+            window.clearTimeout(birthdayStarHoldTimer);
+            window.clearTimeout(birthdayStarFallbackTimer);
+            birthdayStarHoldTimer = null;
+            birthdayStarFallbackTimer = null;
+            birthdayStarActivePointers.clear();
+
+            const constellation = document.getElementById('birthday-constellation');
+            const secret = document.getElementById('birthday-star-secret');
+            const fallback = document.getElementById('birthday-star-fallback');
+            constellation?.classList.remove(
+                'is-ready',
+                'is-holding-together',
+                'is-fallback-visible'
+            );
+            constellation?.classList.add('is-complete');
+            document.querySelectorAll('.birthday-star').forEach(star => {
+                star.classList.remove('is-being-held');
+                star.setAttribute('aria-pressed', 'true');
+            });
+            if (secret) {
+                secret.textContent = '13 · 11 · 2002  ♥  15 · 11 · 2003 — hai ngày khác nhau, để rồi một ngày trở thành chúng ta.';
+            }
+            if (fallback) {
+                fallback.setAttribute('aria-hidden', 'true');
+                fallback.tabIndex = -1;
+            }
+
+            const rect = constellation?.getBoundingClientRect();
+            createPetalBurst(
+                MOBILE_PERFORMANCE_MODE ? 16 : 24,
+                rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5,
+                rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.24
+            );
+            playSecretHeartbeat();
+            playFinaleShimmer();
+            window.setTimeout(
+                openLoveLetter,
+                prefersReducedMotion() ? 900 : BIRTHDAY_STAR_LETTER_DELAY_MS
+            );
+        }
+
+        function setupBirthdayStarInteraction() {
+            document.querySelectorAll('.birthday-star').forEach(star => {
+                star.addEventListener('pointerdown', handleBirthdayStarPointerDown);
+                star.addEventListener('pointerup', handleBirthdayStarPointerEnd);
+                star.addEventListener('pointercancel', handleBirthdayStarPointerEnd);
+                star.addEventListener('lostpointercapture', handleBirthdayStarPointerEnd);
+                star.addEventListener('contextmenu', event => event.preventDefault());
+            });
+        }
+
         function revealBirthdayStar(owner = 'duyen') {
             if (!proposalJourneyActive || !acceptanceExplorationActive) return;
             const constellation = document.getElementById('birthday-constellation');
@@ -6247,7 +6553,7 @@
             star.classList.add('is-revealed');
             constellation.classList.add('is-revealed');
             if (owner === 'him') {
-                star.setAttribute('aria-label', '13 tháng 11 năm 2002 — ngôi sao của anh');
+                star.setAttribute('aria-label', '13 tháng 11 năm 2002 — ngôi sao của Kiệt');
                 secret.textContent = '13 · 11 · 2002 — ngày anh bắt đầu hành trình để sau này gặp được em.';
             } else {
                 star.setAttribute('aria-label', '15 tháng 11 năm 2003 — ngôi sao của Duyên');
@@ -6257,15 +6563,14 @@
             const bothRevealed = document.getElementById('birthday-star-him')?.classList.contains('is-revealed')
                 && document.getElementById('birthday-star')?.classList.contains('is-revealed');
             if (bothRevealed) {
-                constellation.classList.add('is-complete');
-                secret.textContent = '13 · 11 · 2002  ♥  15 · 11 · 2003 — hai ngày khác nhau, để rồi một ngày trở thành chúng ta.';
+                armBirthdayStarConnection();
                 const rect = constellation.getBoundingClientRect();
                 createPetalBurst(
                     MOBILE_PERFORMANCE_MODE ? 12 : 18,
                     (rect.left + rect.width / 2) / window.innerWidth,
                     (rect.top + rect.height / 2) / window.innerHeight
                 );
-                playSecretHeartbeat();
+                playFlowerBloomChime();
             }
             playFinaleShimmer();
         }
@@ -6334,13 +6639,10 @@
             createPetalBurst(MOBILE_PERFORMANCE_MODE ? 26 : 40, 0.5, 0.6);
 
             // The two dates arrive only after the tenth memory, so the stars
-            // become a quiet bridge between the garden and the confession.
+            // become an interactive bridge between the garden and the
+            // confession. The letter waits until both people hold a star.
             window.setTimeout(() => revealBirthdayStar('him'), 520);
             window.setTimeout(() => revealBirthdayStar('duyen'), 1280);
-            window.setTimeout(
-                openLoveLetter,
-                prefersReducedMotion() ? 3100 : 6400
-            );
         }
 
         function completeAcceptanceGarden() {
@@ -6675,11 +6977,11 @@
             drawKeepsakeHeart(context, 600, 1087, 39, accent);
 
             context.fillStyle = '#8a5267';
-            context.font = '700 25px Arial, sans-serif';
+            context.font = '700 30px Georgia, serif';
             context.textAlign = 'right';
-            context.fillText('13 · 11 · 2002 · KIỆT', 570, 1160);
+            context.fillText('KIỆT', 570, 1160);
             context.textAlign = 'left';
-            context.fillText('DUYÊN · 15 · 11 · 2003', 630, 1160);
+            context.fillText('DUYÊN', 630, 1160);
             drawKeepsakeHeart(context, 600, 1153, 25, accent);
             context.textAlign = 'center';
             context.font = '600 21px Arial, sans-serif';
@@ -8829,6 +9131,7 @@
         createAmbientPetals();
         createFireflies();
         applyFlowerAccent(selectedFlowerType);
+        setupBirthdayStarInteraction();
     </script>
 </body>
 
