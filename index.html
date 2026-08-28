@@ -132,7 +132,7 @@
             opacity: 1;
             visibility: visible;
             pointer-events: none;
-            animation: opening-curtain-reveal 1.6s ease 5s forwards;
+            animation: opening-curtain-reveal 1.6s ease 10s forwards;
         }
 
         @keyframes opening-curtain-reveal {
@@ -2919,7 +2919,7 @@
             filter: blur(7px) brightness(1.7);
             animation:
                 dedication-letter-reveal var(--letter-duration) cubic-bezier(0.16, 1, 0.3, 1) var(--letter-delay) both,
-                dedication-shimmer 5s ease-in-out 8.3s infinite;
+                dedication-shimmer 5s ease-in-out 13.3s infinite;
         }
 
         .dedication-subtitle .dedication-letter {
@@ -2937,7 +2937,7 @@
             margin: 16px auto 0;
             color: #ff8dbd;
             filter: drop-shadow(0 0 7px rgba(255, 105, 180, 0.8));
-            animation: opening-message 900ms ease 9.35s both;
+            animation: opening-message 900ms ease 14.35s both;
         }
 
         .dedication-ornament::before,
@@ -3043,7 +3043,7 @@
             visibility: hidden;
             opacity: 0;
             transform: translateY(14px);
-            animation: opening-controls 900ms ease 9.85s forwards;
+            animation: opening-controls 900ms ease 14.85s forwards;
         }
 
         @keyframes opening-controls {
@@ -4863,7 +4863,10 @@
         // actually visible. Safari no longer decodes all ten images at boot.
         const photoTextures = new Array(photoFiles.length).fill(null);
         const photoTextureLoading = new Array(photoFiles.length).fill(false);
+        const photoTextureLastUsed = new Array(photoFiles.length).fill(0);
+        let photoTextureDesiredIndexes = new Set();
         let photoTextureLoadsInFlight = 0;
+        let photoTextureUseCounter = 0;
         let photoTexturesReleased = false;
 
         function createCustomTexture(type) {
@@ -4933,14 +4936,18 @@
             && Math.min(window.screen.width, window.screen.height) <= 600;
         const PERFORMANCE = {
             showCameraPreview: false,
-            pixelRatioCap: MOBILE_PERFORMANCE_MODE ? 1.5 : 2,
-            captureWidth: MOBILE_PERFORMANCE_MODE ? 720 : 640,
-            captureHeight: MOBILE_PERFORMANCE_MODE ? 540 : 480,
+            pixelRatioCap: MOBILE_PERFORMANCE_MODE ? 1 : 2,
+            captureWidth: 640,
+            captureHeight: 480,
             previewWidth: 640,
             previewHeight: 480,
             analysisWidth: MOBILE_PERFORMANCE_MODE ? 480 : 640,
             analysisHeight: MOBILE_PERFORMANCE_MODE ? 360 : 480,
-            handInferenceIntervalMs: MOBILE_PERFORMANCE_MODE ? 50 : 0
+            handInferenceIntervalMs: MOBILE_PERFORMANCE_MODE ? 60 : 0,
+            photoTextureCacheLimit: MOBILE_PERFORMANCE_MODE ? 3 : photoFiles.length,
+            photoTextureConcurrentLoads: MOBILE_PERFORMANCE_MODE ? 2 : 4,
+            renderIntervalMs: MOBILE_PERFORMANCE_MODE ? 1000 / 24 : 0,
+            gardenRenderIntervalMs: MOBILE_PERFORMANCE_MODE ? 1000 / 18 : 0
         };
         const CONFIG = {
             goldCount: MOBILE_PERFORMANCE_MODE ? 1350 : 2000,
@@ -4955,6 +4962,12 @@
         let scene, camera, renderer;
         let systemStarted = false;
         let resizeAnimationFrame;
+        let lastWebGLRenderAt = -Infinity;
+        let webglOverlayPaused = false;
+        let webglOverlayPauseTimer = null;
+        let rendererViewportWidth = 0;
+        let rendererViewportHeight = 0;
+        let rendererPixelRatio = 0;
         let themeTransitionTimer;
         let groupGold, groupRed, groupGift, groupHeart;
         let gardenFillPoints = null;
@@ -4965,6 +4978,8 @@
         let titleMesh, starMesh, loveMesh;
         let handsController = null;
         let cameraUtilsController = null;
+        let handAnalysisCanvas = null;
+        let handAnalysisContext = null;
         let handTrackingReleased = false;
         let handsInferenceInFlight = false;
 
@@ -5026,6 +5041,7 @@
         let acceptanceDateText = '';
         let keepsakeReady = false;
         let keepsakeCameraActive = false;
+        let keepsakeCameraStarting = false;
         let keepsakePhotoCaptured = false;
         let keepsakePreviewFrame = null;
         let keepsakeCountdownActive = false;
@@ -5129,8 +5145,8 @@
 
         function prepareDedicationLetters() {
             [
-                { selector: '.dedication-title', startMs: 6750, stepMs: 92 },
-                { selector: '.dedication-subtitle', startMs: 8100, stepMs: 28 }
+                { selector: '.dedication-title', startMs: 11750, stepMs: 92 },
+                { selector: '.dedication-subtitle', startMs: 13100, stepMs: 28 }
             ].forEach(({ selector, startMs, stepMs }) => {
                 const element = document.querySelector(selector);
                 if (!element || element.dataset.lettersReady === 'true') return;
@@ -6000,15 +6016,55 @@
             trigger.tabIndex = visible ? 0 : -1;
         }
 
+        function touchPhotoTexture(index) {
+            if (index < 0 || index >= photoTextureLastUsed.length) return;
+            photoTextureUseCounter += 1;
+            photoTextureLastUsed[index] = photoTextureUseCounter;
+        }
+
+        function disposePhotoTexture(index) {
+            const texture = photoTextures[index];
+            if (!texture) return;
+            const mesh = photoMeshes[index];
+            if (mesh?.material?.map === texture) {
+                mesh.material.map = null;
+                mesh.material.opacity = 0;
+                mesh.material.needsUpdate = true;
+            }
+            texture.dispose();
+            texture.image = null;
+            photoTextures[index] = null;
+            photoTextureLastUsed[index] = 0;
+        }
+
+        function trimPhotoTextureCache(protectedIndexes = photoTextureDesiredIndexes) {
+            if (photoTexturesReleased) return;
+            const protectedSet = protectedIndexes instanceof Set
+                ? protectedIndexes
+                : new Set(protectedIndexes);
+            let loadedIndexes = photoTextures
+                .map((texture, index) => texture ? index : -1)
+                .filter(index => index >= 0);
+
+            while (loadedIndexes.length > PERFORMANCE.photoTextureCacheLimit) {
+                const disposableIndexes = loadedIndexes.filter(index => !protectedSet.has(index));
+                if (!disposableIndexes.length) break;
+                disposableIndexes.sort(
+                    (a, b) => photoTextureLastUsed[a] - photoTextureLastUsed[b]
+                );
+                disposePhotoTexture(disposableIndexes[0]);
+                loadedIndexes = loadedIndexes.filter(index => index !== disposableIndexes[0]);
+            }
+        }
+
         function loadPhotoTexture(index) {
-            const maxConcurrentLoads = MOBILE_PERFORMANCE_MODE ? 3 : 4;
             if (
                 photoTexturesReleased
                 || index < 0
                 || index >= photoFiles.length
                 || photoTextures[index]
                 || photoTextureLoading[index]
-                || photoTextureLoadsInFlight >= maxConcurrentLoads
+                || photoTextureLoadsInFlight >= PERFORMANCE.photoTextureConcurrentLoads
             ) return false;
 
             photoTextureLoading[index] = true;
@@ -6030,12 +6086,14 @@
                     texture.minFilter = THREE.LinearFilter;
                     texture.magFilter = THREE.LinearFilter;
                     photoTextures[index] = texture;
+                    touchPhotoTexture(index);
                     const mesh = photoMeshes[index];
                     if (mesh?.material) {
                         mesh.material.map = texture;
                         mesh.material.opacity = 0;
                         mesh.material.needsUpdate = true;
                     }
+                    trimPhotoTextureCache();
                 },
                 undefined,
                 () => {
@@ -6048,16 +6106,32 @@
 
         function loadNeededPhotoTextures(preferredIndex = -1, fillOrbit = false) {
             if (photoTexturesReleased) return;
-            const maxConcurrentLoads = MOBILE_PERFORMANCE_MODE ? 3 : 4;
-            if (preferredIndex >= 0) loadPhotoTexture(preferredIndex);
+            const desiredIndexes = [];
+            if (preferredIndex >= 0) {
+                desiredIndexes.push(preferredIndex);
+                if (fillOrbit) {
+                    if (MOBILE_PERFORMANCE_MODE) {
+                        desiredIndexes.push(
+                            (preferredIndex - 1 + photoFiles.length) % photoFiles.length,
+                            (preferredIndex + 1) % photoFiles.length
+                        );
+                    } else {
+                        desiredIndexes.push(
+                            ...photoFiles.map((_, index) => index).filter(index => index !== preferredIndex)
+                        );
+                    }
+                }
+            }
 
-            if (!fillOrbit) return;
+            photoTextureDesiredIndexes = new Set(desiredIndexes);
+            desiredIndexes.forEach(index => {
+                if (photoTextures[index]) touchPhotoTexture(index);
+            });
+            trimPhotoTextureCache(photoTextureDesiredIndexes);
 
-            while (photoTextureLoadsInFlight < maxConcurrentLoads) {
-                const nextIndex = photoTextures.findIndex(
-                    (texture, index) => !texture && !photoTextureLoading[index]
-                );
-                if (nextIndex < 0 || !loadPhotoTexture(nextIndex)) break;
+            for (const index of desiredIndexes) {
+                if (photoTextureLoadsInFlight >= PERFORMANCE.photoTextureConcurrentLoads) break;
+                loadPhotoTexture(index);
             }
         }
 
@@ -6080,6 +6154,7 @@
         function releasePhotoTextureResources() {
             if (photoTexturesReleased) return;
             photoTexturesReleased = true;
+            photoTextureDesiredIndexes.clear();
 
             photoTextures.forEach((texture, index) => {
                 if (texture) {
@@ -6087,6 +6162,7 @@
                     texture.image = null;
                 }
                 photoTextures[index] = null;
+                photoTextureLastUsed[index] = 0;
             });
 
             photoMeshes.forEach(mesh => {
@@ -6106,25 +6182,24 @@
             renderer?.renderLists?.dispose();
         }
 
-        function keepCameraStreamLightForKeepsake() {
+        function stopActiveCameraStream() {
             const video = document.querySelector('.input_video');
-            const track = video?.srcObject?.getVideoTracks?.()[0];
-            if (!track?.applyConstraints) return;
-            track.applyConstraints({
-                width: { ideal: PERFORMANCE.captureWidth },
-                height: { ideal: PERFORMANCE.captureHeight },
-                frameRate: { ideal: 20, max: 24 }
-            }).catch(() => { });
+            const stream = video?.srcObject;
+            stream?.getTracks?.().forEach(track => track.stop());
+            if (!video) return;
+            video.pause();
+            video.srcObject = null;
         }
 
         function releaseHandTrackingForGarden() {
             if (handTrackingReleased && !handsController) return;
             handTrackingReleased = true;
-            keepCameraStreamLightForKeepsake();
 
             // A frame may already be inside hands.send(). Wait for that one
-            // promise, then close only MediaPipe. The camera track deliberately
-            // stays alive for the final Polaroid selfie.
+            // promise, then close MediaPipe and the camera together. The final
+            // Polaroid opens a fresh lightweight stream only after its button
+            // is tapped, so Safari does not retain camera buffers for the
+            // entire garden journey.
             if (handsInferenceInFlight) {
                 window.setTimeout(releaseHandTrackingForGarden, 120);
                 return;
@@ -6132,8 +6207,21 @@
 
             const controller = handsController;
             handsController = null;
-            if (!controller?.close) return;
-            Promise.resolve(controller.close()).catch(() => { });
+            const cameraController = cameraUtilsController;
+            cameraUtilsController = null;
+            if (handAnalysisCanvas) {
+                handAnalysisCanvas.width = 1;
+                handAnalysisCanvas.height = 1;
+            }
+            handAnalysisCanvas = null;
+            handAnalysisContext = null;
+            if (cameraController?.stop) {
+                Promise.resolve(cameraController.stop()).catch(() => { });
+            }
+            stopActiveCameraStream();
+            if (controller?.close) {
+                Promise.resolve(controller.close()).catch(() => { });
+            }
         }
 
         function startProposalGardenJourney() {
@@ -6579,13 +6667,23 @@
             number.textContent = String(safeStoryIndex + 1).padStart(2, '0');
             reason.textContent = acceptanceReasons[safeStoryIndex];
             window.clearTimeout(acceptanceMemoryCardTimer);
+            window.clearTimeout(webglOverlayPauseTimer);
+            webglOverlayPaused = false;
             card.classList.remove('is-visible');
             void card.offsetWidth;
             card.classList.add('is-visible');
             card.setAttribute('aria-hidden', 'false');
+            // Once the card has arrived, its opaque surface can cover a
+            // frozen garden. Skipping GPU renders during these five seconds
+            // prevents ten memory cards from keeping WebGL hot on Safari.
+            webglOverlayPauseTimer = window.setTimeout(() => {
+                if (card.classList.contains('is-visible')) webglOverlayPaused = true;
+            }, 180);
             acceptanceMemoryCardTimer = window.setTimeout(() => {
+                webglOverlayPaused = false;
                 card.classList.remove('is-visible');
                 card.setAttribute('aria-hidden', 'true');
+                photo.removeAttribute('src');
             }, 5000);
         }
 
@@ -6630,6 +6728,7 @@
         function showKeepsakeStage() {
             if (!acceptanceActive || keepsakeReady) return;
             keepsakeReady = true;
+            webglOverlayPaused = true;
             document.body.classList.add('keepsake-ready');
             const stage = document.getElementById('keepsake-stage');
             const date = document.getElementById('keepsake-date');
@@ -6678,6 +6777,46 @@
             return true;
         }
 
+        async function startKeepsakeCameraStream() {
+            const video = document.querySelector('.input_video');
+            if (!video || !navigator.mediaDevices?.getUserMedia) return false;
+            if (video.srcObject && video.readyState >= 2 && video.videoWidth) return true;
+
+            stopActiveCameraStream();
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: PERFORMANCE.captureWidth },
+                        height: { ideal: PERFORMANCE.captureHeight },
+                        frameRate: { ideal: 20, max: 24 }
+                    }
+                });
+                video.srcObject = stream;
+                video.muted = true;
+                video.playsInline = true;
+
+                if (video.readyState < 1) {
+                    await new Promise(resolve => {
+                        const timeout = window.setTimeout(resolve, 3000);
+                        video.addEventListener('loadedmetadata', () => {
+                            window.clearTimeout(timeout);
+                            resolve();
+                        }, { once: true });
+                    });
+                }
+                await video.play();
+                const cameraReady = video.readyState >= 2 && Boolean(video.videoWidth);
+                if (!cameraReady) stopActiveCameraStream();
+                return cameraReady;
+            } catch (error) {
+                stopActiveCameraStream();
+                console.warn('Không thể mở lại camera cho ảnh kỷ niệm.', error);
+                return false;
+            }
+        }
+
         function renderKeepsakeCameraPreview() {
             if (!keepsakeCameraActive || keepsakePhotoCaptured) return;
             const video = document.querySelector('.input_video');
@@ -6689,16 +6828,29 @@
             keepsakePreviewFrame = requestAnimationFrame(renderKeepsakeCameraPreview);
         }
 
-        function handleKeepsakeCameraButton() {
-            if (!keepsakeReady || keepsakeCountdownActive || keepsakePhotoCaptured) return;
+        async function handleKeepsakeCameraButton() {
+            if (
+                !keepsakeReady
+                || keepsakeCountdownActive
+                || keepsakePhotoCaptured
+                || keepsakeCameraStarting
+            ) return;
             const video = document.querySelector('.input_video');
             const label = document.getElementById('keepsake-camera-button-label');
-            if (!video || video.readyState < 2 || !video.videoWidth) {
-                document.getElementById('keepsake-file-input')?.click();
-                return;
-            }
+            const button = document.getElementById('keepsake-camera-button');
 
             if (!keepsakeCameraActive) {
+                keepsakeCameraStarting = true;
+                if (button) button.disabled = true;
+                if (label) label.textContent = 'Đang mở camera…';
+                const cameraReady = await startKeepsakeCameraStream();
+                keepsakeCameraStarting = false;
+                if (button) button.disabled = false;
+                if (!cameraReady || !video) {
+                    stopActiveCameraStream();
+                    if (label) label.textContent = 'Không mở được — hãy chọn ảnh';
+                    return;
+                }
                 keepsakeCameraActive = true;
                 document.body.classList.add('keepsake-camera-active');
                 if (label) label.textContent = 'Chụp sau 3 giây';
@@ -6744,7 +6896,9 @@
             keepsakeCountdownActive = false;
             keepsakePhotoCaptured = true;
             keepsakeCameraActive = false;
+            keepsakeCameraStarting = false;
             cancelAnimationFrame(keepsakePreviewFrame);
+            stopActiveCameraStream();
             document.body.classList.remove('keepsake-counting', 'keepsake-camera-active');
             document.body.classList.add('keepsake-photo-captured');
 
@@ -6806,7 +6960,9 @@
             if (!keepsakePhotoCaptured) return;
             keepsakePhotoCaptured = false;
             keepsakeCameraActive = false;
+            keepsakeCameraStarting = false;
             keepsakeCountdownActive = false;
+            stopActiveCameraStream();
             document.body.classList.remove(
                 'keepsake-photo-captured',
                 'keepsake-camera-active',
@@ -7057,6 +7213,7 @@
                 || !document.body.classList.contains('love-letter-open')
             ) return;
             loveAccepted = true;
+            webglOverlayPaused = false;
             proposalJourneyActive = false;
             acceptanceActive = true;
             acceptanceStartedAt = performance.now();
@@ -7073,11 +7230,14 @@
             );
             document.body.classList.add('acceptance-active');
             window.clearTimeout(acceptanceMemoryCardTimer);
+            window.clearTimeout(webglOverlayPauseTimer);
             const memoryCard = document.getElementById('flower-memory-card');
+            const memoryPhoto = document.getElementById('flower-memory-photo');
             if (memoryCard) {
                 memoryCard.classList.remove('is-visible');
                 memoryCard.setAttribute('aria-hidden', 'true');
             }
+            memoryPhoto?.removeAttribute('src');
 
             const button = document.getElementById('love-letter-close');
             const label = document.getElementById('love-answer-label');
@@ -7156,6 +7316,7 @@
 
             setLoveLetterTriggerVisible(false);
             state = 'GARDEN';
+            webglOverlayPaused = true;
             document.body.classList.add('love-letter-open', 'proposal-letter-open');
 
             const overlay = document.getElementById('love-letter-overlay');
@@ -7172,6 +7333,7 @@
         function closeLoveLetter() {
             if (!finaleActive || loveAccepted || proposalJourneyActive) return;
             finaleActive = false;
+            webglOverlayPaused = false;
             state = gardenModeActive ? 'GARDEN' : 'FLOWER';
             document.body.classList.remove('love-letter-open');
             const overlay = document.getElementById('love-letter-overlay');
@@ -7196,6 +7358,14 @@
             secretRevealArmed = false;
             secretRevealActive = true;
             secretRevealStartedAt = now;
+
+            // The gesture has already been confirmed. Free the two largest
+            // Safari memory users before allocating the heart transition.
+            // MediaPipe and the camera are both closed. The final Polaroid
+            // requests a new lightweight stream only when the user opens it.
+            releasePhotoTextureResources();
+            releaseHandTrackingForGarden();
+
             state = 'SECRET_GATHER';
             setLoveLetterTriggerVisible(false);
             document.body.classList.add('secret-reveal-active');
@@ -7995,7 +8165,20 @@
             if (!camera || !renderer) return;
 
             const { width, height } = getViewportDimensions();
-            const aspect = width / height;
+            const nextPixelRatio = Math.min(
+                window.devicePixelRatio || 1,
+                PERFORMANCE.pixelRatioCap
+            );
+            const firstLayout = rendererViewportWidth === 0 || rendererViewportHeight === 0;
+            const orientationChanged = !firstLayout
+                && (width > height) !== (rendererViewportWidth > rendererViewportHeight);
+            const meaningfulResize = firstLayout
+                || orientationChanged
+                || Math.abs(width - rendererViewportWidth) > 24
+                || Math.abs(height - rendererViewportHeight) > 160;
+            const renderWidth = meaningfulResize ? width : rendererViewportWidth;
+            const renderHeight = meaningfulResize ? height : rendererViewportHeight;
+            const aspect = renderWidth / renderHeight;
 
             camera.aspect = aspect;
 
@@ -8014,13 +8197,17 @@
             }
 
             camera.updateProjectionMatrix();
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, PERFORMANCE.pixelRatioCap));
-            renderer.setSize(width, height, false);
+            if (rendererPixelRatio !== nextPixelRatio) {
+                rendererPixelRatio = nextPixelRatio;
+                renderer.setPixelRatio(nextPixelRatio);
+            }
+            if (meaningfulResize) {
+                rendererViewportWidth = width;
+                rendererViewportHeight = height;
+                renderer.setSize(width, height, false);
+            }
             if (gardenFillPoints?.material?.uniforms?.uPixelRatio) {
-                gardenFillPoints.material.uniforms.uPixelRatio.value = Math.min(
-                    window.devicePixelRatio || 1,
-                    PERFORMANCE.pixelRatioCap
-                );
+                gardenFillPoints.material.uniforms.uPixelRatio.value = nextPixelRatio;
                 const gardenScaleX = aspect > 1.15 ? 1.92 : 1;
                 const gardenScaleY = aspect > 1.15 ? 0.82 : 1;
                 gardenFillPoints.scale.set(gardenScaleX, gardenScaleY, 1);
@@ -8047,7 +8234,7 @@
             renderer = new THREE.WebGLRenderer({
                 antialias: !MOBILE_PERFORMANCE_MODE,
                 alpha: true,
-                powerPreference: 'high-performance'
+                powerPreference: MOBILE_PERFORMANCE_MODE ? 'low-power' : 'high-performance'
             });
             renderer.setClearColor(0x000000, 0);
             container.appendChild(renderer.domElement);
@@ -8456,13 +8643,13 @@
         function createDecorations() {
             // MERRY CHRISTMAS Vandiep
             const canvas = document.createElement('canvas');
-            canvas.width = 2048;
-            canvas.height = 256;
+            canvas.width = 1024;
+            canvas.height = 128;
             const ctx = canvas.getContext('2d');
-            ctx.font = 'bold italic 90px "Times New Roman"';
+            ctx.font = 'bold italic 45px "Times New Roman"';
             ctx.fillStyle = '#FFD700'; ctx.textAlign = 'center';
-            ctx.shadowColor = "#FF0000"; ctx.shadowBlur = 40;
-            ctx.fillText("Gửi Duyên 💌", 1024, 130);
+            ctx.shadowColor = "#FF0000"; ctx.shadowBlur = 20;
+            ctx.fillText("Gửi Duyên 💌", 512, 65);
             const tex = new THREE.CanvasTexture(canvas);
             const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending });
             titleMesh = new THREE.Mesh(new THREE.PlaneGeometry(110, 15), mat);
@@ -8488,16 +8675,16 @@
             scene.add(starMesh);
 
             const loveCanvas = document.createElement('canvas');
-            loveCanvas.width = 1024; loveCanvas.height = 256;
+            loveCanvas.width = 512; loveCanvas.height = 128;
             const lCtx = loveCanvas.getContext('2d');
-            lCtx.font = 'bold 82px "Segoe UI", sans-serif';
+            lCtx.font = 'bold 41px "Segoe UI", sans-serif';
             lCtx.fillStyle = '#FF69B4'; lCtx.textAlign = 'center'; lCtx.textBaseline = 'middle';
-            lCtx.strokeStyle = 'rgba(0, 0, 0, 0.9)'; lCtx.lineWidth = 8;
-            lCtx.shadowColor = 'rgba(0, 0, 0, 0.95)'; lCtx.shadowBlur = 24;
-            lCtx.shadowOffsetX = 0; lCtx.shadowOffsetY = 6;
+            lCtx.strokeStyle = 'rgba(0, 0, 0, 0.9)'; lCtx.lineWidth = 4;
+            lCtx.shadowColor = 'rgba(0, 0, 0, 0.95)'; lCtx.shadowBlur = 12;
+            lCtx.shadowOffsetX = 0; lCtx.shadowOffsetY = 3;
             // const proposalLines = ['Làm người yêu', 'anh nhé ❤️'];
             const proposalLines = [];
-            const lineHeight = 92;
+            const lineHeight = 46;
             const centerX = loveCanvas.width / 2;
             const startY = loveCanvas.height / 2 - ((proposalLines.length - 1) * lineHeight) / 2;
             proposalLines.forEach((line, index) => {
@@ -8726,11 +8913,29 @@
             }
         }
 
-        function animate() {
+        function lerpVector3Components(vector, x, y, z, alpha) {
+            vector.x += (x - vector.x) * alpha;
+            vector.y += (y - vector.y) * alpha;
+            vector.z += (z - vector.z) * alpha;
+        }
+
+        function animate(frameNow = performance.now()) {
             requestAnimationFrame(animate);
-            const animationNow = performance.now();
+            if (document.hidden || webglOverlayPaused || !renderer) return;
+            const renderInterval = gardenModeActive
+                ? PERFORMANCE.gardenRenderIntervalMs
+                : PERFORMANCE.renderIntervalMs;
+            if (
+                renderInterval > 0
+                && frameNow - lastWebGLRenderAt < renderInterval
+            ) return;
+            lastWebGLRenderAt = frameNow;
+
+            const animationNow = frameNow;
             const time = Date.now() * 0.001;
-            const speed = 0.08;
+            const speed = MOBILE_PERFORMANCE_MODE
+                ? (gardenModeActive ? 0.22 : 0.17)
+                : 0.08;
 
             updateFlowerIntro(animationNow);
             updateGardenTransition(animationNow);
@@ -8781,18 +8986,27 @@
 
             } else if (state === 'FLOWER') {
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
-                photoMeshes.forEach(m => { m.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1); m.visible = false; });
+                photoMeshes.forEach(m => {
+                    lerpVector3Components(m.scale, 0, 0, 0, 0.1);
+                    m.visible = false;
+                });
 
             } else if (state === 'GARDEN') {
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
-                photoMeshes.forEach(m => { m.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1); m.visible = false; });
+                photoMeshes.forEach(m => {
+                    lerpVector3Components(m.scale, 0, 0, 0, 0.1);
+                    m.visible = false;
+                });
 
             } else if (state === 'TREE') {
                 titleMesh.visible = true; starMesh.visible = true; loveMesh.visible = false;
-                titleMesh.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+                lerpVector3Components(titleMesh.scale, 1, 1, 1, 0.1);
                 starMesh.rotation.z -= 0.02;
                 starMesh.material.opacity = 0.7 + 0.3 * Math.sin(time * 5);
-                photoMeshes.forEach(m => { m.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1); m.visible = false; });
+                photoMeshes.forEach(m => {
+                    lerpVector3Components(m.scale, 0, 0, 0, 0.1);
+                    m.visible = false;
+                });
 
             } else if (state === 'HEART') {
                 const messageProgress = secretRevealActive ? getSecretRevealMessageProgress() : 1;
@@ -8827,7 +9041,7 @@
                     const z = Math.cos(angle) * CONFIG.photoOrbitRadius;
                     const y = Math.sin(time + i) * 3;
 
-                    mesh.position.lerp(new THREE.Vector3(x, y, z), 0.1);
+                    lerpVector3Components(mesh.position, x, y, z, 0.1);
                     mesh.lookAt(camera.position);
 
                     // Logic chọn ảnh gần nhất (để zoom khi giơ ngón trỏ)
@@ -8835,9 +9049,9 @@
 
                     if (z > 5) {
                         const ds = 1.0 + (z / CONFIG.photoOrbitRadius) * 0.8;
-                        mesh.scale.lerp(new THREE.Vector3(ds, ds, ds), 0.1);
+                        lerpVector3Components(mesh.scale, ds, ds, ds, 0.1);
                     } else {
-                        mesh.scale.lerp(new THREE.Vector3(0.6, 0.6, 0.6), 0.1);
+                        lerpVector3Components(mesh.scale, 0.6, 0.6, 0.6, 0.1);
                     }
                 });
                 selectedIndex = bestIdx;
@@ -8848,13 +9062,13 @@
                     if (i === selectedIndex) {
                         // Zoom ảnh được chọn
                         mesh.visible = true;
-                        mesh.position.lerp(new THREE.Vector3(0, 0, 60), 0.1);
-                        mesh.scale.lerp(new THREE.Vector3(5, 5, 5), 0.1);
+                        lerpVector3Components(mesh.position, 0, 0, 60, 0.1);
+                        lerpVector3Components(mesh.scale, 5, 5, 5, 0.1);
                         mesh.lookAt(camera.position); mesh.rotation.z = 0;
                     } else {
                         // Thu nhỏ các ảnh khác
                         mesh.visible = false;
-                        mesh.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1);
+                        lerpVector3Components(mesh.scale, 0, 0, 0, 0.1);
                     }
                 });
             }
@@ -8936,15 +9150,15 @@
             const ctx = canvas.getContext('2d');
             if (PERFORMANCE.showCameraPreview) canvas.classList.add('is-active');
 
-            canvas.width = PERFORMANCE.previewWidth;
-            canvas.height = PERFORMANCE.previewHeight;
+            canvas.width = PERFORMANCE.showCameraPreview ? PERFORMANCE.previewWidth : 2;
+            canvas.height = PERFORMANCE.showCameraPreview ? PERFORMANCE.previewHeight : 2;
 
             // The visible preview stays sharp while MediaPipe receives a
             // separate, smaller 4:3 frame for better mobile performance.
-            const analysisCanvas = document.createElement('canvas');
-            analysisCanvas.width = PERFORMANCE.analysisWidth;
-            analysisCanvas.height = PERFORMANCE.analysisHeight;
-            const analysisContext = analysisCanvas.getContext('2d');
+            handAnalysisCanvas = document.createElement('canvas');
+            handAnalysisCanvas.width = PERFORMANCE.analysisWidth;
+            handAnalysisCanvas.height = PERFORMANCE.analysisHeight;
+            handAnalysisContext = handAnalysisCanvas.getContext('2d');
 
             const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
             handsController = hands;
@@ -9058,12 +9272,12 @@
                     handsInferenceInFlight = true;
                     try {
                         drawCameraFrameCover(
-                            analysisContext,
+                            handAnalysisContext,
                             video,
-                            analysisCanvas.width,
-                            analysisCanvas.height
+                            handAnalysisCanvas.width,
+                            handAnalysisCanvas.height
                         );
-                        await hands.send({ image: analysisCanvas });
+                        await hands.send({ image: handAnalysisCanvas });
                     } finally {
                         handsInferenceInFlight = false;
                     }
