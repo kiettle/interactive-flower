@@ -5050,7 +5050,6 @@
         const GARDEN_DOUBLE_TAP_MS = 380;
         const GARDEN_TRANSITION_MS = 2700;
         const GARDEN_TRANSITION_BLOOM_PROGRESS = 0.5;
-        const MUSIC_CLIMAX_TIME_SECONDS = 118;
         const flowerEmojis = {
             tulip: '🌷', rose: '🌹', peony: '🌸', carnation: '🌺',
             daisy: '🌼', lavender: '🪻', sunflower: '🌻'
@@ -5991,40 +5990,6 @@
             } else {
                 scheduleChord();
             }
-        }
-
-        function transitionMusicToClimax() {
-            const fadeOutStartedAt = performance.now();
-            const initialVolume = bgMusic.volume;
-
-            const fadeOut = now => {
-                const progress = clamp((now - fadeOutStartedAt) / 260);
-                bgMusic.volume = initialVolume * (1 - progress);
-                if (progress < 1) {
-                    requestAnimationFrame(fadeOut);
-                    return;
-                }
-
-                const safeClimaxTime = Number.isFinite(bgMusic.duration)
-                    ? Math.min(MUSIC_CLIMAX_TIME_SECONDS, Math.max(0, bgMusic.duration - 8))
-                    : MUSIC_CLIMAX_TIME_SECONDS;
-                try {
-                    if (bgMusic.readyState >= 1) bgMusic.currentTime = safeClimaxTime;
-                } catch (_) {
-                    // Metadata may not be ready on the first iPhone playback.
-                }
-                bgMusic.play().catch(() => { });
-
-                const fadeInStartedAt = performance.now();
-                const fadeIn = fadeInNow => {
-                    const fadeInProgress = clamp((fadeInNow - fadeInStartedAt) / 1450);
-                    bgMusic.volume = fadeInProgress;
-                    if (fadeInProgress < 1) requestAnimationFrame(fadeIn);
-                };
-                requestAnimationFrame(fadeIn);
-            };
-
-            requestAnimationFrame(fadeOut);
         }
 
         function setLoveLetterTriggerVisible(visible) {
@@ -7199,7 +7164,6 @@
             prepareSecretAudio();
             playSecretHeartbeat();
             playFinaleShimmer();
-            transitionMusicToClimax();
             createPetalBurst(MOBILE_PERFORMANCE_MODE ? 28 : 42, 0.5, 0.52);
             createFinalePetalCurtain();
             lastPetalBurstAt = performance.now();
