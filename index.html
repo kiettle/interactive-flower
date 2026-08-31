@@ -3411,7 +3411,7 @@
             isolation: isolate;
             display: block;
             width: min(230px, 66vw);
-            height: 184px;
+            height: min(300px, 58vh);
             min-height: 0;
             margin: 0 auto;
             padding: 0;
@@ -3420,7 +3420,7 @@
             color: #fff8f2;
             background: transparent;
             box-shadow: none;
-            animation: gift-float 3.2s ease-in-out infinite;
+            animation: lantern-button-float 3.6s ease-in-out infinite;
             font: italic 600 clamp(16px, 4.2vw, 19px) / 1 'Cormorant Garamond', Georgia, serif;
             letter-spacing: 0.035em;
             -webkit-tap-highlight-color: transparent;
@@ -3430,31 +3430,32 @@
             content: '';
             position: absolute;
             left: 50%;
-            bottom: 15px;
+            bottom: 20px;
             z-index: -1;
-            width: 88%;
-            height: 30px;
+            width: 82%;
+            height: 28px;
             border-radius: 50%;
             background: radial-gradient(ellipse,
-                    rgba(var(--theme-tertiary), 0.28),
-                    rgba(var(--theme-primary), 0.11) 46%,
+                    rgba(255, 194, 79, 0.24),
+                    rgba(var(--theme-primary), 0.09) 48%,
                     transparent 74%);
-            filter: blur(7px);
+            filter: blur(8px);
             transform: translateX(-50%);
-            animation: gift-floor-glow 2.4s ease-in-out infinite alternate;
+            animation: lantern-floor-glow 2.8s ease-in-out infinite alternate;
         }
 
-        .gift-stage {
+        .lantern-touch-area {
             position: absolute;
             left: 50%;
-            bottom: 32px;
-            width: 172px;
-            height: 130px;
+            top: 0;
+            width: 190px;
+            height: 100%;
+            border-radius: 46%;
             transform: translateX(-50%);
             transition: transform 180ms ease;
         }
 
-        #btnStart:active .gift-stage {
+        #btnStart:active .lantern-touch-area {
             transform: translateX(-50%) scale(0.96);
         }
 
@@ -3464,195 +3465,29 @@
             -webkit-text-fill-color: currentColor;
         }
 
-        .gift-box-base {
+        .lantern-radiance {
             position: absolute;
             left: 50%;
-            bottom: 0;
-            z-index: 2;
-            width: 142px;
-            height: 79px;
-            overflow: hidden;
-            border: 1px solid rgba(var(--theme-stars), 0.54);
-            border-radius: 9px 9px 18px 18px;
-            background:
-                linear-gradient(115deg, rgba(255, 255, 255, 0.2), transparent 26%),
-                linear-gradient(145deg,
-                    rgba(var(--theme-primary), 0.96),
-                    rgba(var(--theme-secondary), 0.98));
-            box-shadow:
-                0 18px 42px rgba(0, 0, 0, 0.56),
-                0 0 30px rgba(var(--theme-primary), 0.34),
-                inset 0 1px rgba(255, 255, 255, 0.26),
-                inset 0 -12px 24px rgba(0, 0, 0, 0.18);
-            transform: translateX(-50%);
-        }
-
-        .gift-box-base::after {
-            content: '';
-            position: absolute;
-            inset: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            border-radius: 5px 5px 12px 12px;
-        }
-
-        .gift-ribbon,
-        .gift-lid-ribbon {
-            position: absolute;
-            z-index: 2;
-            background: linear-gradient(90deg, #f4ba46, #ffe8a3 48%, #bd751d);
-            box-shadow: inset 1px 0 rgba(255, 255, 255, 0.42), 0 0 8px rgba(255, 213, 108, 0.25);
-        }
-
-        .gift-ribbon--vertical {
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 22px;
-            transform: translateX(-50%);
-        }
-
-        .gift-ribbon--horizontal {
-            left: 0;
-            right: 0;
-            top: 21px;
-            height: 17px;
-        }
-
-        .gift-box-lid {
-            position: absolute;
-            left: 50%;
-            bottom: 72px;
-            z-index: 4;
-            width: 158px;
-            height: 31px;
-            border: 1px solid rgba(var(--theme-stars), 0.66);
-            border-radius: 13px 13px 7px 7px;
-            background:
-                linear-gradient(110deg, rgba(255, 255, 255, 0.28), transparent 27%),
-                linear-gradient(145deg,
-                    rgba(var(--theme-tertiary), 0.98),
-                    rgba(var(--theme-primary), 0.95) 58%,
-                    rgba(var(--theme-secondary), 0.98));
-            box-shadow:
-                0 8px 16px rgba(0, 0, 0, 0.32),
-                0 0 20px rgba(var(--theme-tertiary), 0.28),
-                inset 0 1px rgba(255, 255, 255, 0.32);
-            transform: translateX(-50%);
-            transform-origin: 18% 100%;
-        }
-
-        .gift-lid-ribbon {
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 25px;
-            transform: translateX(-50%);
-        }
-
-        .gift-bow,
-        .gift-bow-knot {
-            position: absolute;
-            z-index: 5;
-            background: linear-gradient(145deg, #fff0b2, #eab54c 52%, #aa6416);
-            box-shadow:
-                inset 1px 1px rgba(255, 255, 255, 0.42),
-                0 4px 11px rgba(0, 0, 0, 0.24),
-                0 0 12px rgba(255, 211, 102, 0.23);
-        }
-
-        .gift-bow {
-            top: -27px;
-            width: 45px;
-            height: 32px;
-        }
-
-        .gift-bow--left {
-            left: 36px;
-            border-radius: 80% 22% 58% 40%;
-            transform: rotate(16deg);
-        }
-
-        .gift-bow--right {
-            right: 36px;
-            border-radius: 22% 80% 40% 58%;
-            transform: rotate(-16deg);
-        }
-
-        .gift-bow-knot {
-            left: 50%;
-            top: -13px;
-            width: 25px;
-            height: 23px;
-            border-radius: 50%;
-            transform: translateX(-50%);
-        }
-
-        .gift-radiance {
-            position: absolute;
-            left: 50%;
-            bottom: 60px;
-            z-index: 1;
-            width: 110px;
+            top: 50%;
+            z-index: -1;
+            width: 120px;
             aspect-ratio: 1;
             border-radius: 50%;
-            opacity: 0;
+            opacity: 0.34;
             background: radial-gradient(circle,
-                    rgba(255, 255, 255, 0.96),
-                    rgba(var(--theme-stars), 0.6) 18%,
-                    rgba(var(--theme-tertiary), 0.28) 43%,
+                    rgba(255, 246, 202, 0.46),
+                    rgba(255, 184, 62, 0.22) 25%,
+                    rgba(var(--theme-primary), 0.12) 48%,
                     transparent 72%);
-            filter: blur(2px);
-            transform: translate(-50%, 50%) scale(0.2);
+            filter: blur(7px);
+            transform: translate(-50%, -50%);
+            animation: lantern-core-breathe 2.6s ease-in-out infinite alternate;
         }
 
-        .gift-spark {
-            --gift-spark-x: 0px;
+        .lantern-open-copy {
             position: absolute;
             left: 50%;
-            bottom: 65px;
-            z-index: 3;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            opacity: 0;
-            background: rgba(var(--theme-stars), 0.96);
-            box-shadow: 0 0 10px rgba(var(--theme-tertiary), 0.9);
-        }
-
-        .gift-spark:nth-of-type(2) {
-            --gift-spark-x: -62px;
-            --gift-spark-delay: 440ms;
-        }
-
-        .gift-spark:nth-of-type(3) {
-            --gift-spark-x: -35px;
-            --gift-spark-delay: 610ms;
-        }
-
-        .gift-spark:nth-of-type(4) {
-            --gift-spark-x: -10px;
-            --gift-spark-delay: 390ms;
-        }
-
-        .gift-spark:nth-of-type(5) {
-            --gift-spark-x: 22px;
-            --gift-spark-delay: 560ms;
-        }
-
-        .gift-spark:nth-of-type(6) {
-            --gift-spark-x: 44px;
-            --gift-spark-delay: 460ms;
-        }
-
-        .gift-spark:nth-of-type(7) {
-            --gift-spark-x: 68px;
-            --gift-spark-delay: 670ms;
-        }
-
-        .gift-open-copy {
-            position: absolute;
-            left: 50%;
-            bottom: 0;
+            bottom: -14px;
             width: max-content;
             max-width: 100%;
             padding: 8px 15px;
@@ -3667,60 +3502,57 @@
             backdrop-filter: blur(7px);
         }
 
-        body.gift-opening.flower-intro-active #ui-layer {
+        body.lantern-lighting.flower-intro-active #ui-layer {
             opacity: 1 !important;
             visibility: visible !important;
             transform: translateY(0);
         }
 
-        body.gift-opening #btnStart {
+        body.lantern-lighting #btnStart {
             pointer-events: none;
-            animation: gift-button-depart 3.15s ease 1.45s forwards;
+            animation: lantern-button-depart 1.3s ease 4.85s forwards;
         }
 
-        body.gift-opening .gift-box-lid {
-            animation: gift-lid-open 1.25s cubic-bezier(0.16, 0.82, 0.28, 1) 260ms forwards;
+        body.lantern-lighting .lantern-radiance {
+            animation: lantern-radiance-gather 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        body.gift-opening .gift-box-base {
-            animation: gift-base-open 2.35s ease 1.15s forwards;
+        body.lantern-lighting .lantern-open-copy {
+            animation: lantern-copy-fade 460ms ease forwards;
         }
 
-        body.gift-opening .gift-radiance {
-            animation: gift-radiance-bloom 2.4s cubic-bezier(0.16, 1, 0.3, 1) 420ms forwards;
+        body.lantern-lighting .flower-dock,
+        body.lantern-lit .flower-dock {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 0 auto;
         }
 
-        body.gift-opening .gift-spark {
-            animation: gift-spark-rise 1.85s ease-out var(--gift-spark-delay) forwards;
-        }
-
-        body.gift-opening .gift-open-copy {
-            animation: gift-copy-fade 500ms ease forwards;
-        }
-
-        body.system-started .flower-dock {
+        body.lantern-lighting .flower-dock {
             display: flex;
             justify-content: center;
             visibility: visible;
-            animation: gift-picker-rise 1.05s cubic-bezier(0.16, 1, 0.3, 1) 4.25s both;
+            animation: lantern-picker-rise 1.05s cubic-bezier(0.16, 1, 0.3, 1) 5.05s both;
         }
 
-        body.gift-opening .flower-dock {
+        body.lantern-lighting .flower-dock {
             pointer-events: none;
         }
 
-        body.gift-opened .flower-dock {
+        body.lantern-lit .flower-dock {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
             transform: translateY(0) scale(1);
         }
 
-        body.gift-opened #btnStart {
+        body.lantern-lit #btnStart {
             display: none;
         }
 
-        @keyframes gift-float {
+        @keyframes lantern-button-float {
 
             0%,
             100% {
@@ -3732,7 +3564,7 @@
             }
         }
 
-        @keyframes gift-floor-glow {
+        @keyframes lantern-floor-glow {
             from {
                 opacity: 0.5;
                 transform: translateX(-50%) scale(0.86);
@@ -3744,77 +3576,43 @@
             }
         }
 
-        @keyframes gift-lid-open {
+        @keyframes lantern-core-breathe {
+            from {
+                opacity: 0.24;
+                transform: translate(-50%, -50%) scale(0.82);
+            }
+
+            to {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1.08);
+            }
+        }
+
+        @keyframes lantern-radiance-gather {
             0% {
-                transform: translateX(-50%) translateY(0) rotate(0) scale(1);
+                opacity: 0.36;
+                transform: translate(-50%, -50%) scale(0.9);
             }
 
-            62% {
-                transform: translateX(-50%) translateY(-57px) rotate(-11deg) scale(1.04);
-            }
-
-            100% {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-74px) rotate(-17deg) scale(0.9);
-            }
-        }
-
-        @keyframes gift-base-open {
-
-            0%,
-            52% {
-                opacity: 1;
-                transform: translateX(-50%) scale(1);
+            48% {
+                opacity: 0.92;
+                transform: translate(-50%, -50%) scale(0.42);
             }
 
             100% {
                 opacity: 0;
-                transform: translateX(-50%) scale(1.1);
-                filter: blur(5px);
+                transform: translate(-50%, -50%) scale(0.08);
             }
         }
 
-        @keyframes gift-radiance-bloom {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, 50%) scale(0.18);
-            }
-
-            34% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-                transform: translate(-50%, 50%) scale(2.35);
-            }
-        }
-
-        @keyframes gift-spark-rise {
-            0% {
-                opacity: 0;
-                transform: translate3d(0, 5px, 0) scale(0.35);
-            }
-
-            20%,
-            68% {
-                opacity: 0.96;
-            }
-
-            100% {
-                opacity: 0;
-                transform: translate3d(var(--gift-spark-x), -112px, 0) scale(1.18);
-            }
-        }
-
-        @keyframes gift-copy-fade {
+        @keyframes lantern-copy-fade {
             to {
                 opacity: 0;
                 transform: translateX(-50%) translateY(8px);
             }
         }
 
-        @keyframes gift-button-depart {
+        @keyframes lantern-button-depart {
 
             0%,
             58% {
@@ -3828,7 +3626,7 @@
             }
         }
 
-        @keyframes gift-picker-rise {
+        @keyframes lantern-picker-rise {
             0% {
                 opacity: 0;
                 visibility: hidden;
@@ -4406,6 +4204,7 @@
             .flower-intro-seed,
             .flower-intro-ring,
             .flower-intro-spark,
+            .lantern-radiance,
             #garden-transition-overlay,
             .garden-wave,
             .garden-seed-spark,
@@ -4774,27 +4573,12 @@
                 <span class="flower-dock-chevron" aria-hidden="true">⌄</span>
             </button>
         </div>
-        <button id="btnStart" type="button" aria-label="Chạm để mở món quà dành cho Duyên" onclick="openGiftBox()">
-            <span class="gift-stage" aria-hidden="true">
-                <span class="gift-radiance"></span>
-                <span class="gift-spark"></span>
-                <span class="gift-spark"></span>
-                <span class="gift-spark"></span>
-                <span class="gift-spark"></span>
-                <span class="gift-spark"></span>
-                <span class="gift-spark"></span>
-                <span class="gift-box-base">
-                    <span class="gift-ribbon gift-ribbon--vertical"></span>
-                    <span class="gift-ribbon gift-ribbon--horizontal"></span>
-                </span>
-                <span class="gift-box-lid">
-                    <span class="gift-lid-ribbon"></span>
-                    <span class="gift-bow gift-bow--left"></span>
-                    <span class="gift-bow gift-bow--right"></span>
-                    <span class="gift-bow-knot"></span>
-                </span>
+        <button id="btnStart" type="button" aria-label="Chạm để thắp sáng chiếc lồng đèn dành cho Duyên"
+            onclick="lightStarLantern()">
+            <span class="lantern-touch-area" aria-hidden="true">
+                <span class="lantern-radiance"></span>
             </span>
-            <span class="gift-open-copy">Chạm để mở món quà</span>
+            <span class="lantern-open-copy">Chạm để thắp sáng…</span>
         </button>
     </div>
 
@@ -4961,6 +4745,12 @@
 
         let scene, camera, renderer;
         let systemStarted = false;
+        let interactiveSceneAssetsReady = false;
+        let lanternSceneReady = false;
+        let lanternRevealStartedAt = -Infinity;
+        let lanternGatherStartedAt = -Infinity;
+        let lanternAnchorSyncUntil = -Infinity;
+        const lanternAnchor = { x: 0, y: 0, z: 0 };
         let resizeAnimationFrame;
         let lastWebGLRenderAt = -Infinity;
         let webglOverlayPaused = false;
@@ -4970,6 +4760,7 @@
         let rendererPixelRatio = 0;
         let themeTransitionTimer;
         let groupGold, groupRed, groupGift, groupHeart;
+        let lanternParticleGroups = [];
         let gardenFillPoints = null;
         let gardenStemLines = null;
         let photoBorderMaterial = null;
@@ -4983,8 +4774,8 @@
         let handTrackingReleased = false;
         let handsInferenceInFlight = false;
 
-        let state = 'FLOWER';
-        let lastPetalVisualState = 'FLOWER';
+        let state = 'LANTERN';
+        let lastPetalVisualState = 'LANTERN';
         let lastPetalBurstAt = -Infinity;
         let selectedIndex = 0;
         let handX = 0.5;
@@ -4999,6 +4790,7 @@
         let flowerIntroCameraUnlockAt = -Infinity;
         let flowerIntroDurationMs = 5200;
         let flowerIntroIsChange = false;
+        let flowerIntroFromLantern = false;
         let flowerIntroMusicStartVolume = 0.16;
         let flowerIntroBloomPlayed = false;
         let flowerIntroPetalsPlayed = false;
@@ -5063,6 +4855,9 @@
         const FLOWER_CHANGE_INTRO_DURATION_MS = 3300;
         const FLOWER_INTRO_BLOOM_PROGRESS = 0.64;
         const FLOWER_INTRO_PETAL_PROGRESS = 0.82;
+        const LANTERN_REVEAL_MS = 1900;
+        const LANTERN_GATHER_MS = 900;
+        const LANTERN_SCENE_PREPARE_MS = 13800;
         const GARDEN_DOUBLE_TAP_MS = 380;
         const GARDEN_TRANSITION_MS = 2700;
         const GARDEN_TRANSITION_BLOOM_PROGRESS = 0.5;
@@ -5311,6 +5106,8 @@
         function startFlowerIntro(now = performance.now(), isFlowerChange = false) {
             state = 'FLOWER';
             flowerIntroIsChange = isFlowerChange;
+            flowerIntroFromLantern = !isFlowerChange
+                && document.body.classList.contains('lantern-lighting');
             flowerIntroDurationMs = isFlowerChange
                 ? FLOWER_CHANGE_INTRO_DURATION_MS
                 : FLOWER_INTRO_DURATION_MS;
@@ -5327,6 +5124,10 @@
                     'flower-intro-bloom',
                     'flower-intro-change'
                 );
+                if (!isFlowerChange && document.body.classList.contains('lantern-lighting')) {
+                    document.body.classList.remove('lantern-lighting');
+                    document.body.classList.add('lantern-lit');
+                }
                 return;
             }
 
@@ -5372,9 +5173,9 @@
                     'flower-intro-bloom',
                     'flower-intro-change'
                 );
-                if (!flowerIntroIsChange && document.body.classList.contains('gift-opening')) {
-                    document.body.classList.remove('gift-opening');
-                    document.body.classList.add('gift-opened');
+                if (!flowerIntroIsChange && document.body.classList.contains('lantern-lighting')) {
+                    document.body.classList.remove('lantern-lighting');
+                    document.body.classList.add('lantern-lit');
                 }
             }
         }
@@ -8216,6 +8017,9 @@
             if (acceptanceExplorationActive) {
                 requestAnimationFrame(projectAcceptanceFlowerButtons);
             }
+            if (state === 'LANTERN' || state === 'LANTERN_GATHER') {
+                updateLanternAnchor();
+            }
         }
 
         function scheduleSceneResize() {
@@ -8223,7 +8027,374 @@
             resizeAnimationFrame = requestAnimationFrame(updateSceneViewport);
         }
 
-        function init3D() {
+        const LANTERN_OUTER_RADIUS = 18;
+        const LANTERN_INNER_RADIUS = 7.8;
+        const LANTERN_DISPLAY_SCALE = 1.6;
+        const LANTERN_STAR_VERTICES = Array.from({ length: 10 }, (_, index) => {
+            const angle = Math.PI / 2 + index * Math.PI / 5;
+            const radius = index % 2 === 0 ? LANTERN_OUTER_RADIUS : LANTERN_INNER_RADIUS;
+            return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+        });
+        const LANTERN_INNER_VERTICES = LANTERN_STAR_VERTICES.filter((_, index) => index % 2 === 1);
+        const LANTERN_PANEL_COLORS = [
+            [0.98, 0.16, 0.22],
+            [0.93, 0.09, 0.16],
+            [1.0, 0.68, 0.16],
+            [0.95, 0.24, 0.31],
+            [0.98, 0.12, 0.2],
+            [0.28, 0.76, 0.42],
+            [0.92, 0.08, 0.15],
+            [1.0, 0.2, 0.27],
+            [1.0, 0.9, 0.68],
+            [0.96, 0.12, 0.2]
+        ];
+
+        function sampleLanternPath(vertices, progress, scale = 1) {
+            const wrapped = ((progress % 1) + 1) % 1;
+            const pathPosition = wrapped * vertices.length;
+            const index = Math.floor(pathPosition) % vertices.length;
+            const localProgress = pathPosition - Math.floor(pathPosition);
+            const start = vertices[index];
+            const end = vertices[(index + 1) % vertices.length];
+            return {
+                x: (start.x + (end.x - start.x) * localProgress) * scale,
+                y: (start.y + (end.y - start.y) * localProgress) * scale
+            };
+        }
+
+        function isPointInsideLanternStar(x, y) {
+            let inside = false;
+            for (let i = 0, j = LANTERN_STAR_VERTICES.length - 1; i < LANTERN_STAR_VERTICES.length; j = i++) {
+                const current = LANTERN_STAR_VERTICES[i];
+                const previous = LANTERN_STAR_VERTICES[j];
+                const crosses = ((current.y > y) !== (previous.y > y))
+                    && x < (previous.x - current.x) * (y - current.y)
+                    / ((previous.y - current.y) || 0.0001) + current.x;
+                if (crosses) inside = !inside;
+            }
+            return inside;
+        }
+
+        function sampleLanternPanelPoint() {
+            for (let attempt = 0; attempt < 18; attempt++) {
+                const x = (Math.random() * 2 - 1) * LANTERN_OUTER_RADIUS * 0.92;
+                const y = (Math.random() * 2 - 1) * LANTERN_OUTER_RADIUS * 0.92;
+                if (isPointInsideLanternStar(x, y)) return { x, y };
+            }
+            return { x: 0, y: 0 };
+        }
+
+        function getLanternPanelColor(x, y) {
+            const angle = (Math.atan2(y, x) + Math.PI * 2 + Math.PI / 2) % (Math.PI * 2);
+            const sector = Math.floor(angle / (Math.PI * 2) * LANTERN_PANEL_COLORS.length)
+                % LANTERN_PANEL_COLORS.length;
+            return LANTERN_PANEL_COLORS[sector];
+        }
+
+        function createLanternPoint(type, index, count) {
+            const progress = (index + 0.5) / count;
+            let x = 0;
+            let y = 0;
+            let z = 0;
+            let color = [1, 0.72, 0.24];
+            let sizeScale = 0.72;
+
+            if (type === 'gold') {
+                if (progress < 0.35) {
+                    const point = sampleLanternPath(LANTERN_STAR_VERTICES, progress / 0.35);
+                    x = point.x; y = point.y; z = 0.95;
+                    color = [1, 0.73, 0.25];
+                    sizeScale = 0.86;
+                } else if (progress < 0.46) {
+                    const point = sampleLanternPath(LANTERN_STAR_VERTICES, (progress - 0.35) / 0.11, 0.96);
+                    x = point.x; y = point.y; z = -1.55;
+                    color = [0.92, 0.43, 0.12];
+                    sizeScale = 0.68;
+                } else if (progress < 0.52) {
+                    const connectorProgress = (progress - 0.46) / 0.06 * LANTERN_STAR_VERTICES.length;
+                    const vertex = LANTERN_STAR_VERTICES[
+                        Math.floor(connectorProgress) % LANTERN_STAR_VERTICES.length
+                    ];
+                    const local = connectorProgress - Math.floor(connectorProgress);
+                    x = vertex.x * (1 - local * 0.04);
+                    y = vertex.y * (1 - local * 0.04);
+                    z = 0.95 - local * 2.5;
+                    color = [0.96, 0.58, 0.18];
+                    sizeScale = 0.58;
+                } else if (progress < 0.67) {
+                    const point = sampleLanternPath(LANTERN_INNER_VERTICES, (progress - 0.52) / 0.15);
+                    x = point.x; y = point.y; z = 1.12;
+                    color = [1, 0.82, 0.38];
+                    sizeScale = 0.7;
+                } else if (progress < 0.79) {
+                    const point = sampleLanternPanelPoint();
+                    x = point.x;
+                    y = point.y;
+                    z = (Math.random() - 0.5) * 1.25;
+                    color = getLanternPanelColor(x, y);
+                    sizeScale = 0.44 + Math.random() * 0.14;
+                } else if (progress < 0.94) {
+                    const point = sampleLanternPanelPoint();
+                    x = point.x; y = point.y; z = (Math.random() - 0.5) * 1.5;
+                    color = getLanternPanelColor(x, y);
+                    sizeScale = 0.45 + Math.random() * 0.16;
+                } else if (progress < 0.985) {
+                    const local = (progress - 0.94) / 0.045;
+                    const startX = 0;
+                    const startY = 32;
+                    const endX = 25;
+                    const endY = 17.57;
+                    x = startX + (endX - startX) * local;
+                    y = startY + (endY - startY) * local;
+                    z = -0.35;
+                    color = index % 5 === 0 ? [1, 1, 0.84] : [1, 0.78, 0.34];
+                    sizeScale = index % 5 === 0 ? 0.76 : 0.58;
+                } else if (progress < 0.995) {
+                    const local = (progress - 0.985) / 0.01;
+                    const angle = local * Math.PI * 2;
+                    x = Math.cos(angle) * 1.05;
+                    y = 32 + Math.sin(angle) * 1.05;
+                    z = 0.12;
+                    color = [1, 0.67, 0.18];
+                    sizeScale = 0.72;
+                } else {
+                    const local = (progress - 0.995) / 0.005;
+                    const angle = local * Math.PI * 2;
+                    x = 25 + Math.cos(angle) * 0.75;
+                    y = 17.57 + Math.sin(angle) * 0.75;
+                    z = 0.18;
+                    color = [1, 0.9, 0.62];
+                    sizeScale = 0.76;
+                }
+            } else if (type === 'red') {
+                if (progress < 0.88) {
+                    const point = sampleLanternPanelPoint();
+                    x = point.x;
+                    y = point.y;
+                    z = (Math.random() - 0.5) * 1.4;
+                    color = getLanternPanelColor(x, y);
+                    sizeScale = 0.48 + Math.random() * 0.18;
+                } else {
+                    const local = (progress - 0.88) / 0.12;
+                    x = 0;
+                    y = 18 + (32 - 18) * local;
+                    z = 0.62;
+                    color = [0.98, 0.08, 0.14];
+                    sizeScale = 0.6;
+                }
+            } else if (type === 'gift') {
+                if (progress < 0.64) {
+                    const heartProgress = progress / 0.64;
+                    const angle = heartProgress * Math.PI * 2;
+                    x = 16 * Math.pow(Math.sin(angle), 3) * 0.29;
+                    y = (
+                        13 * Math.cos(angle)
+                        - 5 * Math.cos(2 * angle)
+                        - 2 * Math.cos(3 * angle)
+                        - Math.cos(4 * angle)
+                    ) * 0.29 + 0.6;
+                    z = 1.82 + (Math.random() - 0.5) * 0.4;
+                    color = index % 5 === 0 ? [1, 0.68, 0.76] : [1, 0.08, 0.24];
+                    sizeScale = 0.96;
+                } else if (progress < 0.76) {
+                    const candleProgress = (progress - 0.64) / 0.12;
+                    x = index % 2 === 0 ? -0.78 : 0.78;
+                    y = -2.2 + candleProgress * 2.5;
+                    z = 2.05;
+                    color = index % 3 === 0 ? [1, 0.93, 0.68] : [1, 0.76, 0.34];
+                    sizeScale = 0.7;
+                } else if (progress < 0.8) {
+                    const wickProgress = (progress - 0.76) / 0.04;
+                    x = 0;
+                    y = 0.28 + wickProgress * 0.58;
+                    z = 2.08;
+                    color = [0.82, 0.3, 0.08];
+                    sizeScale = 0.52;
+                } else if (progress < 0.96) {
+                    const flameProgress = (progress - 0.8) / 0.16;
+                    const side = index % 2 === 0 ? -1 : 1;
+                    const flameWidth = 0.62
+                        * Math.sin(Math.PI * Math.min(1, flameProgress * 1.08))
+                        * (1 - flameProgress * 0.42);
+                    x = side * flameWidth;
+                    y = 0.82 + flameProgress * 1.72;
+                    z = 2.24;
+                    color = index % 3 === 0 ? [1, 1, 0.82] : [1, 0.48, 0.08];
+                    sizeScale = 0.82;
+                } else {
+                    const coreProgress = (progress - 0.96) / 0.04;
+                    const angle = index * 2.3999632297;
+                    const radius = Math.sqrt(coreProgress) * 0.72;
+                    x = Math.cos(angle) * radius;
+                    y = 1.28 + Math.sin(angle) * radius;
+                    z = 2.12 + (Math.random() - 0.5) * 0.3;
+                    color = [1, 0.82, 0.3];
+                    sizeScale = 0.92;
+                }
+            } else {
+                if (progress < 0.58) {
+                    const point = sampleLanternPath(LANTERN_STAR_VERTICES, progress / 0.58);
+                    x = point.x + (Math.random() - 0.5) * 0.45;
+                    y = point.y + (Math.random() - 0.5) * 0.45;
+                    z = 1.7;
+                    color = index % 3 === 0 ? [0.9, 1, 0.78] : [1, 0.92, 0.64];
+                    sizeScale = 0.54;
+                } else {
+                    const local = (progress - 0.58) / 0.42;
+                    const side = index % 2 === 0 ? -1 : 1;
+                    x = side * 10.6 + Math.sin(local * Math.PI * 2) * 0.5;
+                    y = -14.5 - local * 7.2;
+                    z = 0.8;
+                    color = side < 0 ? [0.98, 0.2, 0.28] : [0.32, 0.82, 0.46];
+                    sizeScale = 0.58;
+                }
+            }
+
+            const gatherAngle = index * 2.3999632297 + (type === 'gold' ? 0 : Math.PI / 4);
+            const gatherRadius = Math.pow(Math.random(), 1.8) * (type === 'gift' ? 0.7 : 1.45);
+            return {
+                x, y, z, color, sizeScale,
+                gatherX: Math.cos(gatherAngle) * gatherRadius,
+                gatherY: Math.sin(gatherAngle) * gatherRadius,
+                gatherZ: (Math.random() - 0.5) * 0.8
+            };
+        }
+
+        function updateLanternAnchor() {
+            if (!camera || !lanternSceneReady) return;
+            const button = document.getElementById('btnStart');
+            if (!button) return;
+            const rect = button.getBoundingClientRect();
+            const viewport = getViewportDimensions();
+            const screenX = rect.left + rect.width / 2;
+            const screenY = rect.top + rect.height / 2;
+            const ndcX = screenX / viewport.width * 2 - 1;
+            const ndcY = 1 - screenY / viewport.height * 2;
+            const distance = camera.position.z;
+            const visibleHeight = 2 * Math.tan(camera.fov * Math.PI / 360) * distance;
+            lanternAnchor.x = ndcX * visibleHeight * camera.aspect / 2;
+            lanternAnchor.y = ndcY * visibleHeight / 2;
+            lanternAnchor.z = 0;
+        }
+
+        function getLanternRevealStage(progress, start, end) {
+            const local = clamp((progress - start) / (end - start));
+            return local * local * (3 - 2 * local);
+        }
+
+        function setLanternRevealTransform(group, x, y, rotation, scale, opacity) {
+            group.position.set(x, y, lanternAnchor.z);
+            group.rotation.set(0, 0, rotation);
+            group.scale.set(scale, scale, scale);
+            group.material.opacity = opacity;
+        }
+
+        function updateLanternSceneMotion(now, time) {
+            if (state !== 'LANTERN' && state !== 'LANTERN_GATHER') return;
+            if (state === 'LANTERN' && now < lanternAnchorSyncUntil) {
+                updateLanternAnchor();
+            }
+            if (state === 'LANTERN') {
+                const reducedMotion = prefersReducedMotion();
+                const revealProgress = reducedMotion
+                    ? 1
+                    : clamp((now - lanternRevealStartedAt) / LANTERN_REVEAL_MS);
+                const revealEase = getLanternRevealStage(revealProgress, 0, 1);
+                const coreReveal = getLanternRevealStage(revealProgress, 0.02, 0.3);
+                const frameReveal = getLanternRevealStage(revealProgress, 0.14, 0.68);
+                const panelReveal = getLanternRevealStage(revealProgress, 0.38, 0.88);
+                const detailReveal = getLanternRevealStage(revealProgress, 0.55, 1);
+                const swing = reducedMotion
+                    ? 0
+                    : Math.sin(time * 1.05) * Math.PI / 120 * revealEase;
+                const revealRotation = swing - (1 - revealEase) * Math.PI / 140;
+                const revealY = lanternAnchor.y - (1 - revealEase) * 4.5;
+                const coreScale = LANTERN_DISPLAY_SCALE
+                    * (0.18 + coreReveal * 0.82)
+                    * (1 + Math.sin(coreReveal * Math.PI) * 0.1);
+                const frameScale = LANTERN_DISPLAY_SCALE
+                    * (0.76 + frameReveal * 0.24)
+                    * (1 + Math.sin(frameReveal * Math.PI) * 0.04);
+                const panelScale = LANTERN_DISPLAY_SCALE * (0.86 + panelReveal * 0.14);
+                const detailScale = LANTERN_DISPLAY_SCALE * (0.82 + detailReveal * 0.18);
+
+                setLanternRevealTransform(
+                    groupGift,
+                    lanternAnchor.x,
+                    revealY,
+                    revealRotation,
+                    coreScale,
+                    coreReveal
+                );
+                setLanternRevealTransform(
+                    groupGold,
+                    lanternAnchor.x,
+                    revealY,
+                    revealRotation,
+                    frameScale,
+                    frameReveal * 0.98
+                );
+                setLanternRevealTransform(
+                    groupRed,
+                    lanternAnchor.x,
+                    revealY,
+                    revealRotation,
+                    panelScale,
+                    panelReveal * 0.92
+                );
+                setLanternRevealTransform(
+                    groupHeart,
+                    lanternAnchor.x,
+                    revealY,
+                    revealRotation,
+                    detailScale,
+                    detailReveal * 0.9
+                );
+                return;
+            }
+
+            const progress = clamp((now - lanternGatherStartedAt) / LANTERN_GATHER_MS);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const pulse = 1 + Math.sin(progress * Math.PI) * 0.08;
+            const gatherScale = (
+                LANTERN_DISPLAY_SCALE
+                + (1 - LANTERN_DISPLAY_SCALE) * eased
+            ) * pulse;
+            lanternParticleGroups.forEach(group => {
+                group.position.set(
+                    lanternAnchor.x * (1 - eased),
+                    lanternAnchor.y * (1 - eased),
+                    0
+                );
+                group.rotation.set(0, 0, Math.sin(time * 1.05) * Math.PI / 120 * (1 - progress));
+                group.scale.set(gatherScale, gatherScale, gatherScale);
+            });
+        }
+
+        function releaseLanternGeometryData() {
+            lanternParticleGroups.forEach(group => {
+                if (!group?.geometry?.userData) return;
+                delete group.geometry.userData.lantern;
+                delete group.geometry.userData.lanternTargets;
+                delete group.geometry.userData.lanternGather;
+                delete group.geometry.userData.lanternGatherTargets;
+                delete group.geometry.userData.lanternColors;
+                delete group.geometry.userData.lanternSizeScales;
+            });
+        }
+
+        function ensureInteractiveSceneAssets() {
+            if (interactiveSceneAssetsReady) return;
+            createPhotos();
+            createDecorations();
+            interactiveSceneAssetsReady = true;
+        }
+
+        function init3D(lanternOnly = false) {
+            if (renderer) {
+                if (!lanternOnly) ensureInteractiveSceneAssets();
+                return;
+            }
             const container = document.getElementById('canvas-container');
             const { width, height } = getViewportDimensions();
             scene = new THREE.Scene();
@@ -8245,11 +8416,21 @@
             groupRed = createParticleSystem('red', CONFIG.redCount, 3.5);
             groupGift = createParticleSystem('gift', Math.ceil(CONFIG.giftCount / 2), 3.0);
             groupHeart = createParticleSystem('heart', Math.floor(CONFIG.giftCount / 2), 3.0);
+            lanternParticleGroups = [groupGold, groupRed, groupGift, groupHeart];
 
-            createPhotos();
-            createDecorations();
+            lanternSceneReady = true;
+            updateLanternAnchor();
+            if (!lanternOnly) ensureInteractiveSceneAssets();
             applyFlowerAccent(selectedFlowerType);
             animate();
+        }
+
+        function prepareLanternScene() {
+            if (renderer || systemStarted) return;
+            state = 'LANTERN';
+            lanternRevealStartedAt = performance.now();
+            init3D(true);
+            lanternAnchorSyncUntil = performance.now() + 2300;
         }
 
         function createParticleSystem(type, count, size) {
@@ -8258,6 +8439,10 @@
             const pTreeTargets = [];
             const pHeartTargets = [];
             const pSecretGatherTargets = [];
+            const pLanternTargets = [];
+            const pLanternGatherTargets = [];
+            const pLanternColors = [];
+            const pLanternSizeScales = [];
             const flowerTargets = {};
             const gardenTargets = {};
             const flowerColors = {};
@@ -8273,6 +8458,16 @@
             const phases = [];
 
             for (let i = 0; i < count; i++) {
+                const lanternPoint = createLanternPoint(type, i, count);
+                pLanternTargets.push(lanternPoint.x, lanternPoint.y, lanternPoint.z);
+                pLanternGatherTargets.push(
+                    lanternPoint.gatherX,
+                    lanternPoint.gatherY,
+                    lanternPoint.gatherZ
+                );
+                pLanternColors.push(...lanternPoint.color);
+                pLanternSizeScales.push(lanternPoint.sizeScale);
+
                 // --- TREE Vandiep ---
                 const h = Math.random() * CONFIG.treeHeight;
                 const y = h - CONFIG.treeHeight / 2;
@@ -8341,8 +8536,7 @@
                 });
 
                 // --- INIT Vandiep ---
-                const initialTargets = flowerTargets[selectedFlowerType];
-                pPositions.push(initialTargets[i * 3], initialTargets[i * 3 + 1], initialTargets[i * 3 + 2]);
+                pPositions.push(lanternPoint.x, lanternPoint.y, lanternPoint.z);
                 sizes.push(size);
                 phases.push(Math.random() * Math.PI * 2);
             }
@@ -8363,9 +8557,10 @@
             else baseColor.setHex(0xFFFFFF);
 
             for (let i = 0; i < count; i++) {
-                colors[i * 3] = baseColor.r;
-                colors[i * 3 + 1] = baseColor.g;
-                colors[i * 3 + 2] = baseColor.b;
+                colors[i * 3] = pLanternColors[i * 3];
+                colors[i * 3 + 1] = pLanternColors[i * 3 + 1];
+                colors[i * 3 + 2] = pLanternColors[i * 3 + 2];
+                sizes[i] = size * pLanternSizeScales[i];
             }
             geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
@@ -8376,11 +8571,21 @@
                 flowerGeometryData[`${flowerType}Colors`] = flowerColors[flowerType];
             });
 
+            const lanternTargets = new Float32Array(pLanternTargets);
+            const lanternGatherTargets = new Float32Array(pLanternGatherTargets);
+            const lanternColorData = new Float32Array(pLanternColors);
+            const lanternSizeData = new Float32Array(pLanternSizeScales);
             geo.userData = {
                 tree: pTreeTargets,
                 explode: pExplodeTargets,
                 heart: pHeartTargets,
                 secretGather: pSecretGatherTargets,
+                lantern: lanternTargets,
+                lanternTargets,
+                lanternGather: lanternGatherTargets,
+                lanternGatherTargets,
+                lanternColors: lanternColorData,
+                lanternSizeScales: lanternSizeData,
                 ...flowerGeometryData,
                 phases: phases, baseColor: baseColor, baseSize: size
             };
@@ -8402,6 +8607,7 @@
             const flowerMotionUniform = { value: 0 };
             const gardenMotionUniform = { value: 0 };
             const flowerIntroUniform = { value: flowerIntroActive ? 0 : 1 };
+            const flowerIntroFromLanternUniform = { value: 0 };
             const flowerStyleUniform = { value: 0 };
             const leafSpeedUniform = { value: flowerMotionStyles.tulip.leafSpeed };
             const leafAmountUniform = { value: flowerMotionStyles.tulip.leafAmount };
@@ -8415,6 +8621,7 @@
             mat.userData.flowerMotionUniform = flowerMotionUniform;
             mat.userData.gardenMotionUniform = gardenMotionUniform;
             mat.userData.flowerIntroUniform = flowerIntroUniform;
+            mat.userData.flowerIntroFromLanternUniform = flowerIntroFromLanternUniform;
             mat.userData.flowerStyleUniform = flowerStyleUniform;
             mat.userData.leafSpeedUniform = leafSpeedUniform;
             mat.userData.leafAmountUniform = leafAmountUniform;
@@ -8429,6 +8636,7 @@
                 shader.uniforms.uFlowerMotion = flowerMotionUniform;
                 shader.uniforms.uGardenMotion = gardenMotionUniform;
                 shader.uniforms.uFlowerIntro = flowerIntroUniform;
+                shader.uniforms.uFlowerIntroFromLantern = flowerIntroFromLanternUniform;
                 shader.uniforms.uFlowerStyle = flowerStyleUniform;
                 shader.uniforms.uLeafSpeed = leafSpeedUniform;
                 shader.uniforms.uLeafAmount = leafAmountUniform;
@@ -8446,6 +8654,7 @@
                     uniform float uFlowerMotion;
                     uniform float uGardenMotion;
                     uniform float uFlowerIntro;
+                    uniform float uFlowerIntroFromLantern;
                     uniform float uFlowerStyle;
                     uniform float uLeafSpeed;
                     uniform float uLeafAmount;
@@ -8586,7 +8795,8 @@
                         float introOrder = clamp(introHeight * 0.42 + introStagger, 0.0, 0.48);
                         float introLocal = clamp((uFlowerIntro - introOrder) / 0.58, 0.0, 1.0);
                         float introEase = 1.0 - pow(1.0 - introLocal, 3.0);
-                        vec3 introSeed = vec3(position.x * 0.018, -36.0, position.z * 0.018);
+                        float introSeedY = mix(-36.0, 0.0, uFlowerIntroFromLantern);
+                        vec3 introSeed = vec3(position.x * 0.018, introSeedY, position.z * 0.018);
                         transformed = mix(introSeed, transformed, introEase);
                         introPointScale = smoothstep(0.0, 0.14, introLocal)
                             * (1.0 + sin(introLocal * 3.14159265) * 0.46);
@@ -8654,6 +8864,7 @@
             const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending });
             titleMesh = new THREE.Mesh(new THREE.PlaneGeometry(110, 15), mat);
             titleMesh.position.set(0, 50, 0);
+            titleMesh.visible = false;
             scene.add(titleMesh);
 
             // STAR Vandiep
@@ -8672,6 +8883,7 @@
             const starMat = new THREE.MeshBasicMaterial({ map: starTex, transparent: true, blending: THREE.AdditiveBlending });
             starMesh = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), starMat);
             starMesh.position.set(0, CONFIG.treeHeight / 2 + 2, 0);
+            starMesh.visible = false;
             scene.add(starMesh);
 
             const loveCanvas = document.createElement('canvas');
@@ -8718,6 +8930,9 @@
                 group.material.userData.flowerIntroUniform.value = flowerIntroActive
                     ? getFlowerIntroProgress()
                     : 1;
+                group.material.userData.flowerIntroFromLanternUniform.value = flowerIntroFromLantern
+                    ? 1
+                    : 0;
                 group.material.userData.flowerStyleUniform.value = motionStyle.style;
                 group.material.userData.leafSpeedUniform.value = motionStyle.leafSpeed;
                 group.material.userData.leafAmountUniform.value = motionStyle.leafAmount;
@@ -8751,6 +8966,8 @@
                 ? 'explode'
                 : (targetState === 'SECRET_GATHER')
                     ? 'secretGather'
+                    : (targetState === 'LANTERN_GATHER')
+                        ? 'lanternGather'
                     : (targetState === 'FLOWER')
                         ? selectedFlowerType
                         : (targetState === 'GARDEN')
@@ -8762,6 +8979,8 @@
                 || targetState === 'GARDEN'
                 || targetState === 'HEART'
                 || targetState === 'SECRET_GATHER'
+                || targetState === 'LANTERN'
+                || targetState === 'LANTERN_GATHER'
             ) ? textures.neutral : textures[type];
             if (group.material.map !== targetTexture) {
                 group.material.map = targetTexture;
@@ -8777,10 +8996,23 @@
             // Stop uploading an unchanged position buffer after a transition
             // has settled. This removes a continuous GPU upload on mobile.
             if (!group.userData.positionsSettled) {
+                const gatherElapsed = performance.now() - lanternGatherStartedAt;
+                const gatherDelay = type === 'red'
+                    ? 0
+                    : type === 'gift'
+                        ? 70
+                        : type === 'gold'
+                            ? 180
+                            : 210;
+                const targetSpeed = targetState === 'LANTERN_GATHER'
+                    ? (gatherElapsed >= gatherDelay
+                        ? speed * (type === 'red' ? 1.42 : type === 'gift' ? 1.18 : 0.94)
+                        : 0)
+                    : speed;
                 let largestRemainingDistance = 0;
                 for (let i = 0; i < positions.length; i++) {
                     const remainingDistance = targets[i] - positions[i];
-                    positions[i] += remainingDistance * speed;
+                    positions[i] += remainingDistance * targetSpeed;
                     largestRemainingDistance = Math.max(largestRemainingDistance, Math.abs(remainingDistance));
                 }
                 group.geometry.attributes.position.needsUpdate = true;
@@ -8793,7 +9025,85 @@
             const visualChanged = group.userData.lastVisualKey !== visualKey;
             group.userData.lastVisualKey = visualKey;
 
-            if (targetState === 'SECRET_GATHER') {
+            if (targetState === 'LANTERN' || targetState === 'LANTERN_GATHER') {
+                const lanternColors = group.geometry.userData.lanternColors;
+                const lanternSizeScales = group.geometry.userData.lanternSizeScales;
+                const lanternTargets = group.geometry.userData.lantern;
+                const gatherProgress = targetState === 'LANTERN_GATHER'
+                    ? clamp((performance.now() - lanternGatherStartedAt) / LANTERN_GATHER_MS)
+                    : 0;
+                const gatherPulse = Math.sin(gatherProgress * Math.PI);
+                const coreBreath = targetState === 'LANTERN'
+                    ? 0.94 + (Math.sin(time * 2.4) * 0.5 + 0.5) * 0.16
+                    : 1 + gatherPulse * 0.22;
+                const lanternGroupScale = type === 'gold'
+                    ? 0.9
+                    : type === 'red'
+                        ? 0.42
+                        : type === 'heart'
+                            ? 0.56
+                            : 1.2 * coreBreath;
+                group.material.size = baseSize * lanternGroupScale;
+                group.material.opacity = targetState === 'LANTERN'
+                    ? 0.9 + Math.sin(time * 1.7) * 0.06
+                    : 0.94;
+                const lanternAnimationTime = prefersReducedMotion() ? 0 : time;
+                let lanternFlameMoved = false;
+
+                for (let i = 0; i < count; i++) {
+                    let shimmer = targetState === 'LANTERN'
+                        ? 0.82 + 0.18 * Math.sin(time * 2.15 + phases[i])
+                        : 0.86 + gatherPulse * 0.42;
+                    const normalizedIndex = i / count;
+                    const isOuterLanternLed = targetState === 'LANTERN'
+                        && type === 'gold'
+                        && normalizedIndex < 0.35
+                        && i % 3 === 0;
+                    const isLoveFlame = targetState === 'LANTERN'
+                        && type === 'gift'
+                        && normalizedIndex >= 0.8
+                        && normalizedIndex < 0.96;
+                    if (targetState === 'LANTERN' && type === 'gold' && normalizedIndex < 0.35) {
+                        const frameProgress = normalizedIndex / 0.35;
+                        const glintProgress = (time * 0.115) % 1;
+                        const directDistance = Math.abs(frameProgress - glintProgress);
+                        const circularDistance = Math.min(directDistance, 1 - directDistance);
+                        shimmer += Math.max(0, 1 - circularDistance / 0.055) * 0.9;
+                    }
+                    if (type === 'gift') shimmer *= coreBreath;
+                    if (isLoveFlame) {
+                        const flameWave = Math.sin(lanternAnimationTime * 7.4 + phases[i]);
+                        const flameFlicker = 0.78 + (flameWave * 0.5 + 0.5) * 0.22;
+                        positions[i * 3] = lanternTargets[i * 3] + flameWave * 0.13;
+                        positions[i * 3 + 1] = lanternTargets[i * 3 + 1]
+                            + Math.sin(lanternAnimationTime * 9.1 + phases[i] * 0.7) * 0.09;
+                        positions[i * 3 + 2] = lanternTargets[i * 3 + 2];
+                        colors[i * 3] = 1;
+                        colors[i * 3 + 1] = 0.38 + flameFlicker * 0.5;
+                        colors[i * 3 + 2] = 0.06 + flameFlicker * 0.2;
+                        sizes[i] = baseSize * (0.78 + flameFlicker * 0.3);
+                        lanternFlameMoved = true;
+                    } else if (isOuterLanternLed) {
+                        const frameProgress = normalizedIndex / 0.35;
+                        const ledPhase = lanternAnimationTime * 1.7 + frameProgress * Math.PI * 4;
+                        colors[i * 3] = 0.62 + 0.38 * Math.sin(ledPhase);
+                        colors[i * 3 + 1] = 0.62 + 0.38 * Math.sin(ledPhase + Math.PI * 2 / 3);
+                        colors[i * 3 + 2] = 0.62 + 0.38 * Math.sin(ledPhase + Math.PI * 4 / 3);
+                        sizes[i] = baseSize * 1.12;
+                    } else {
+                        colors[i * 3] = Math.min(1, lanternColors[i * 3] * shimmer);
+                        colors[i * 3 + 1] = Math.min(1, lanternColors[i * 3 + 1] * shimmer);
+                        colors[i * 3 + 2] = Math.min(1, lanternColors[i * 3 + 2] * shimmer);
+                        sizes[i] = baseSize * lanternSizeScales[i] * (1 + gatherPulse * 0.24);
+                    }
+                }
+                if (lanternFlameMoved) {
+                    group.geometry.attributes.position.needsUpdate = true;
+                }
+                group.geometry.attributes.color.needsUpdate = true;
+                group.geometry.attributes.size.needsUpdate = true;
+
+            } else if (targetState === 'SECRET_GATHER') {
                 group.scale.set(1, 1, 1);
                 group.rotation.y += 0.008;
 
@@ -8810,6 +9120,7 @@
 
             } else if (targetState === 'FLOWER') {
                 group.scale.set(1, 1, 1);
+                group.position.set(0, 0, 0);
                 group.material.size = baseSize;
                 // The generated flowers face the camera along the +Z axis.
                 // Reset all rotation so users always see their best angle.
@@ -8922,7 +9233,7 @@
         function animate(frameNow = performance.now()) {
             requestAnimationFrame(animate);
             if (document.hidden || webglOverlayPaused || !renderer) return;
-            const renderInterval = gardenModeActive
+            const renderInterval = (gardenModeActive || state === 'LANTERN')
                 ? PERFORMANCE.gardenRenderIntervalMs
                 : PERFORMANCE.renderIntervalMs;
             if (
@@ -8962,6 +9273,7 @@
             updateParticleGroup(groupRed, 'red', state, speed, handRotY, time);
             updateParticleGroup(groupGift, 'gift', state, speed, handRotY, time);
             updateParticleGroup(groupHeart, 'heart', state, speed, handRotY, time);
+            updateLanternSceneMotion(animationNow, time);
 
             if (state === 'EXPLODE') {
                 loadNeededPhotoTextures(getFrontFacingPhotoIndex(), true);
@@ -8980,7 +9292,16 @@
                 }
             });
 
-            if (state === 'SECRET_GATHER') {
+            if (!interactiveSceneAssetsReady) {
+                renderer.render(scene, camera);
+                return;
+            }
+
+            if (state === 'LANTERN' || state === 'LANTERN_GATHER') {
+                titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
+                photoMeshes.forEach(m => { m.scale.set(0, 0, 0); m.visible = false; });
+
+            } else if (state === 'SECRET_GATHER') {
                 titleMesh.visible = false; starMesh.visible = false; loveMesh.visible = false;
                 photoMeshes.forEach(m => { m.scale.set(0, 0, 0); m.visible = false; });
 
@@ -9109,41 +9430,41 @@
             );
         }
 
-        function openGiftBox() {
-            if (systemStarted || document.body.classList.contains('gift-opening')) return;
-            const giftButton = document.getElementById('btnStart');
-            document.body.classList.add('gift-opening');
-            giftButton?.setAttribute('aria-expanded', 'true');
-            if (giftButton) giftButton.disabled = true;
+        function lightStarLantern() {
+            if (systemStarted || document.body.classList.contains('lantern-lighting')) return;
+            if (!renderer) prepareLanternScene();
 
-            // Start protected iPhone features inside the original tap. The
-            // visible box animation continues while the flower and camera are
-            // prepared behind it.
-            startSystem();
+            const lanternButton = document.getElementById('btnStart');
+            const lanternCopy = document.querySelector('.lantern-open-copy');
+            document.body.classList.add('lantern-lighting');
+            if (lanternButton) lanternButton.disabled = true;
+            if (lanternCopy) lanternCopy.textContent = 'Đang thắp sáng…';
 
-            if (prefersReducedMotion()) {
-                document.body.classList.remove('gift-opening');
-                document.body.classList.add('gift-opened');
-                return;
-            }
-
+            lanternGatherStartedAt = performance.now();
+            state = 'LANTERN_GATHER';
+            const gatherDelay = prefersReducedMotion() ? 100 : LANTERN_GATHER_MS;
             window.setTimeout(() => {
-                createPetalBurst(MOBILE_PERFORMANCE_MODE ? 14 : 22, 0.5, 0.76);
-                playFinaleShimmer();
-            }, 720);
+                ensureInteractiveSceneAssets();
+                const flowerStart = performance.now();
+                startFlowerIntro(flowerStart);
+                releaseLanternGeometryData();
+                createPetalBurst(MOBILE_PERFORMANCE_MODE ? 14 : 22, 0.5, 0.66);
+                playFlowerBloomChime();
+            }, gatherDelay);
+
+            playFinaleShimmer();
+            startInteractiveSystem();
         }
 
-        function startSystem() {
+        function startInteractiveSystem() {
             if (systemStarted) return;
             systemStarted = true;
-            const systemStartTime = performance.now();
             requestTiltAccess();
             closeFlowerPicker();
             document.body.classList.add('system-started');
             prepareSecretAudio();
-            startFlowerIntro(systemStartTime);
             bgMusic.play().catch(e => console.log(e));
-            init3D();
+            init3D(true);
 
             const video = document.getElementsByClassName('input_video')[0];
             const canvas = document.getElementById('camera-preview');
@@ -9175,6 +9496,7 @@
                 const allHands = results.multiHandLandmarks || [];
                 const gestureTime = performance.now();
                 if (finaleActive) return;
+                if (state === 'LANTERN' || state === 'LANTERN_GATHER') return;
                 if (gardenTransitionActive) {
                     state = gardenTransitionExpanding ? 'GARDEN' : 'FLOWER';
                     return;
@@ -9260,6 +9582,8 @@
                         || !handsController
                         || finaleActive
                         || flowerIntroActive
+                        || state === 'LANTERN'
+                        || state === 'LANTERN_GATHER'
                         || gardenTransitionActive
                     ) return;
                     const now = performance.now();
@@ -9310,6 +9634,10 @@
         createFireflies();
         applyFlowerAccent(selectedFlowerType);
         setupBirthdayStarInteraction();
+        window.setTimeout(
+            prepareLanternScene,
+            prefersReducedMotion() ? 0 : LANTERN_SCENE_PREPARE_MS
+        );
     </script>
 </body>
 
