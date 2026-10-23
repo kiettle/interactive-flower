@@ -5,6 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Tặng Duyên</title>
+    <!-- Added to the home screen, the gift opens full screen as its own app. -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Của Duyên">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0206">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E🌸%3C/text%3E%3C/svg%3E">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1090,7 +1098,20 @@
             animation: none;
             font: italic 600 19px/1.2 'Cormorant Garamond', Georgia, serif;
             text-shadow: none;
-            transition: background 180ms ease, border-color 180ms ease;
+            /* Shares the agree button's fade, two seconds after it, and
+               cannot be tapped while still invisible. */
+            opacity: 0;
+            visibility: hidden;
+            transition:
+                opacity 720ms ease 4.2s,
+                visibility 0s linear 4.2s,
+                background 180ms ease,
+                border-color 180ms ease;
+        }
+
+        body.love-letter-open #love-letter-no {
+            opacity: 1;
+            visibility: visible;
         }
 
         #love-letter-no:hover {
@@ -2553,6 +2574,46 @@
             font: 500 10px/1.35 'Segoe UI', sans-serif;
             letter-spacing: 0.025em;
             text-shadow: 0 2px 7px rgba(0, 0, 0, 0.9);
+        }
+
+        /* iPhone never offers to install a page, so Safari visitors are
+           shown how to keep the gift once the keepsake is saved. */
+        #keepsake-home-hint {
+            display: none;
+            flex: 0 0 auto;
+            box-sizing: border-box;
+            max-width: min(360px, calc(100vw - 38px));
+            margin: 14px 0 0;
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 226, 236, 0.2);
+            border-radius: 18px;
+            color: rgba(255, 244, 239, 0.84);
+            background: rgba(24, 4, 14, 0.52);
+            font: italic 600 15px/1.45 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.02em;
+            text-shadow: 0 2px 7px rgba(0, 0, 0, 0.6);
+        }
+
+        #keepsake-home-hint strong {
+            color: #ffd6e4;
+            font-weight: 700;
+        }
+
+        .keepsake-share-icon {
+            width: 13px;
+            height: 16px;
+            margin: 0 2px;
+            vertical-align: -2px;
+            fill: none;
+            stroke: #ffd6e4;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        body.home-screen-hint-visible #keepsake-home-hint {
+            display: block;
+            animation: acceptance-copy-arrive 900ms ease both;
         }
 
         @keyframes final-message-to-keepsake {
@@ -4162,7 +4223,8 @@
                 grid-template-areas:
                     'photo heading'
                     'photo actions'
-                    'photo privacy';
+                    'photo privacy'
+                    'photo hint';
                 align-content: center;
                 justify-content: center;
                 column-gap: 22px;
@@ -4213,6 +4275,12 @@
                 grid-area: privacy;
                 align-self: start;
                 margin-top: 7px;
+            }
+
+            #keepsake-home-hint {
+                grid-area: hint;
+                justify-self: center;
+                margin-top: 8px;
             }
         }
 
@@ -4272,6 +4340,7 @@
             #keepsake-placeholder span,
             #keepsake-countdown,
             #keepsake-camera-flash,
+            #keepsake-home-hint,
             #romantic-background::before,
             #romantic-background::after,
             .romantic-orb {
@@ -4317,7 +4386,8 @@
                 transition: none;
             }
 
-            #love-letter-close {
+            #love-letter-close,
+            #love-letter-no {
                 transition: none;
             }
 
@@ -4576,6 +4646,14 @@
                 </button>
             </div>
             <p id="keepsake-privacy"></p>
+            <p id="keepsake-home-hint" aria-hidden="true">
+                Muốn giữ món quà này bên mình? Chạm nút Chia sẻ
+                <svg class="keepsake-share-icon" viewBox="0 0 20 24" aria-hidden="true">
+                    <path d="M10 15V2M5.5 6.5 10 2l4.5 4.5" />
+                    <path d="M6.5 10H3.5v12h13V10h-3" />
+                </svg>
+                rồi chọn <strong>Thêm vào MH chính</strong> nhé.
+            </p>
         </section>
     </section>
     <div id="error-log"></div>
@@ -6969,7 +7047,29 @@
                         saveButton.textContent = 'Lưu khoảnh khắc này';
                     }, 1800);
                 }
+                window.setTimeout(showHomeScreenHint, 1200);
             }, 'image/png');
+        }
+
+        // Only Safari on iPhone or iPad can add the gift to the home screen;
+        // in-app browsers such as Zalo or Messenger cannot, and the installed
+        // app needs no reminder.
+        function canSuggestHomeScreen() {
+            const installed = window.navigator.standalone === true
+                || window.matchMedia('(display-mode: standalone)').matches;
+            const agent = navigator.userAgent;
+            const apple = /iPhone|iPad|iPod/.test(agent)
+                || (/Macintosh/.test(agent) && navigator.maxTouchPoints > 1);
+            const safari = /Safari\//.test(agent)
+                && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA|FBAN|FBAV|Instagram|Zalo|Line\/|MicroMessenger/.test(agent);
+            return apple && safari && !installed;
+        }
+
+        function showHomeScreenHint() {
+            const hint = document.getElementById('keepsake-home-hint');
+            if (!hint || !canSuggestHomeScreen()) return;
+            hint.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('home-screen-hint-visible');
         }
 
         function openAcceptanceFlower(index, button) {
@@ -7955,12 +8055,13 @@
             if (!camera || !renderer) return;
 
             const { width, height } = getViewportDimensions();
-            // Spend the extra pixels on the detailed opening only. Restore the
-            // lighter mobile resolution before camera inference begins.
+            // The opening bouquet renders at the screen's full density so its
+            // dots stay crisp instead of being stretched. Restore the lighter
+            // mobile resolution before camera inference begins.
             const opening = state === 'BOUQUET' || state === 'BOUQUET_GATHER';
             const nextPixelRatio = Math.min(
                 window.devicePixelRatio || 1,
-                opening && MOBILE_PERFORMANCE_MODE ? 1.75 : PERFORMANCE.pixelRatioCap
+                opening && MOBILE_PERFORMANCE_MODE ? 3 : PERFORMANCE.pixelRatioCap
             );
             const firstLayout = rendererViewportWidth === 0 || rendererViewportHeight === 0;
             const orientationChanged = !firstLayout
@@ -8791,9 +8892,11 @@
         function animate(frameNow = performance.now()) {
             requestAnimationFrame(animate);
             if (document.hidden || webglOverlayPaused || !renderer) return;
-            const renderInterval = (gardenModeActive || state === 'BOUQUET')
-                ? PERFORMANCE.gardenRenderIntervalMs
-                : PERFORMANCE.renderIntervalMs;
+            // The opening bouquet is all that is drawn before the camera
+            // starts, so it uses every frame; later states keep the mobile caps.
+            const renderInterval = state === 'BOUQUET' ? 0
+                : gardenModeActive ? PERFORMANCE.gardenRenderIntervalMs
+                    : PERFORMANCE.renderIntervalMs;
             if (
                 renderInterval > 0
                 && frameNow - lastWebGLRenderAt < renderInterval
